@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const http_1 = __importDefault(require("http"));
+const user_route_1 = __importDefault(require("./routes/user.route"));
+const login_route_1 = __importDefault(require("./routes/login.route"));
 const Logging_1 = __importDefault(require("./library/Logging"));
 const config_1 = require("./config/config");
 require('./db');
@@ -32,6 +34,8 @@ const StartServer = () => {
         next();
     });
     // Routes
+    router.use('/login', login_route_1.default);
+    router.use('/authors', user_route_1.default);
     router.get('/ping', (req, res, next) => res.status(200).json({ message: 'pong' }));
     // Error handlers
     router.use((req, res, next) => {

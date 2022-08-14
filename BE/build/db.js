@@ -9,5 +9,7 @@ const Logging_1 = __importDefault(require("./library/Logging"));
 mongoose_1.default.connect(config_1.config.mongo.url, {
     retryWrites: true,
     w: 'majority'
-}).then(() => Logging_1.default.info('Connected to Mongoose'))
+}).then(() => {
+    Logging_1.default.info('Connected to Mongoose');
+})
     .catch((err) => Logging_1.default.error(err));

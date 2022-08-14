@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 import bodyParser from "body-parser";
 import http from "http";
 import routerUser from './routes/user.route'
+import routerLogin from './routes/login.route'
 import Logging from './library/Logging';
 import { config } from './config/config';
+import {checkToken} from './middleware/auth.middleware'
 require('./db')
 
 dotenv.config();
@@ -39,7 +41,7 @@ const StartServer = () =>{
     })
 
     // Routes
-
+    router.use('/login', routerLogin)
     router.use('/authors', routerUser)
 
 
