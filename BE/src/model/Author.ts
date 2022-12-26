@@ -6,6 +6,7 @@ export interface IAuthor {
   username: string;
   hasPassword: string;
   email: string;
+  phone: string;
   access_token:string;
   refresh_token:string;
   created:Date;
@@ -22,6 +23,11 @@ const AuthorSchema = new Schema({
   },
 
   email: {
+    type: String,
+    required: true,
+  },
+
+  phone: {
     type: String,
     required: true,
   },
