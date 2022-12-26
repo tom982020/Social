@@ -110,11 +110,16 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 				const token = jwt.sign({ data: users }, config.secret, {
 					expiresIn: '30m',
 				});
+				const refeshtoken = jwt.sign({ data: users }, config.secret, {
+					expiresIn: '1y',
+				})
 				if (hash === true) {
-					await user[0].updateOne({ access_token: token });
+					await user[0].updateOne({ access_token: token , refresh_token: refeshtoken});
 					return res.status(201).json({
 						message: 'Log in',
 						access_token: token,
+						users,
+						refresh_token: refeshtoken
 					});
 				} else {
 					return res.status(400).send({
