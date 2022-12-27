@@ -1,9 +1,9 @@
 /** @format */
 
 import { NextFunction, Request, Response } from 'express';
-import Author from '../model/Author';
+import Author from '../../model/Author';
 import bcrypt from 'bcrypt';
-import { config } from '../config/config';
+import { config } from '../../config/config';
 import jwt from 'jsonwebtoken';
 
 const createAuthor = async (
@@ -26,7 +26,7 @@ const createAuthor = async (
 		author.username = username;
 		author.email = email;
 		author.phone = phone;
-		author.created = new Date();
+		// author.created = new Date();
 		return author
 			.save()
 			.then((author) => res.status(201).json({ author }))
@@ -104,22 +104,26 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 					username: user[0].username,
 					hasPassword: user[0].hasPassword,
 					email: user[0].email,
-					phone : user[0].phone,
+					phone: user[0].phone,
 					created: user[0].created,
+					type: user[0].type,
 				};
 				const token = jwt.sign({ data: users }, config.secret, {
 					expiresIn: '30m',
 				});
 				const refeshtoken = jwt.sign({ data: users }, config.secret, {
 					expiresIn: '1y',
-				})
+				});
 				if (hash === true) {
-					await user[0].updateOne({ access_token: token , refresh_token: refeshtoken});
+					await user[0].updateOne({
+						access_token: token,
+						refresh_token: refeshtoken,
+					});
 					return res.status(201).json({
 						message: 'Log in',
 						access_token: token,
 						users,
-						refresh_token: refeshtoken
+						refresh_token: refeshtoken,
 					});
 				} else {
 					return res.status(400).send({

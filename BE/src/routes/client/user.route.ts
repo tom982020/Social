@@ -1,11 +1,11 @@
 /** @format */
 
 import express from 'express';
-import controller from '../controller/Author';
-import { checkToken } from '../middleware/auth.middleware';
+import controller from '../../controller/client/author.controller';
+import { checkToken } from '../../middleware/auth.middleware';
 
 const routerUser = express.Router();
-routerUser.use(checkToken)
+// routerUser.use(checkToken);
 routerUser.get('/', controller.readAllAuthor);
 routerUser.get('/checktoken/:authorId', controller.testJWT);
 routerUser.get('/:authorId', controller.readAuthor);
