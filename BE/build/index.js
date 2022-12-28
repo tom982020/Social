@@ -13,6 +13,8 @@ const Logging_1 = __importDefault(require("./library/Logging"));
 const config_1 = require("./config/config");
 const profile_route_1 = __importDefault(require("./routes/client/profile.route"));
 const cronJob_1 = require("./CronJob/cronJob");
+const cors_1 = __importDefault(require("cors"));
+const method_override_1 = __importDefault(require("method-override"));
 require('./db');
 dotenv_1.default.config();
 const router = (0, express_1.default)();
@@ -27,8 +29,13 @@ const StartServer = () => {
         });
         next();
     });
+    // router.use(bodyParser.json());
+    // router.use(bodyParser.urlencoded({ extended: true }));
+    router.use(express_1.default.json({ limit: '100mb' }));
     router.use(express_1.default.urlencoded({ extended: true }));
-    router.use(express_1.default.json());
+    router.use((0, method_override_1.default)('X-HTTP-Method')); //          Microsoft
+    router.use((0, method_override_1.default)('X-HTTP-Method-Override')); // Google/GData
+    router.use((0, method_override_1.default)('X-Method-Override'));
     router.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -38,6 +45,8 @@ const StartServer = () => {
         }
         next();
     });
+    router.use((0, method_override_1.default)('_method'));
+    router.use((0, cors_1.default)());
     // Routes
     router.use('/login', login_route_1.default);
     router.use('/authors', user_route_1.default);

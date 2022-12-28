@@ -28,27 +28,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const mongoose_delete_1 = __importDefault(require("mongoose-delete"));
+const mongooseDelete = require('mongoose-delete');
 const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
-const ProfileSchema = new mongoose_1.Schema({
-    authors: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'Author',
-        default: null,
-    },
-    nickname: {
-        type: mongoose_1.Schema.Types.String,
-        default: null,
-    },
-    DOB: {
-        type: mongoose_1.Schema.Types.String,
-        default: null,
-    },
-    BIO: {
-        type: mongoose_1.Schema.Types.String,
-        default: null,
-    },
-    avatar: {
+const StoriesSchema = new mongoose_1.Schema({
+    image: {
         id: mongoose_1.Schema.Types.String,
         url: mongoose_1.Schema.Types.String,
         secure_url: mongoose_1.Schema.Types.String,
@@ -56,7 +39,7 @@ const ProfileSchema = new mongoose_1.Schema({
         resource_type: mongoose_1.Schema.Types.String,
         created_at: mongoose_1.Schema.Types.String,
     },
-    background: {
+    video: {
         id: mongoose_1.Schema.Types.String,
         url: mongoose_1.Schema.Types.String,
         secure_url: mongoose_1.Schema.Types.String,
@@ -64,17 +47,22 @@ const ProfileSchema = new mongoose_1.Schema({
         resource_type: mongoose_1.Schema.Types.String,
         created_at: mongoose_1.Schema.Types.String,
     },
-    destination: {
+    title: {
         type: mongoose_1.Schema.Types.String,
-        default: null,
     },
-    rank: [
+    isSave: {
+        type: mongoose_1.Schema.Types.Boolean,
+        default: false,
+    },
+    description: {
+        type: mongoose_1.Schema.Types.String,
+    },
+    timespan: mongoose_1.Schema.Types.Date,
+    profile: mongoose_1.Schema.Types.ObjectId,
+    views: [
         {
             id: mongoose_1.Schema.Types.ObjectId,
-            star: {
-                type: mongoose_1.Schema.Types.Number,
-                default: 0,
-            },
+            like: mongoose_1.Schema.Types.String,
         },
     ],
     deleted: {
@@ -83,14 +71,14 @@ const ProfileSchema = new mongoose_1.Schema({
     },
 }, {
     timestamps: true,
-    collection: 'Profile',
+    collection: 'Stories',
 });
-ProfileSchema.plugin(mongoose_delete_1.default, {
+StoriesSchema.plugin(mongooseDelete, {
     overrideMethods: false,
     deletedAt: true,
     use$neOperator: false,
     // deleted: true
 });
 // paginate
-ProfileSchema.plugin(mongoose_paginate_v2_1.default);
-exports.default = mongoose_1.default.model('Profile', ProfileSchema);
+StoriesSchema.plugin(mongoose_paginate_v2_1.default);
+exports.default = mongoose_1.default.model('Profile', StoriesSchema);

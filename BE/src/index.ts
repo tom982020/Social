@@ -12,6 +12,12 @@ import { config } from './config/config';
 import { checkToken } from './middleware/auth.middleware';
 import routerProfile from './routes/client/profile.route';
 import { CronJob } from './CronJob/cronJob';
+import cors from 'cors';
+import methodOverride from 'method-override';
+import swagger from 'swagger-ui-express';
+// import swaggerDocument from './swagger.json'
+
+const swaggerDocument = require('./Doc/swagger-client.json')
 require('./db');
 
 dotenv.config();
@@ -33,10 +39,14 @@ const StartServer = () => {
 
 		next();
 	});
-
+	// router.use(bodyParser.urlencoded({ extended: true }));
+	// router.use(bodyParser.json());
+	// router.use(bodyParser.);
 	router.use(express.urlencoded({ extended: true }));
 	router.use(express.json());
-
+	router.use(methodOverride('X-HTTP-Method')); //          Microsoft
+	router.use(methodOverride('X-HTTP-Method-Override')); // Google/GData
+	router.use(methodOverride('X-Method-Override'));
 	router.use((req, res, next) => {
 		res.header('Access-Control-Allow-Origin', '*');
 		res.header(
@@ -51,11 +61,17 @@ const StartServer = () => {
 			);
 			return res.status(200).json({});
 		}
-
 		next();
 	});
+	router.use(methodOverride('_method'));
+	router.use(cors());
 
 	// Routes
+	router.use(
+		"/api-client-docs",
+		swagger.serve,
+		swagger.setup(swaggerDocument)
+	  );
 	router.use('/login', routerLogin);
 	router.use('/authors', routerUser);
 	router.use('/profile', routerProfile);
@@ -81,6 +97,7 @@ const StartServer = () => {
 };
 
 StartServer();
+
 // express()
 //     .use(express.static(path.join(__dirname,'node_modules')))
 //     .use(bodyParser.json())

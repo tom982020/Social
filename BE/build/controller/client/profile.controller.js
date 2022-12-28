@@ -16,10 +16,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Profile_1 = __importDefault(require("../../model/Profile"));
 const Author_1 = __importDefault(require("../../model/Author"));
 const mongoose_1 = __importDefault(require("mongoose"));
+// import cloudinary from 'cloudinary';
+const uploadImage_service_1 = __importDefault(require("../../service/uploadImage.service"));
+const fs_1 = __importDefault(require("fs"));
+// const Cloudinary = cloudinary.v2;
 const createProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const formData = request.body;
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
-    let formData = request.body;
     try {
         const checkUser = yield Author_1.default.findOne({
             username: formData.username,
@@ -29,20 +33,34 @@ const createProfile = (request, response, next) => __awaiter(void 0, void 0, voi
                 authors: checkUser._id,
             });
             if (checkProfile) {
-                checkProfile.nickname = formData.nickname;
-                checkProfile.DOB = formData.DOB;
-                checkProfile.BIO = formData.BIO;
-                checkProfile.destination = formData.destination;
-                yield checkProfile
-                    .save({ session: session })
-                    .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
-                    yield session.commitTransaction();
-                    session.endSession();
-                    response.status(200).json({ pro });
-                }))
-                    .catch((error) => {
-                    response.status(500).json({ error });
-                });
+                const data = fs_1.default.readFileSync(formData.image, 'utf8');
+                const image = uploadImage_service_1.default === null || uploadImage_service_1.default === void 0 ? void 0 : uploadImage_service_1.default.uploadImage(data);
+                // 	let avatar = {
+                // 		id: images.public_id,
+                // url: images.url
+                // secure_url: image.secure_url,
+                // format: image.format,
+                // resource_type: image.resourresource_type,
+                // created_at: image.created_at,
+                // 	}
+                // })
+                console.log(image);
+                return;
+                // checkProfile.avatar = image
+                // checkProfile.nickname = formData.nickname;
+                // checkProfile.DOB = formData.DOB;
+                // checkProfile.BIO = formData.BIO;
+                // checkProfile.destination = formData.destination;
+                // await checkProfile
+                // 	.save({ session: session })
+                // 	.then(async (pro) => {
+                // 		await session.commitTransaction();
+                // 		session.endSession();
+                // 		response.status(200).json({ pro });
+                // 	})
+                // 	.catch((error) => {
+                // 		response.status(500).json({ error });
+                // 	});
             }
             else {
                 formData.authors = checkUser._id;

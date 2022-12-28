@@ -4,15 +4,20 @@ import { NextFunction, Request, Response } from 'express';
 import ProfileModel from '../../model/Profile';
 import AuthorModel from '../../model/Author';
 import mongoose from 'mongoose';
+// import cloudinary from 'cloudinary';
+import uploadIMage from '../../service/uploadImage.service';
+import fs from 'fs';
+
+// const Cloudinary = cloudinary.v2;
 
 const createProfile = async (
 	request: Request,
 	response: Response,
 	next: NextFunction
 ) => {
+	const formData = request.body;
 	let session = await mongoose.startSession();
 	session.startTransaction();
-	let formData = request.body;
 
 	try {
 		const checkUser = await AuthorModel.findOne({
@@ -23,21 +28,36 @@ const createProfile = async (
 				authors: checkUser._id,
 			});
 			if (checkProfile) {
-				checkProfile.nickname = formData.nickname;
-				checkProfile.DOB = formData.DOB;
-				checkProfile.BIO = formData.BIO;
-				checkProfile.destination = formData.destination;
+				const data = fs.readFileSync(formData.image, 'utf8');
+				const image = uploadIMage?.uploadImage(data);
+				// 	let avatar = {
+				// 		id: images.public_id,
+				// url: images.url
+				// secure_url: image.secure_url,
+				// format: image.format,
+				// resource_type: image.resourresource_type,
+				// created_at: image.created_at,
+				// 	}
+				// })
+				console.log(image);
+				return;
 
-				await checkProfile
-					.save({ session: session })
-					.then(async (pro) => {
-						await session.commitTransaction();
-						session.endSession();
-						response.status(200).json({ pro });
-					})
-					.catch((error) => {
-						response.status(500).json({ error });
-					});
+				// checkProfile.avatar = image
+				// checkProfile.nickname = formData.nickname;
+				// checkProfile.DOB = formData.DOB;
+				// checkProfile.BIO = formData.BIO;
+				// checkProfile.destination = formData.destination;
+
+				// await checkProfile
+				// 	.save({ session: session })
+				// 	.then(async (pro) => {
+				// 		await session.commitTransaction();
+				// 		session.endSession();
+				// 		response.status(200).json({ pro });
+				// 	})
+				// 	.catch((error) => {
+				// 		response.status(500).json({ error });
+				// 	});
 			} else {
 				formData.authors = checkUser._id;
 				const profile = new ProfileModel(formData);
@@ -56,7 +76,7 @@ const createProfile = async (
 			await session.abortTransaction();
 			session.endSession();
 			return response
-				.status(401)
+				.status(404)
 				.json({ status: false, message: 'User not found' });
 		}
 	} catch (err) {

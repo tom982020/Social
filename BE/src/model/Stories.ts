@@ -6,15 +6,23 @@ import { reactionConstants } from '../constant/iconReact.constant';
 const mongooseDelete = require('mongoose-delete');
 import paginate from 'mongoose-paginate-v2';
 
-
 export interface IAuthor {
 	id: Schema.Types.ObjectId;
 	like: string;
 }
 
+export interface ICloud {
+	id: string;
+	url: string;
+	secure_url: string;
+	format: string;
+	resource_type: string;
+	created_at: string;
+}
+
 export interface IStories {
-	images: string;
-	videos: string;
+	images: ICloud;
+	videos: ICloud;
 	title: string;
 	isSave: boolean;
 	description: string;
@@ -29,10 +37,21 @@ export interface IStoriesModel extends IStories, Document {}
 const StoriesSchema = new Schema(
 	{
 		image: {
-			type: Schema.Types.String,
-			require: true,
+			id: Schema.Types.String,
+			url: Schema.Types.String,
+			secure_url: Schema.Types.String,
+			format: Schema.Types.String,
+			resource_type: Schema.Types.String,
+			created_at: Schema.Types.String,
 		},
-		video: { type: Schema.Types.String },
+		video: {
+			id: Schema.Types.String,
+			url: Schema.Types.String,
+			secure_url: Schema.Types.String,
+			format: Schema.Types.String,
+			resource_type: Schema.Types.String,
+			created_at: Schema.Types.String,
+		},
 		title: {
 			type: Schema.Types.String,
 		},
@@ -69,9 +88,7 @@ StoriesSchema.plugin(mongooseDelete, {
 	// deleted: true
 });
 
-
 // paginate
-StoriesSchema.plugin(paginate)
+StoriesSchema.plugin(paginate);
 
 export default mongoose.model<IStoriesModel>('Profile', StoriesSchema);
-

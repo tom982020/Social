@@ -9,20 +9,28 @@ export interface IRank {
 	star: number;
 }
 
+export interface ICloud {
+	id: string;
+	url: string;
+	secure_url: string;
+	format: string;
+	resource_type: string;
+	created_at: string;
+}
+
 export interface IProfile {
 	nickname: string;
 	authors: Schema.Types.ObjectId;
 	DOB: string;
 	BIO: string;
-	avatar: string;
-	background: string;
+	avatar: ICloud;
+	background: ICloud;
 	destination: string;
 	rank: Array<IRank>;
 	deleted: boolean;
 }
 
 export interface IProfileModel extends IProfile, Document {}
-
 
 const ProfileSchema = new Schema(
 	{
@@ -44,12 +52,20 @@ const ProfileSchema = new Schema(
 			default: null,
 		},
 		avatar: {
-			type: Schema.Types.String,
-			default: null,
+			id: Schema.Types.String,
+			url: Schema.Types.String,
+			secure_url: Schema.Types.String,
+			format: Schema.Types.String,
+			resource_type: Schema.Types.String,
+			created_at: Schema.Types.String,
 		},
 		background: {
-			type: Schema.Types.String,
-			default: null,
+			id: Schema.Types.String,
+			url: Schema.Types.String,
+			secure_url: Schema.Types.String,
+			format: Schema.Types.String,
+			resource_type: Schema.Types.String,
+			created_at: Schema.Types.String,
 		},
 		destination: {
 			type: Schema.Types.String,
@@ -83,6 +99,6 @@ ProfileSchema.plugin(mongooseDelete, {
 });
 
 // paginate
-ProfileSchema.plugin(paginate)
+ProfileSchema.plugin(paginate);
 
 export default mongoose.model<IProfileModel>('Profile', ProfileSchema);

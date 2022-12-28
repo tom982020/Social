@@ -1,0 +1,1073 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0",
+      "title": "Client",
+      "contact": {}
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "securityDefinitions": {},
+    "schemes": [
+      "http"
+    ],
+    "consumes": [
+      "application/x-www-form-urlencoded"
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "paths": {
+      "/profile/create": {
+        "post": {
+          "description": "{{url}}/profile/create",
+          "summary": "api create profile",
+          "tags": [
+            "upload"
+          ],
+          "operationId": "apicreateprofile",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "images",
+              "in": "formData",
+              "required": true,
+              "type": "file",
+              "description": ""
+            }
+            
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/authors/create": {
+        "post": {
+          "description": "{{url}}/authors/create",
+          "summary": "api get list upload",
+          "tags": [
+            "authors"
+          ],
+          "operationId": "apigetlistupload",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "name",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "username",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "password",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "email",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "phone",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      
+      "apiupdateemployeerequest1": {
+        "title": "apiupdateemployeerequest1",
+        "example": {
+          "userName": "minhduyhoang",
+          "userPassword": "abc!@#123",
+          "userGender": "male",
+          "userDOB": "2020-03-01",
+          "idAreaCode": "5f9a483f65b9014e3e044973",
+          "areaCode": "+84",
+          "phoneNumber": "11110000",
+          "userDept": "5fa24ef18336f9124e8b0e89",
+          "userTeam": "5fa2602ed76b142798f35e60",
+          "userEmployee": "5fa263ebd12cf62eb097d21a",
+          "userUsage": true
+        },
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string"
+          },
+          "userPassword": {
+            "type": "string"
+          },
+          "userGender": {
+            "type": "string"
+          },
+          "userDOB": {
+            "type": "string"
+          },
+          "idAreaCode": {
+            "type": "string"
+          },
+          "areaCode": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "userDept": {
+            "type": "string"
+          },
+          "userTeam": {
+            "type": "string"
+          },
+          "userEmployee": {
+            "type": "string"
+          },
+          "userUsage": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "userName",
+          "userPassword",
+          "userGender",
+          "userDOB",
+          "idAreaCode",
+          "areaCode",
+          "phoneNumber",
+          "userDept",
+          "userTeam",
+          "userEmployee",
+          "userUsage"
+        ]
+      },
+      "apicreatecategorymanagerequest": {
+        "title": "apicreatecategorymanagerequest",
+        "example": {
+          "categoryMangeName": "Family",
+          "categoryMangeArrayTag": [
+            "5fa9177a3eeb865eb4c2e825",
+            "5fa9172d3eeb865eb4c2e824",
+            "5fa913b862b7b45cee7046a4"
+          ]
+        },
+        "type": "object",
+        "properties": {
+          "categoryMangeName": {
+            "type": "string"
+          },
+          "categoryMangeArrayTag": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "categoryMangeName",
+          "categoryMangeArrayTag"
+        ]
+      },
+      "apiupdatecategory-managerequest": {
+        "title": "apiupdatecategory-managerequest",
+        "example": {
+          "categoryMangeName": "Family",
+          "categoryMangeArrayTag": [
+            "5fa9177a3eeb865eb4c2e825",
+            "5fa9172d3eeb865eb4c2e824"
+          ],
+          "categoryMangeUsage": true
+        },
+        "type": "object",
+        "properties": {
+          "categoryMangeName": {
+            "type": "string"
+          },
+          "categoryMangeArrayTag": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "categoryMangeUsage": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "categoryMangeName",
+          "categoryMangeArrayTag",
+          "categoryMangeUsage"
+        ]
+      },
+      "apicreatebractersrequest": {
+        "title": "apicreatebractersrequest",
+        "example": {
+          "bractersName": "avbc",
+          "bractersCategoriesList": [
+            "5f8fbc45f125ce0d9132220d",
+            "5f8fd87405aded2d62d3925f",
+            "5f923c74085667198cb82b9d"
+          ]
+        },
+        "type": "object",
+        "properties": {
+          "bractersName": {
+            "type": "string"
+          },
+          "bractersCategoriesList": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "bractersName",
+          "bractersCategoriesList"
+        ]
+      },
+      "apiupdatebractersrequest": {
+        "title": "apiupdatebractersrequest",
+        "example": {
+          "bractersName": "drama",
+          "bractersProgramList": [
+            "5f8fbc45f125ce0d9132220d",
+            "5f8fd87405aded2d62d3925f",
+            "5f923c74085667198cb82b9d",
+            "5f880610bb5cb12d80bbc92d"
+          ]
+        },
+        "type": "object",
+        "properties": {
+          "bractersName": {
+            "type": "string"
+          },
+          "bractersProgramList": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "bractersName",
+          "bractersProgramList"
+        ]
+      },
+      "apicreatebracterrequest": {
+        "title": "apicreatebracterrequest",
+        "example": {
+          "categoryID": "5fdadd75f888ad003f59ce41",
+          "limitProgramShow": 1
+        },
+        "type": "object",
+        "properties": {
+          "categoryID": {
+            "type": "string"
+          },
+          "limitProgramShow": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "categoryID",
+          "limitProgramShow"
+        ]
+      },
+      "addprogramincategoryrequest": {
+        "title": "addprogramincategoryrequest",
+        "example": {
+          "id": "5fd85d71b3839b137872f083"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "deleteprogramincategoryrequest": {
+        "title": "deleteprogramincategoryrequest",
+        "example": {
+          "id": "5fe2c134607ab23694cf98db"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "CreatesamplemanageRequest": {
+        "title": "CreatesamplemanageRequest",
+        "example": {
+          "uploadType": "upload",
+          "title": {
+            "posterImg": "image",
+            "title": "image",
+            "bractersImg": "image"
+          },
+          "subTitle": "subTitle",
+          "category": [
+            "movie",
+            "sf"
+          ],
+          "participants": [
+            "name1",
+            "name2"
+          ],
+          "type": "stand-alone",
+          "contents": {
+            "contentsVideo": "movie",
+            "thumbnail": 30
+          },
+          "episodeSummary": "episodeSummary",
+          "musicInfo": [
+            "tirhhjf",
+            "artist",
+            "action"
+          ],
+          "linkProgram": null
+        },
+        "type": "object",
+        "properties": {
+          "uploadType": {
+            "type": "string"
+          },
+          "title": {
+            "$ref": "#/definitions/Title"
+          },
+          "subTitle": {
+            "type": "string"
+          },
+          "category": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "contents": {
+            "$ref": "#/definitions/Contents"
+          },
+          "episodeSummary": {
+            "type": "string"
+          },
+          "musicInfo": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "linkProgram": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "uploadType",
+          "title",
+          "subTitle",
+          "category",
+          "participants",
+          "type",
+          "contents",
+          "episodeSummary",
+          "musicInfo",
+          "linkProgram"
+        ]
+      },
+      "Title": {
+        "title": "Title",
+        "example": {
+          "posterImg": "image",
+          "title": "image",
+          "bractersImg": "image"
+        },
+        "type": "object",
+        "properties": {
+          "posterImg": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "bractersImg": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "posterImg",
+          "title",
+          "bractersImg"
+        ]
+      },
+      "Contents": {
+        "title": "Contents",
+        "example": {
+          "contentsVideo": "movie",
+          "thumbnail": 30
+        },
+        "type": "object",
+        "properties": {
+          "contentsVideo": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "contentsVideo",
+          "thumbnail"
+        ]
+      },
+      "CreateproductionsampleRequest": {
+        "title": "CreateproductionsampleRequest",
+        "example": {
+          "poster": "image",
+          "title": "title",
+          "subTitle": "subTitle",
+          "category": [
+            "movie",
+            "sf"
+          ],
+          "participants": [
+            "name1",
+            "name2"
+          ],
+          "type": "stand-alone",
+          "summary": "episodeSummary",
+          "scenario": "scenario",
+          "components": [
+            "beginning",
+            "middle",
+            "ending"
+          ],
+          "reference": null
+        },
+        "type": "object",
+        "properties": {
+          "poster": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subTitle": {
+            "type": "string"
+          },
+          "category": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "scenario": {
+            "type": "string"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "poster",
+          "title",
+          "subTitle",
+          "category",
+          "participants",
+          "type",
+          "summary",
+          "scenario",
+          "components",
+          "reference"
+        ]
+      },
+      "UpdateproductionsampleRequest": {
+        "title": "UpdateproductionsampleRequest",
+        "example": {
+          "subTitle": "subTitle",
+          "participants": [
+            "name5",
+            "name4"
+          ],
+          "components": [
+            "beginning",
+            "middle",
+            "ending"
+          ],
+          "reference": null,
+          "poster": "image 123",
+          "title": "title one",
+          "category": [
+            "movie",
+            "sf"
+          ],
+          "type": "stand-alone",
+          "summary": "episodeSummary",
+          "scenario": "scenario"
+        },
+        "type": "object",
+        "properties": {
+          "subTitle": {
+            "type": "string"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reference": {
+            "type": "string"
+          },
+          "poster": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "category": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "scenario": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subTitle",
+          "participants",
+          "components",
+          "reference",
+          "poster",
+          "title",
+          "category",
+          "type",
+          "summary",
+          "scenario"
+        ]
+      },
+      "apicreateaccountadminrequest": {
+        "title": "apicreateaccountadminrequest",
+        "example": {
+          "userName": "admin",
+          "userEmail": "admin@brickmate.kr",
+          "userPassword": "Admin!@#123"
+        },
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string"
+          },
+          "userEmail": {
+            "type": "string"
+          },
+          "userPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userName",
+          "userEmail",
+          "userPassword"
+        ]
+      },
+      "apiloginadminrequest": {
+        "title": "apiloginadminrequest",
+        "example": {
+          "userEmail": "admin@brickmate.kr",
+          "userPassword": "Admin!@#123"
+        },
+        "type": "object",
+        "properties": {
+          "userEmail": {
+            "type": "string"
+          },
+          "userPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userEmail",
+          "userPassword"
+        ]
+      },
+      "apieditdataadminrequest": {
+        "title": "apieditdataadminrequest",
+        "example": {
+          "adminName": "admin omn"
+        },
+        "type": "object",
+        "properties": {
+          "adminName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "adminName"
+        ]
+      },
+      "apicreateproductionsupportrequest": {
+        "title": "apicreateproductionsupportrequest",
+        "example": {
+          "programName": "program-set-2",
+          "programTitle": "super battle",
+          "programImageTitle": "",
+          "programSubTitle": "DC battle marvel",
+          "programImagePoster": "",
+          "progranImageBracter": null,
+          "programSummary": "DC and marvel are together fighting the monster",
+          "programCategory": {
+            "categoryManageId": "5fa919643eeb865eb4c2e82d",
+            "categoryArrayTag": [
+              "5fa9177a3eeb865eb4c2e825",
+              "5fa9172d3eeb865eb4c2e824"
+            ]
+          },
+          "programElement": [
+            {
+              "elementName": "violence",
+              "elementValue": "a little"
+            },
+            {
+              "elementName": "sexuality",
+              "elementValue": "none"
+            },
+            {
+              "elementName": "language",
+              "elementValue": "plenty"
+            }
+          ],
+          "programParticipants": [
+            {
+              "nameType": "Director",
+              "dataType": [
+                "rick",
+                "joe"
+              ]
+            },
+            {
+              "nameType": "Main Actor",
+              "dataType": [
+                "jax",
+                "matthew"
+              ]
+            },
+            {
+              "nameType": "Creator",
+              "dataType": [
+                "jin",
+                "lee"
+              ]
+            }
+          ],
+          "programTypeVideo": "stand alone",
+          "programVideoStandAlone": "/admin/program/movie/standalone/batman",
+          "programEpisodeSummary": "batman cinema",
+          "programThumbnail": {
+            "thumbnailSetting": 20,
+            "thumbnailImage": ""
+          },
+          "programMusicInfo": [
+            {
+              "musicName": "i win in your heart",
+              "musicArtist": "tony trungle"
+            },
+            {
+              "musicName": "i hate you",
+              "musicArtist": "adam levine"
+            }
+          ]
+        },
+        "type": "object",
+        "properties": {
+          "programName": {
+            "type": "string"
+          },
+          "programTitle": {
+            "type": "string"
+          },
+          "programImageTitle": {
+            "type": "string"
+          },
+          "programSubTitle": {
+            "type": "string"
+          },
+          "programImagePoster": {
+            "type": "string"
+          },
+          "progranImageBracter": {
+            "type": "string"
+          },
+          "programSummary": {
+            "type": "string"
+          },
+          "programCategory": {
+            "$ref": "#/definitions/ProgramCategory"
+          },
+          "programElement": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ProgramElement"
+            }
+          },
+          "programParticipants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ProgramParticipant"
+            }
+          },
+          "programTypeVideo": {
+            "type": "string"
+          },
+          "programVideoStandAlone": {
+            "type": "string"
+          },
+          "programEpisodeSummary": {
+            "type": "string"
+          },
+          "programThumbnail": {
+            "$ref": "#/definitions/ProgramThumbnail"
+          },
+          "programMusicInfo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ProgramMusicInfo"
+            }
+          }
+        },
+        "required": [
+          "programName",
+          "programTitle",
+          "programImageTitle",
+          "programSubTitle",
+          "programImagePoster",
+          "progranImageBracter",
+          "programSummary",
+          "programCategory",
+          "programElement",
+          "programParticipants",
+          "programTypeVideo",
+          "programVideoStandAlone",
+          "programEpisodeSummary",
+          "programThumbnail",
+          "programMusicInfo"
+        ]
+      },
+      "apiupdateproductionsupportrequest": {
+        "title": "apiupdateproductionsupportrequest",
+        "example": {
+          "programName": "program-set-22",
+          "programTitle": "super battle",
+          "programImageTitle": "",
+          "programSubTitle": "DC battle marvel",
+          "programImagePoster": "",
+          "progranImageBracter": null,
+          "programSummary": "DC and marvel are together fighting the monster",
+          "programCategory": {
+            "categoryManageId": "5fa919643eeb865eb4c2e82d",
+            "categoryArrayTag": [
+              "5fa9177a3eeb865eb4c2e825",
+              "5fa9172d3eeb865eb4c2e824"
+            ]
+          },
+          "programElement": [
+            {
+              "elementName": "violence",
+              "elementValue": "a little"
+            },
+            {
+              "elementName": "sexuality",
+              "elementValue": "none"
+            },
+            {
+              "elementName": "language",
+              "elementValue": "plenty"
+            }
+          ],
+          "programParticipants": [
+            {
+              "nameType": "Director",
+              "dataType": [
+                "rick",
+                "joe"
+              ]
+            },
+            {
+              "nameType": "Main Actor",
+              "dataType": [
+                "jax",
+                "matthew"
+              ]
+            },
+            {
+              "nameType": "Creator",
+              "dataType": [
+                "jin",
+                "lee"
+              ]
+            }
+          ],
+          "programTypeVideo": "stand alone",
+          "programVideoStandAlone": "/admin/program/movie/standalone/batman",
+          "programEpisodeSummary": "batman cinema",
+          "programThumbnail": {
+            "thumbnailSetting": 20,
+            "thumbnailImage": ""
+          },
+          "programMusicInfo": [
+            {
+              "musicName": "i win in your heart",
+              "musicArtist": "tony trungle"
+            },
+            {
+              "musicName": "i hate you",
+              "musicArtist": "adam levine"
+            }
+          ]
+        },
+        "type": "object",
+        "properties": {
+          "programName": {
+            "type": "string"
+          },
+          "programTitle": {
+            "type": "string"
+          },
+          "programImageTitle": {
+            "type": "string"
+          },
+          "programSubTitle": {
+            "type": "string"
+          },
+          "programImagePoster": {
+            "type": "string"
+          },
+          "progranImageBracter": {
+            "type": "string"
+          },
+          "programSummary": {
+            "type": "string"
+          },
+          "programCategory": {
+            "$ref": "#/definitions/ProgramCategory"
+          },
+          "programElement": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ProgramElement"
+            }
+          },
+          "programParticipants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ProgramParticipant"
+            }
+          },
+          "programTypeVideo": {
+            "type": "string"
+          },
+          "programVideoStandAlone": {
+            "type": "string"
+          },
+          "programEpisodeSummary": {
+            "type": "string"
+          },
+          "programThumbnail": {
+            "$ref": "#/definitions/ProgramThumbnail"
+          },
+          "programMusicInfo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ProgramMusicInfo"
+            }
+          }
+        },
+        "required": [
+          "programName",
+          "programTitle",
+          "programImageTitle",
+          "programSubTitle",
+          "programImagePoster",
+          "progranImageBracter",
+          "programSummary",
+          "programCategory",
+          "programElement",
+          "programParticipants",
+          "programTypeVideo",
+          "programVideoStandAlone",
+          "programEpisodeSummary",
+          "programThumbnail",
+          "programMusicInfo"
+        ]
+      }
+    },
+    "tags": [
+      {
+        "name": "upload"
+      },
+      {
+        "name": "upload-program"
+      },
+      {
+        "name": "challenger"
+      },
+      {
+        "name": "challenger-program"
+      },
+      {
+        "name": "home_set"
+      },
+      {
+        "name": "delete"
+      },
+      {
+        "name": "list"
+      },
+      {
+        "name": "categories"
+      },
+      {
+        "name": "membership"
+      },
+      {
+        "name": "privacy-policy"
+      },
+      {
+        "name": "company-information"
+      },
+      {
+        "name": "terms-&-conditions"
+      },
+      {
+        "name": "video-manage-policy"
+      },
+      {
+        "name": "dept"
+      },
+      {
+        "name": "team"
+      },
+      {
+        "name": "employee"
+      },
+      {
+        "name": "tag"
+      },
+      {
+        "name": "category-manage"
+      },
+      {
+        "name": "Revenus-Sharing"
+      },
+      {
+        "name": "bracters"
+      },
+      {
+        "name": "bracters-v2"
+      },
+      {
+        "name": "sample-manage"
+      },
+      {
+        "name": "production-sample"
+      },
+      {
+        "name": "admin"
+      },
+      {
+        "name": "production-support"
+      }
+    ]
+  }
