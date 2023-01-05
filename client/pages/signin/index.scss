@@ -1,0 +1,89 @@
+/** @format */
+
+.login {
+	height: 100vh;
+	.__main {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		min-height: 100vh;
+		.--login {
+			position: relative;
+			background: white;
+			border-radius: 10px;
+			padding: 20px;
+
+			/* Use  your own styles here */
+			width: 400px;
+			height: 350px;
+            text-align: center;
+			.--username {
+				padding: 5px;
+				// margin-right: 5px;
+				width: 100%;
+				// display: flex;
+				.--input-username {
+					margin-left: 10px;
+                    border: #5e5e5e solid 1px;
+                    border-radius: 20px;
+                    padding: 10px;
+                    width: 100%;
+				}
+                .--input-username::placeholder{
+                    color: #919191;
+                    text-align: center;
+                }
+			}
+            .--password {
+				padding: 5px;
+				// margin-right: 5px;
+				width: 100%;
+				// display: flex;
+				.--input-password {
+					margin-left: 10px;
+                    border: #5e5e5e solid 1px;
+                    border-radius: 20px;
+                    padding: 10px;
+                    width: 100%;
+				}
+                .--input-password::placeholder{
+                    color: #919191;
+                    text-align: center;
+                }
+			}
+            .--btnLogin{
+                display: block;
+                width: 100%;
+                margin: 5px;
+            }
+		}
+
+		.--login:before {
+			content: '';
+			z-index: -1;
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			background: linear-gradient(51deg, #c0c0c0 200%, #04619f 200%);
+			transform: translate3d(-3px, -5px, 0) scale(1.06);
+			filter: blur(20px);
+			opacity: var(0.19);
+			transition: opacity 0.3s;
+			border-radius: inherit;
+		}
+		.--login::after {
+			content: '';
+			z-index: -1;
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			background: inherit;
+			border-radius: inherit;
+		}
+	}
+}
