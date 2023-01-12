@@ -2,28 +2,18 @@
 
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import HttpsIcon from '@mui/icons-material/Https';
-import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
-import Button from '@mui/material/Button';
-import dayjs, { Dayjs } from 'dayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import TextField from '@mui/material/TextField';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ImageIcon from '@mui/icons-material/Image';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency';
 import Typography from '@mui/material/Typography';
-import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import { useTheme } from '@mui/material/styles';
-import EmailIcon from '@mui/icons-material/Email';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import Box from '@mui/material/Box';
 import * as React from 'react';
 import SwipeableViews from 'react-swipeable-views';
-import Image from 'next/image';
-import { Container, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
+import RegisterComponent from '../../components/signUp/register';
+import ProfileComponent from '../../components/signUp/profile';
+import UploadAvatarComponent from '../../components/signUp/uploadAvatar';
 
 interface TabPanelProps {
 	children?: React.ReactNode;
@@ -61,13 +51,12 @@ function a11yProps(index: number) {
 export default function Logout() {
 	const theme = useTheme();
 	const [value, setValue] = React.useState(0);
-	const [date, setDate] = React.useState<Dayjs | null>(dayjs());
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
 	};
 
-	const clickNew = (newValue: number) => {
+	const handleClickSave = (event: React.MouseEvent, newValue: number) => {
 		setValue(newValue);
 	};
 
@@ -118,7 +107,7 @@ export default function Logout() {
 							{...a11yProps(1)}
 						/>
 						<Tab
-							label="Item Three"
+							label="Upload Avatar"
 							icon={<ImageIcon />}
 							iconPosition="start"
 							{...a11yProps(2)}
@@ -133,260 +122,27 @@ export default function Logout() {
 							value={value}
 							index={0}
 							dir={theme.direction}>
-							<Container>
-								<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-									<AccountCircle
-										sx={{ color: 'action.active', mr: 1, my: 0.5 }}
-									/>
-									<TextField
-										id="input-with-sx"
-										label="User name"
-										variant="standard"
-										fullWidth
-									/>
-								</Box>
-							</Container>
-							<Container>
-								<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-									<HttpsIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-									<TextField
-										id="input-with-sx"
-										label="Password"
-										type="password"
-										variant="standard"
-										fullWidth
-									/>
-								</Box>
-							</Container>
-							<Container>
-								<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-									<EmailIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-									<TextField
-										id="input-with-sx"
-										label="Email address"
-										type="email"
-										variant="standard"
-										fullWidth
-									/>
-								</Box>
-							</Container>
-							<Container>
-								<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-									<LocalPhoneIcon
-										sx={{ color: 'action.active', mr: 1, my: 0.5 }}
-									/>
-									<TextField
-										id="input-with-sx"
-										label="Phone number"
-										type="phone"
-										variant="standard"
-										fullWidth
-									/>
-								</Box>
-							</Container>
-							<Container>
-								<Box
-									style={{ margin: '20px', padding: '10px' }}
-									sx={{ flexGrow: 1 }}>
-									<Grid
-										container
-										spacing={2}>
-										<Grid
-											xs={6}
-											md={6}
-											style={{ padding: '5px' }}>
-											<Button
-												variant="outlined"
-												sx={{ borderRadius: '25px', margin: '5px' }}
-												color="error"
-												fullWidth>
-												Cancel
-											</Button>
-										</Grid>
-										<Grid
-											xs={6}
-											md={6}
-											style={{ padding: '5px' }}>
-											<Button
-												variant="outlined"
-												sx={{ borderRadius: '25px', margin: '5px' }}
-												color="success"
-												onClick={() => clickNew(1)}
-												// href="/signup"
-												fullWidth>
-												Submit
-											</Button>
-										</Grid>
-									</Grid>
-								</Box>
-							</Container>
+							<RegisterComponent
+								handleClickSave={(e, newValue: number) => handleClickSave(e, 1)}
+							/>
 						</TabPanel>
 						<TabPanel
 							value={value}
 							index={1}
 							dir={theme.direction}>
-							<Grid
-								container
-								spacing={2}
-								style={{ paddingLeft: '17px' }}>
-								<Grid
-									xs={6}
-									md={6}>
-									<Container>
-										<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-											<AccountCircle
-												sx={{ color: 'action.active', mr: 1, my: 0.5 }}
-											/>
-											<TextField
-												id="input-with-sx"
-												label="Nick name"
-												variant="standard"
-												fullWidth
-											/>
-										</Box>
-									</Container>
-								</Grid>
-								<Grid
-									xs={6}
-									md={6}>
-									<Container>
-										<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-											<QueryBuilderIcon
-												sx={{ color: 'action.active', mr: 1, my: 0.5 }}
-											/>
-											{/* <TextField
-										id="input-with-sx"
-										// label="Birth date"
-										type="date"
-										variant="standard"
-										fullWidth
-									/> */}
-											<LocalizationProvider dateAdapter={AdapterDayjs}>
-												<DesktopDatePicker
-													label="Birth date"
-													value={date}
-													onChange={(newValue) => {
-														setDate(newValue);
-													}}
-													renderInput={(params) => (
-														<TextField
-															variant="standard"
-															fullWidth
-															{...params}
-														/>
-													)}
-												/>
-											</LocalizationProvider>
-										</Box>
-									</Container>
-								</Grid>
-							</Grid>
-
-							<Container>
-								<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-									<AssignmentIndIcon
-										sx={{ color: 'action.active', mr: 1, my: 0.5 }}
-									/>
-									<TextField
-										id="input-with-sx"
-										label="Bio"
-										multiline
-										maxRows={7}
-										// rows={2}
-										variant="standard"
-										fullWidth
-									/>
-								</Box>
-							</Container>
-
-							<Container>
-								<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-									<FmdGoodIcon
-										sx={{ color: 'action.active', mr: 1, my: 0.5 }}
-									/>
-									<TextField
-										id="input-with-sx"
-										label="Destination"
-										multiline
-										maxRows={7}
-										// rows={2}
-										variant="standard"
-										fullWidth
-									/>
-								</Box>
-							</Container>
-							<Container>
-								<Box
-									style={{ margin: '20px', padding: '10px' }}
-									sx={{ flexGrow: 1 }}>
-									<Grid
-										container
-										spacing={2}>
-										<Grid
-											xs={6}
-											md={6}
-											style={{ padding: '5px' }}>
-											<Button
-												variant="outlined"
-												sx={{ borderRadius: '25px', margin: '5px' }}
-												color="error"
-												onClick={() => clickNew(0)}
-												fullWidth>
-												Cancel
-											</Button>
-										</Grid>
-										<Grid
-											xs={6}
-											md={6}
-											style={{ padding: '5px' }}>
-											<Button
-												variant="outlined"
-												sx={{ borderRadius: '25px', margin: '5px' }}
-												color="success"
-												onClick={() => clickNew(2)}
-												// href="/signup"
-												fullWidth>
-												Submit
-											</Button>
-										</Grid>
-									</Grid>
-								</Box>
-							</Container>
+							<ProfileComponent
+								handleClickSave={(e, newValue: number) =>
+									handleClickSave(e, newValue)
+								}
+							/>
 						</TabPanel>
 						<TabPanel
 							value={value}
 							index={2}
 							dir={theme.direction}>
-							<Container>
-								<Image
-									// className={styles.logo}
-									src="/Logo.jpg"
-									alt="Next.js Logo"
-									width={150}
-									height={150}
-									priority
-								/>
-								<Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-									{/* <FmdGoodIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-									<TextField
-										id="input-with-sx"
-										label="Destination"
-										type="file"
-										// rows={2}
-										variant="standard"
-										fullWidth
-									/> */}
-									<Button
-										variant="contained"
-										component="label">
-										Upload File
-										<input
-											type="file"
-											hidden
-										/>
-									</Button>
-								</Box>
-							</Container>
+							<UploadAvatarComponent
+								handleClickSave={(e, newValue: number) => handleClickSave(e, 1)}
+							/>
 						</TabPanel>
 					</SwipeableViews>
 				</Box>
