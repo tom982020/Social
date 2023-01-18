@@ -20,7 +20,7 @@ export interface IAuthorModel extends IAuthor, Document {}
 
 const AuthorSchema = new Schema(
 	{
-		name: { type: String, required: true },
+		// name: { type: String, required: true },
 
 		username: {
 			type: String,

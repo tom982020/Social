@@ -16,6 +16,7 @@ const createProfile = async (
 	next: NextFunction
 ) => {
 	const formData = request.body;
+	const file = request.file;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 

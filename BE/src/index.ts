@@ -17,7 +17,7 @@ import methodOverride from 'method-override';
 import swagger from 'swagger-ui-express';
 // import swaggerDocument from './swagger.json'
 
-const swaggerDocument = require('./Doc/swagger-client.json')
+const swaggerDocument = require('./Doc/swagger-client.json');
 require('./db');
 
 dotenv.config();
@@ -39,16 +39,22 @@ const StartServer = () => {
 
 		next();
 	});
+	const allowedOrigins = ['http://localhost:3000'];
+
+	const options: cors.CorsOptions = {
+		origin: allowedOrigins,
+	};
+	router.use(cors(options));
 	// router.use(bodyParser.urlencoded({ extended: true }));
 	// router.use(bodyParser.json());
 	// router.use(bodyParser.);
-	router.use(express.urlencoded({ extended: true }));
-	router.use(express.json());
+	router.use(express.json({limit: '100mb'}));
+	router.use(express.urlencoded({ extended: true, limit: '100mb' }));
 	router.use(methodOverride('X-HTTP-Method')); //          Microsoft
 	router.use(methodOverride('X-HTTP-Method-Override')); // Google/GData
 	router.use(methodOverride('X-Method-Override'));
 	router.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', '*');
+		res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
 		res.header(
 			'Access-Control-Allow-Headers',
 			'Origin, X-Requested-With, Content-Type, Accept, Authorization'
@@ -64,14 +70,9 @@ const StartServer = () => {
 		next();
 	});
 	router.use(methodOverride('_method'));
-	router.use(cors());
 
 	// Routes
-	router.use(
-		"/api-client-docs",
-		swagger.serve,
-		swagger.setup(swaggerDocument)
-	  );
+	router.use('/api-client-docs', swagger.serve, swagger.setup(swaggerDocument));
 	router.use('/login', routerLogin);
 	router.use('/authors', routerUser);
 	router.use('/profile', routerProfile);

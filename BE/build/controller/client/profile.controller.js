@@ -22,6 +22,7 @@ const fs_1 = __importDefault(require("fs"));
 // const Cloudinary = cloudinary.v2;
 const createProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
     const formData = request.body;
+    const file = request.files;
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {
@@ -81,7 +82,7 @@ const createProfile = (request, response, next) => __awaiter(void 0, void 0, voi
             yield session.abortTransaction();
             session.endSession();
             return response
-                .status(401)
+                .status(404)
                 .json({ status: false, message: 'User not found' });
         }
     }
