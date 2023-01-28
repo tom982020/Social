@@ -13,7 +13,7 @@ export const checkToken = (req: Request, res: Response, next: NextFunction) => {
 
 	if (token) {
 		jwt.verify(token, config.secret, (err: any, decoded: any) => {
-			console.log(decoded)
+			// console.log(decoded)
 			if (err)
 				return res
 					.status(401)

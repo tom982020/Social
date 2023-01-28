@@ -32,7 +32,7 @@ const mongooseDelete = require('mongoose-delete');
 const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
 const author_constant_1 = require("../constant/author.constant");
 const AuthorSchema = new mongoose_1.Schema({
-    name: { type: String, required: true },
+    // name: { type: String, required: true },
     username: {
         type: String,
         required: true,
@@ -52,6 +52,16 @@ const AuthorSchema = new mongoose_1.Schema({
         type: Boolean,
         default: false,
     },
+    historyLogin: [
+        {
+            username: String,
+            idProfile: {
+                type: mongoose_1.Schema.Types.ObjectId,
+                default: null,
+            },
+            dateLogin: Date,
+        },
+    ],
     type: {
         type: mongoose_1.Schema.Types.Number,
         default: author_constant_1.authorConstants.typeUsers.User,

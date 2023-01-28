@@ -13,7 +13,7 @@ const checkToken = (req, res, next) => {
     const token = req.body.token || req.query.token || req.headers['x-header-token'] || ((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1]);
     if (token) {
         jsonwebtoken_1.default.verify(token, config_1.config.secret, (err, decoded) => {
-            console.log(decoded);
+            // console.log(decoded)
             if (err)
                 return res
                     .status(401)

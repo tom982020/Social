@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Author_1 = __importDefault(require("../../model/Author"));
+const Profile_1 = __importDefault(require("../../model/Profile"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const config_1 = require("../../config/config");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -27,7 +28,7 @@ const createAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const hash = bcrypt_1.default.hashSync(password, parseInt(salt));
         const author = new Author_1.default();
         author.hasPassword = hash;
-        author.name = name;
+        // author.name = '';
         author.username = username;
         author.email = email;
         author.phone = phone;
@@ -101,7 +102,6 @@ const loginAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         else {
             const hash = bcrypt_1.default.compareSync(req.body.password, user[0].hasPassword);
             const users = {
-                name: user[0].name,
                 username: user[0].username,
                 hasPassword: user[0].hasPassword,
                 email: user[0].email,
@@ -109,6 +109,13 @@ const loginAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 created: user[0].created,
                 type: user[0].type,
             };
+            const profileModel = yield Profile_1.default.findOne({ authors: user[0]._id });
+            let history = user[0].historyLogin;
+            yield history.push({
+                username: user[0].username,
+                idProfile: (profileModel === null || profileModel === void 0 ? void 0 : profileModel._id) || null,
+                dateLogin: Date.now(),
+            });
             const token = jsonwebtoken_1.default.sign({ data: users }, config_1.config.secret, {
                 expiresIn: '30m',
             });
@@ -117,6 +124,7 @@ const loginAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             });
             if (hash === true) {
                 yield user[0].updateOne({
+                    historyLogin: history,
                     access_token: token,
                     refresh_token: refeshtoken,
                 });
@@ -145,6 +153,45 @@ const testJWT = (req, res, next) => {
         jsonwebtoken_1.default.verify(author === null || author === void 0 ? void 0 : author.access_token, config_1.config.secret);
     });
 };
+const verifyToken = (req, res, next) => {
+    var _a, _b;
+    const access_token = req.body.access_token ||
+        req.query.access_token ||
+        req.headers['x-header-token'] ||
+        ((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1]);
+    const refresh_token = req.body.refresh_token ||
+        req.query.refresh_token ||
+        req.headers['x-header-token'] ||
+        ((_b = req.headers.authorization) === null || _b === void 0 ? void 0 : _b.split(' ')[1]);
+    if (access_token) {
+        jsonwebtoken_1.default.verify(access_token, config_1.config.secret, (err, decoded) => {
+            if (err) {
+                if (refresh_token) {
+                    jsonwebtoken_1.default.verify(refresh_token, config_1.config.secret, (err, decoded) => {
+                        if (err) {
+                            return res
+                                .status(401)
+                                .json({ error: true, message: 'Unauthorized access.' });
+                        }
+                        else {
+                            return res.status(201).json({
+                                decode: decoded,
+                            });
+                        }
+                    });
+                }
+                return res
+                    .status(401)
+                    .json({ error: true, message: 'Unauthorized access.' });
+            }
+            else {
+                return res.status(201).json({
+                    decode: decoded,
+                });
+            }
+        });
+    }
+};
 exports.default = {
     createAuthor,
     readAuthor,
@@ -153,4 +200,5 @@ exports.default = {
     deleteAuthor,
     loginAuthor,
     testJWT,
+    verifyToken,
 };

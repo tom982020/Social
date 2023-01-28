@@ -5,6 +5,12 @@ const mongooseDelete = require('mongoose-delete');
 import paginate from 'mongoose-paginate-v2';
 import { authorConstants } from '../constant/author.constant';
 
+export interface IHistoryLogin {
+	username: string;
+	idProfile: Schema.Types.ObjectId;
+	dateLogin: Date;
+}
+
 export interface IAuthor {
 	name: string;
 	username: string;
@@ -13,6 +19,7 @@ export interface IAuthor {
 	phone: string;
 	access_token: string;
 	refresh_token: string;
+	historyLogin: Array<IHistoryLogin>;
 	deleted: boolean;
 }
 
@@ -44,6 +51,16 @@ const AuthorSchema = new Schema(
 			type: Boolean,
 			default: false,
 		},
+		historyLogin: [
+			{
+				username: String,
+				idProfile: {
+					type: Schema.Types.ObjectId,
+					default: null,
+				},
+				dateLogin: Date,
+			},
+		],
 		type: {
 			type: Schema.Types.Number,
 			default: authorConstants.typeUsers.User,

@@ -22,7 +22,7 @@ const fs_1 = __importDefault(require("fs"));
 // const Cloudinary = cloudinary.v2;
 const createProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
     const formData = request.body;
-    const file = request.files;
+    const file = request.file;
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {

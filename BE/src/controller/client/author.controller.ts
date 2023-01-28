@@ -2,6 +2,7 @@
 
 import { NextFunction, Request, Response } from 'express';
 import Author from '../../model/Author';
+import Profile from '../../model/Profile';
 import bcrypt from 'bcrypt';
 import { config } from '../../config/config';
 import jwt from 'jsonwebtoken';
@@ -100,7 +101,6 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 			} else {
 				const hash = bcrypt.compareSync(req.body.password, user[0].hasPassword);
 				const users = {
-					name: user[0].name,
 					username: user[0].username,
 					hasPassword: user[0].hasPassword,
 					email: user[0].email,
@@ -108,14 +108,22 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 					created: user[0].created,
 					type: user[0].type,
 				};
+				const profileModel = await Profile.findOne({ authors: user[0]._id });
+				let history = user[0].historyLogin;
+				await history.push({
+					username: user[0].username,
+					idProfile: profileModel?._id || null,
+					dateLogin: Date.now(),
+				});
 				const token = jwt.sign({ data: users }, config.secret, {
-					expiresIn: '30m',
+					expiresIn: '1m',
 				});
 				const refeshtoken = jwt.sign({ data: users }, config.secret, {
 					expiresIn: '1y',
 				});
 				if (hash === true) {
 					await user[0].updateOne({
+						historyLogin: history,
 						access_token: token,
 						refresh_token: refeshtoken,
 					});
@@ -146,6 +154,46 @@ const testJWT = (req: Request, res: Response, next: NextFunction) => {
 	});
 };
 
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+	const access_token =
+		req.body.access_token ||
+		req.query.access_token ||
+		req.headers['x-header-token'] ||
+		req.headers.authorization?.split(' ')[1];
+	const refresh_token =
+		req.body.refresh_token ||
+		req.query.refresh_token ||
+		req.headers['x-header-token'] ||
+		req.headers.authorization?.split(' ')[1];
+
+	if (access_token) {
+		jwt.verify(access_token, config.secret, (err: any, decoded: any) => {
+			if (err) {
+				if (refresh_token) {
+					jwt.verify(refresh_token, config.secret, (err: any, decoded: any) => {
+						if (err) {
+							return res
+								.status(401)
+								.json({ error: true, message: 'Unauthorized access.' });
+						} else {
+							return res.status(201).json({
+								decode: decoded,
+							});
+						}
+					});
+				}
+				return res
+					.status(401)
+					.json({ error: true, message: 'Unauthorized access.' });
+			} else {
+				return res.status(201).json({
+					decode: decoded,
+				});
+			}
+		});
+	}
+};
+
 export default {
 	createAuthor,
 	readAuthor,
@@ -154,4 +202,5 @@ export default {
 	deleteAuthor,
 	loginAuthor,
 	testJWT,
+	verifyToken,
 };
