@@ -1,8 +1,9 @@
 /** @format */
 
 export interface ILogin {
-	email: any;
-	password: any;
+	email: string;
+	password: string;
+	username: string;
 }
 
 export interface IRegister {

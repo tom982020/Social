@@ -9,8 +9,6 @@ import {
 	TextInput,
 	Tooltip,
 	Text,
-	Notification,
-	Dialog,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import {
@@ -24,12 +22,12 @@ import { IRegister } from 'constant/interface/IvalidationAccount';
 import { useState } from 'react';
 import axios from 'axios';
 import { useDisclosure } from '@mantine/hooks';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 type ChildProps = {
 	// items: Item[];
-	toggleState: (e: React.MouseEvent, active: number) => void;
+	toggleState: (e: React.MouseEvent, active: number, idAcount:string) => void;
 	// −−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−^^^^^^^^^^^^^^^
 };
 
@@ -42,7 +40,6 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 
 	const handleSubmit = (e: React.MouseEvent) => {
 		handleOpen.open();
-		console.log(validate);
 		if (
 			validate.email == '' &&
 			validate.password == '' &&
@@ -62,7 +59,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 						toast.success('create sucessfully', {
 							position: toast.POSITION.TOP_RIGHT,
 						});
-						props.toggleState(e, 1);
+						props.toggleState(e, 1,response.data.author._id);
 					}
 				})
 				.catch((error) => {
@@ -70,7 +67,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 					toast.error('Wrong! ' + error.response.data.message, {
 						position: toast.POSITION.TOP_CENTER,
 					});
-					props.toggleState(e, 0);
+					props.toggleState(e, 0,'');
 				});
 		} else {
 			toast.error('Input Wrong !', {
@@ -81,7 +78,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 	};
 
 	const prevStep = (e: React.MouseEvent) => {
-		props.toggleState(e, 0);
+		props.toggleState(e, 0,'');
 	};
 
 	const [validate, setValidate] = useState<IRegister>({

@@ -20,34 +20,77 @@ import { useForm } from '@mantine/form';
 import { useState } from 'react';
 import { ILogin } from 'constant/interface/IvalidationAccount';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 const LoginComponent = () => {
 	const [validate, setValidate] = useState<ILogin>({
 		email: '',
 		password: '',
+		username: '',
 	});
-	const clearErrors = useForm();
+	const [valueUsername, setValueUsername] = useState<string>('');
+
 	const form = useForm({
 		initialValues: {
 			email: '',
 			password: '',
+			username: '',
 			termsOfService: false,
 		},
 
 		validate: {
-			email: (value) =>
-				/^\S+@\S+$/.test(value) ? '' : 'Input your email address',
+			email: (value) => (value.length > 0 ? '' : 'Input your email address'),
 			password: (value) => (value.length > 0 ? '' : 'Input your password'),
 		},
 	});
 
-	const duration = 10000;
-	// const r = form.validateField('email');
-	// console.log(r);
+	const handleSubmit = () => {
+		if (validate.email == '' && validate.password == '') {
+			// return;
+			const url = 'http://localhost:8080/login';
+			const options = {
+				method: 'POST',
+				headers: { 'content-type': 'application/x-www-form-urlencoded' },
+				data: form.values,
+				url,
+			};
+			axios(options)
+				.then(async (response) => {
+					if (response.status === 201) {
+						axios.get(`http://localhost:8080/profile/${response.data.users.id}`)
+							.then((res) => {
+								toast.success('Login sucessfully', {
+									position: toast.POSITION.TOP_RIGHT,
+								});
+								localStorage.setItem('USER',JSON.stringify(res.data.account) )
+								if(!res.data.account.exist_Profile) window.location.href= '/register'
+							})
+							.catch((err) => {
+								toast.error('Wrong! ' + err, {
+									position: toast.POSITION.TOP_CENTER,
+								});
+							});
+					}
+				})
+				.catch((error) => {
+					// console.log(error)
+					toast.error('Wrong! ' + error.response.data.message, {
+						position: toast.POSITION.TOP_CENTER,
+					});
+				});
+		} else {
+			toast.error('Input Wrong !', {
+				position: toast.POSITION.TOP_CENTER,
+			});
+		}
+	};
+
 	return (
 		<motion.div
 			className="box"
-			style={{width: '30%'}}
+			style={{ width: '30%' }}
 			animate={{ x: '50%' }}
 			transition={{ type: 'spring', duration: 1.5 }}>
 			<Box sx={{ width: '100%', marginLeft: '-50%' }}>
@@ -90,11 +133,17 @@ const LoginComponent = () => {
 								onSubmit={form.onSubmit(
 									(values, _event) => {
 										// setFormValues(values);
+										setValueUsername(values.email);
 									},
 									(validationErrors, _values, _event) => {
 										setValidate({
-											email: validationErrors.email,
-											password: validationErrors.password,
+											email: validationErrors.email
+												? validationErrors.email.toString()
+												: '',
+											password: validationErrors.password
+												? validationErrors.password.toString()
+												: '',
+											username: '',
 										});
 									}
 								)}>
@@ -104,6 +153,7 @@ const LoginComponent = () => {
 									label="Email or Username"
 									placeholder="your@email.com..."
 									{...form.getInputProps('email')}
+									{...form.getInputProps('username')}
 									rightSection={
 										validate.email ? (
 											<Tooltip
@@ -157,8 +207,20 @@ const LoginComponent = () => {
 								<Group
 									position="right"
 									mt="md">
-									<Button variant="light" color="teal" type="submit">Log In</Button>
-									<Button variant="light"><Link href="/register" style={{textDecoration: 'none', color:'blue'}}>Register</Link></Button>
+									<Button
+										variant="light"
+										color="teal"
+										type="submit"
+										onClick={handleSubmit}>
+										Log In
+									</Button>
+									<Button variant="light">
+										<Link
+											href="/register"
+											style={{ textDecoration: 'none', color: 'blue' }}>
+											Register
+										</Link>
+									</Button>
 								</Group>
 							</form>
 						</Box>

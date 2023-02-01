@@ -1,30 +1,34 @@
 /** @format */
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	Stepper,
-	Button,
-	Group,
 	Box,
 	Container,
 	Card,
-	Modal,
-	Text,
-	Badge,
 } from '@mantine/core';
 import { motion } from 'framer-motion';
-import { useDisclosure, useCounter } from '@mantine/hooks';
+import { useDisclosure } from '@mantine/hooks';
 import RegisterComponents from 'components/register/registerComponent';
 import ProfileComponent from 'components/register/profileComponent';
 
 const RegisterComponent: React.FC = () => {
 
 	const [someState, setSomeState] = useState(0);
+	const [idAcount, setIDAccount] = useState('');
 
-	const toggleState = (e: React.MouseEvent, active: number) => {
-	  	setSomeState(active);
+	const toggleState = (e: React.MouseEvent, active: number,idAcount:string) => {
+		setSomeState(active);
+		setIDAccount(idAcount);
 	}
+	useEffect(() => {
 
+		let checkUser = localStorage.getItem('USER')
+		if (checkUser) {
+			const check = JSON.parse(checkUser)
+			!check.exist_Profile ? setSomeState(1) : setSomeState(0)
+		}
+	})
 
 	const [opened, handleOpen] = useDisclosure(false);
 
@@ -52,7 +56,7 @@ const RegisterComponent: React.FC = () => {
 								animate={{ x: '50%' }}
 								transition={{ type: 'spring', duration: 1.5 }}>
 								<div style={{ marginLeft: '-49%' }}>
-									<RegisterComponents toggleState={(e, active) => toggleState(e, active)} />
+									<RegisterComponents toggleState={(e, active,idAcount) => toggleState(e, active,idAcount)} />
 								</div>
 							</motion.div>
 						</Stepper.Step>
@@ -66,7 +70,7 @@ const RegisterComponent: React.FC = () => {
 								animate={{ x: '50%' }}
 								transition={{ type: 'spring', duration: 1.5 }}>
 								<div style={{ marginLeft: '-50%' }}>
-									<ProfileComponent  toggleState={(e, active) => toggleState(e, active)} />
+									<ProfileComponent id={idAcount}  toggleState={(e, active,idAcount) => toggleState(e, active,'')} />
 								</div>
 							</motion.div>
 						</Stepper.Step>
