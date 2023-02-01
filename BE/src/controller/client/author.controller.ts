@@ -34,7 +34,7 @@ const createAuthor = async (
 			.catch((err) => res.status(500).json({ error: err }));
 		// Tạo mã hash cho satl với password với 100 kí tự mã hóa
 	} else {
-		return res.status(500).json({ error: 'Tài khỏan hoặc email đã tồn tại' });
+		return res.status(500).json({ message: 'Tài khỏan hoặc email đã tồn tại' });
 	}
 };
 const readAuthor = (req: Request, res: Response, next: NextFunction) => {
@@ -107,6 +107,7 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 					phone: user[0].phone,
 					created: user[0].created,
 					type: user[0].type,
+					id: user[0]._id,
 				};
 				const profileModel = await Profile.findOne({ authors: user[0]._id });
 				let history = user[0].historyLogin;

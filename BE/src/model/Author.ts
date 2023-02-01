@@ -1,5 +1,6 @@
 /** @format */
 
+import { boolean } from 'joi';
 import mongoose, { Document, Schema } from 'mongoose';
 const mongooseDelete = require('mongoose-delete');
 import paginate from 'mongoose-paginate-v2';
@@ -48,6 +49,10 @@ const AuthorSchema = new Schema(
 		access_token: String,
 		refresh_token: String,
 		deleted: {
+			type: Boolean,
+			default: false,
+		},
+		exist_Profile:{
 			type: Boolean,
 			default: false,
 		},

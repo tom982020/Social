@@ -119,6 +119,32 @@ const viewProfile = async (
 	}
 };
 
+const getProfileAccount = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	const id = req.params.idAccount;
+	try {
+		const account = await AuthorModel.findOne({ authors: id });
+		if (account) {
+			await session.commitTransaction();
+			session.endSession();
+			return res.status(200).json({ account });
+		} else {
+			await session.commitTransaction();
+			session.endSession();
+			return res.status(404).json({ message: 'Account not found' });
+		}
+	} catch (err) {
+		await session.commitTransaction();
+		session.endSession();
+		return res.status(500).json({ message: err });
+	}
+};
+
 const updateProfile = async (
 	request: Request,
 	response: Response,
@@ -170,4 +196,5 @@ export default {
 	createProfile,
 	viewProfile,
 	updateProfile,
+	getProfileAccount,
 };
