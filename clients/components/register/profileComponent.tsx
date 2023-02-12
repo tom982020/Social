@@ -27,7 +27,7 @@ import { useDisclosure } from '@mantine/hooks';
 
 type ChildProps = {
 	// items: Item[];
-	toggleState: (e: React.MouseEvent, active: number, idAcount: string) => void;
+	toggleState: (e: React.MouseEvent, active: number, idAcount: string,visible:boolean) => void;
 	id: string;
 	// −−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−^^^^^^^^^^^^^^^
 };
@@ -41,14 +41,14 @@ const ProfileComponent: React.FC<ChildProps> = (props) => {
 
 	const handleSubmit = (e: React.MouseEvent) => {
 		handleOpen.open();
-		props.toggleState(e, 2,'');
+		props.toggleState(e, 2,'',false);
 		setActive(1);
 		handleOpen.close();
 	};
 
 	const prevStep = (e: React.MouseEvent) => {
 		setActive(0);
-		props.toggleState(e, 0,'');
+		props.toggleState(e, 0,'',false);
 	};
 
 	const [validate, setValidate] = useState<IProfile>({

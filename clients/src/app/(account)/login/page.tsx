@@ -12,6 +12,7 @@ import {
 	Checkbox,
 	Tooltip,
 	GroupedTransition,
+	LoadingOverlay,
 } from '@mantine/core';
 import { IconAlertCircle, IconLockOpen, IconUserCheck } from '@tabler/icons';
 import { motion } from 'framer-motion';
@@ -23,6 +24,7 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const LoginComponent = () => {
 	const [validate, setValidate] = useState<ILogin>({
@@ -31,6 +33,8 @@ const LoginComponent = () => {
 		username: '',
 	});
 	const [valueUsername, setValueUsername] = useState<string>('');
+	const [visible, setVisible] = useState<boolean>(false);
+	const router = useRouter();
 
 	const form = useForm({
 		initialValues: {
@@ -47,6 +51,8 @@ const LoginComponent = () => {
 	});
 
 	const handleSubmit = () => {
+		// e.preventDefault();
+		setVisible(true);
 		if (validate.email == '' && validate.password == '') {
 			// return;
 			const url = 'http://localhost:8080/login';
@@ -59,18 +65,26 @@ const LoginComponent = () => {
 			axios(options)
 				.then(async (response) => {
 					if (response.status === 201) {
-						axios.get(`http://localhost:8080/profile/${response.data.users.id}`)
+						axios
+							.get(`http://localhost:8080/profile/${response.data.users.id}`)
 							.then((res) => {
 								toast.success('Login sucessfully', {
 									position: toast.POSITION.TOP_RIGHT,
 								});
-								localStorage.setItem('USER',JSON.stringify(res.data.account) )
-								if(!res.data.account.exist_Profile) window.location.href= '/register'
+								localStorage.setItem('USER', JSON.stringify(res.data.account));
+								if (!res.data.account.exist_Profile) {
+									router.push('/register');
+									setVisible(false);
+								} else {
+									router.push('/');
+									setVisible(false);
+								}
 							})
 							.catch((err) => {
 								toast.error('Wrong! ' + err, {
 									position: toast.POSITION.TOP_CENTER,
 								});
+								setVisible(false);
 							});
 					}
 				})
@@ -79,6 +93,7 @@ const LoginComponent = () => {
 					toast.error('Wrong! ' + error.response.data.message, {
 						position: toast.POSITION.TOP_CENTER,
 					});
+					setVisible(false);
 				});
 		} else {
 			toast.error('Input Wrong !', {
@@ -88,146 +103,156 @@ const LoginComponent = () => {
 	};
 
 	return (
-		<motion.div
-			className="box"
-			style={{ width: '30%' }}
-			animate={{ x: '50%' }}
-			transition={{ type: 'spring', duration: 1.5 }}>
-			<Box sx={{ width: '100%', marginLeft: '-50%' }}>
-				<Container
-					size="xl"
-					px="xs">
-					<Card
-						shadow="sm"
-						p="lg"
-						radius="md"
-						withBorder>
-						<Card.Section
-							component="a"
-							href="https://mantine.dev/">
-							<Image
-								src="https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80"
-								height={160}
-								alt="Norway"
-							/>
-						</Card.Section>
-
-						<Group
-							position="apart"
-							mt="md"
-							mb="xs">
-							<Container>
-								<Text
-									weight={500}
-									size={'xl'}>
-									Log In
-								</Text>
-							</Container>
-						</Group>
-
-						<Box
-							sx={{ maxWidth: '90%' }}
-							// style={{marginLeft: '-45%'}}
-							mx="auto">
-							<form
-								onSubmit={form.onSubmit(
-									(values, _event) => {
-										// setFormValues(values);
-										setValueUsername(values.email);
-									},
-									(validationErrors, _values, _event) => {
-										setValidate({
-											email: validationErrors.email
-												? validationErrors.email.toString()
-												: '',
-											password: validationErrors.password
-												? validationErrors.password.toString()
-												: '',
-											username: '',
-										});
-									}
-								)}>
-								<TextInput
-									withAsterisk
-									icon={<IconUserCheck size={16} />}
-									label="Email or Username"
-									placeholder="your@email.com..."
-									{...form.getInputProps('email')}
-									{...form.getInputProps('username')}
-									rightSection={
-										validate.email ? (
-											<Tooltip
-												label={validate.email}
-												position="top-end"
-												color="red"
-												withArrow>
-												<div>
-													<IconAlertCircle
-														size={18}
-														style={{ display: 'block', opacity: 0.5 }}
-													/>
-												</div>
-											</Tooltip>
-										) : null
-									}
+		<>
+			<LoadingOverlay
+				loaderProps={{ size: 'xl', color: 'cyan', variant: 'bars' }}
+				overlayOpacity={0.4}
+				overlayColor="#c5c5c5"
+				overlayBlur={3}
+				visible={visible}
+			/>
+			<motion.div
+				className="box"
+				style={{ width: '30%' }}
+				animate={{ x: '50%' }}
+				transition={{ type: 'spring', duration: 1.5 }}>
+				<Box sx={{ width: '100%', marginLeft: '-50%' }}>
+					<Container
+						size="xl"
+						px="xs">
+						<Card
+							shadow="sm"
+							p="lg"
+							radius="md"
+							withBorder>
+							<Card.Section
+								component="a"
+								href="https://mantine.dev/">
+								<Image
+									src="https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80"
+									height={160}
+									alt="Norway"
 								/>
-								<TextInput
-									withAsterisk
-									icon={<IconLockOpen size={16} />}
-									label="Password"
-									type={'password'}
-									placeholder="your password..."
-									{...form.getInputProps('password')}
-									rightSection={
-										validate.password ? (
-											<Tooltip
-												label={validate.password}
-												position="top-end"
-												color="red"
-												withArrow>
-												<div>
-													<IconAlertCircle
-														size={18}
-														style={{ display: 'block', opacity: 0.5 }}
-													/>
-												</div>
-											</Tooltip>
-										) : null
-									}
-								/>
+							</Card.Section>
 
-								<Checkbox
-									mt="md"
-									label="I agree to sell my privacy"
-									{...form.getInputProps('termsOfService', {
-										type: 'checkbox',
-									})}
-								/>
-
-								<Group
-									position="right"
-									mt="md">
-									<Button
-										variant="light"
-										color="teal"
-										type="submit"
-										onClick={handleSubmit}>
+							<Group
+								position="apart"
+								mt="md"
+								mb="xs">
+								<Container>
+									<Text
+										weight={500}
+										size={'xl'}>
 										Log In
-									</Button>
-									<Button variant="light">
-										<Link
-											href="/register"
-											style={{ textDecoration: 'none', color: 'blue' }}>
-											Register
-										</Link>
-									</Button>
-								</Group>
-							</form>
-						</Box>
-					</Card>
-				</Container>
-			</Box>
-		</motion.div>
+									</Text>
+								</Container>
+							</Group>
+
+							<Box
+								sx={{ maxWidth: '90%' }}
+								// style={{marginLeft: '-45%'}}
+								mx="auto">
+								<form
+									onSubmit={form.onSubmit(
+										(values, _event) => {
+											// setFormValues(values);
+											setValueUsername(values.email);
+										},
+										(validationErrors, _values, _event) => {
+											setValidate({
+												email: validationErrors.email
+													? validationErrors.email.toString()
+													: '',
+												password: validationErrors.password
+													? validationErrors.password.toString()
+													: '',
+												username: '',
+											});
+										}
+									)}>
+									<TextInput
+										withAsterisk
+										icon={<IconUserCheck size={16} />}
+										label="Email or Username"
+										placeholder="your@email.com..."
+										{...form.getInputProps('email')}
+										{...form.getInputProps('username')}
+										rightSection={
+											validate.email ? (
+												<Tooltip
+													label={validate.email}
+													position="top-end"
+													color="red"
+													withArrow>
+													<div>
+														<IconAlertCircle
+															size={18}
+															style={{ display: 'block', opacity: 0.5 }}
+														/>
+													</div>
+												</Tooltip>
+											) : null
+										}
+									/>
+									<TextInput
+										withAsterisk
+										icon={<IconLockOpen size={16} />}
+										label="Password"
+										type={'password'}
+										placeholder="your password..."
+										{...form.getInputProps('password')}
+										rightSection={
+											validate.password ? (
+												<Tooltip
+													label={validate.password}
+													position="top-end"
+													color="red"
+													withArrow>
+													<div>
+														<IconAlertCircle
+															size={18}
+															style={{ display: 'block', opacity: 0.5 }}
+														/>
+													</div>
+												</Tooltip>
+											) : null
+										}
+									/>
+
+									<Checkbox
+										mt="md"
+										label="I agree to sell my privacy"
+										{...form.getInputProps('termsOfService', {
+											type: 'checkbox',
+										})}
+									/>
+
+									<Group
+										position="right"
+										mt="md">
+										<Button
+											variant="light"
+											color="teal"
+											type="submit"
+											onClick={handleSubmit}>
+											Log In
+										</Button>
+										<Button variant="light">
+											<Link
+												onClick={() => setVisible(true)}
+												href="/register"
+												style={{ textDecoration: 'none', color: 'blue' }}>
+												Register
+											</Link>
+										</Button>
+									</Group>
+								</form>
+							</Box>
+						</Card>
+					</Container>
+				</Box>
+			</motion.div>
+		</>
 	);
 };
 
