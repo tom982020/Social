@@ -5,7 +5,9 @@ import Author from '../../model/Author';
 import Profile from '../../model/Profile';
 import bcrypt from 'bcrypt';
 import { config } from '../../config/config';
+import { Encrypter, Decreypter } from '../../library/Cipher';
 import jwt from 'jsonwebtoken';
+// import { Decipher } from 'crypto';
 
 const createAuthor = async (
 	req: Request,
@@ -26,7 +28,7 @@ const createAuthor = async (
 		// author.name = '';
 		author.username = username;
 		author.email = email;
-		author.phone = phone;
+		author.phone = await Encrypter(phone);
 		// author.created = new Date();
 		return author
 			.save()
@@ -41,14 +43,9 @@ const readAuthor = (req: Request, res: Response, next: NextFunction) => {
 	const authorId = req.params.authorId;
 
 	return Author.findById(authorId)
-		.then((author: any) => {
-			//   const decode = jwt.verify(
-			//     author?.access_token,
-			//     config.secret,
-			//     (err: any, result: any) => {
-			//       if (result) return result;
-			//     }
-			//   );
+		.then(async (author: any) => {
+			const phone = await Decreypter(author.phone);
+			author.phone = phone;
 			author
 				? res.status(200).json({ author: author })
 				: res.status(404).json({ message: 'Author not found' });

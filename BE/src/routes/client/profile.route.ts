@@ -2,7 +2,6 @@
 
 import express from 'express';
 import profileController from '../../controller/client/profile.controller';
-import bodyParser from 'body-parser';
 import { checkToken } from '../../middleware/auth.middleware';
 import { profile } from 'console';
 

@@ -3,7 +3,6 @@
 
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import bodyParser from 'body-parser';
 import http from 'http';
 import routerUser from './routes/client/user.route';
 import routerLogin from './routes/client/login.route';
