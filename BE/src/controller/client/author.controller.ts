@@ -12,19 +12,6 @@ import { historyAccount } from '../../constant/historyAccount.constant';
 import * as os from 'os';
 import { networkInterfaces } from 'os';
 
-function getIPv4Address(): string | undefined {
-	const interfaces = os.networkInterfaces();
-	for (const interfaceName of Object.keys(interfaces)) {
-		const addresses: any = interfaces[interfaceName];
-		for (const address of addresses) {
-			if (address.family === 'IPv4' && !address.internal) {
-				return address.address;
-			}
-		}
-	}
-	return undefined;
-}
-
 function getLocalIp(): string {
 	const nets: any = networkInterfaces();
 	const results = Object.create(null);
@@ -175,16 +162,16 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 				};
 				const profileModel = await Profile.findOne({ authors: user[0]._id });
 				// Get IPv4 address using os module
-				// const networkInterfaces: any = os.networkInterfaces();
-				// const ipv4Interfaces = networkInterfaces['en0'].filter((iface: any) => iface.family === 'IPv4');
-				// const ipAddress = ipv4Interfaces.length > 0 ? ipv4Interfaces[0].address : '0.0.0.0';
+				const networkInterfaces: any = os.networkInterfaces();
+				const ipv4Interfaces = networkInterfaces['en0'].filter((iface: any) => iface.family === 'IPv4');
+				const ipAddress = ipv4Interfaces.length > 0 ? ipv4Interfaces[0].address : '0.0.0.0';
 				const addresses = getLocalIp()
 				let history = user[0].historyLogin;
 				await history.push({
 					username: user[0].username,
 					idProfile: profileModel?._id || null,
 					dateLogin: Date.now(),
-					IpAdress: addresses,
+					IpAdress: ipAddress,
 				});
 				const token = jwt.sign({ data: users }, config.secret, {
 					expiresIn: '1m',
