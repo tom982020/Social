@@ -8,9 +8,9 @@ import bcrypt from 'bcrypt';
 import { config } from '../../config/config';
 import { Encrypter, Decreypter } from '../../library/Cipher';
 import jwt from 'jsonwebtoken';
-import { historyAccount } from '../../constant/historyAccount.constant';
-import * as os from 'os';
-import { networkInterfaces } from 'os';
+import { constantshistoryAccount } from '../../constant/historyAccount.constant';
+import { IAuthorResponse } from '../../interface/Schema/IAuthor';
+import { IError } from '../../interface/err/IError';
 
 // function getLocalIp(): string {
 // 	const nets: any = networkInterfaces();
@@ -50,32 +50,30 @@ const createAuthor = async (
 		const author = new Author();
 		// Tạo mã hash cho satl với password với 100 kí tự mã hóa
 		author.hasPassword = hash;
-		// author.name = '';
 		author.username = username;
 		author.email = email;
 		author.phone = await Encrypter(phone);
-		// author.created = new Date();
 		return author
 			.save()
-			.then((author) => {
+			.then((author: IAuthorResponse) => {
 				const history = new HistoryAccount();
 				history.idAccount = author._id;
 				history.description = 'Create user successfully';
-				history.type = historyAccount.typehistory.create;
+				history.type = constantshistoryAccount.typehistory.create;
 				history.save();
 				res.status(201).json({ author });
 			})
-			.catch((err) => {
+			.catch((err: IError) => {
 				const history = new HistoryAccount();
 				history.description = 'Create user error' + err;
-				history.type = historyAccount.typehistory.error;
+				history.type = constantshistoryAccount.typehistory.error;
 				history.save();
 				res.status(500).json({ error: err });
 			});
 	} else {
 		const history = new HistoryAccount();
 		history.description = 'Create user error, User Existed';
-		history.type = historyAccount.typehistory.error;
+		history.type = constantshistoryAccount.typehistory.error;
 		history.save();
 		return res.status(500).json({ message: 'Tài khỏan hoặc email đã tồn tại' });
 	}
@@ -97,29 +95,34 @@ const updateAuthor = (req: Request, res: Response, next: NextFunction) => {
 	const authorId = req.params.authorId;
 
 	return Author.findById(authorId)
-		.then((author) => {
-			if (author) {
-				author.set(req.body);
+		.then((authors: IAuthorResponse | any) => {
+			if (authors) {
+				authors.set(req.body);
 
-				return author
+				return authors
 					.save()
-					.then((author) => {
+					.then((author: IAuthorResponse) => {
 						const history = new HistoryAccount();
 						history.idAccount = author._id;
 						history.description = 'Update user successfully';
-						history.type = historyAccount.typehistory.update;
+						history.type = constantshistoryAccount.typehistory.update;
 						history.save();
 						res.status(200).json({ author });
 					})
-					.catch((err) => res.status(500).json({ error: err }));
+					.catch((err: IError) => res.status(500).json({ error: err }));
 			} else {
+				const history = new HistoryAccount();
+				history.idAccount = authors._id;
+				history.description = 'Update user Error';
+				history.type = constantshistoryAccount.typehistory.update;
+				history.save();
 				return res.status(404).json({ message: 'Author not found' });
 			}
 		})
-		.catch((err) => {
+		.catch((err: IError) => {
 			const history = new HistoryAccount();
 			history.description = 'Update user error' + err;
-			history.type = historyAccount.typehistory.error;
+			history.type = constantshistoryAccount.typehistory.error;
 			history.save();
 			res.status(500).json({ error: err });
 		});
@@ -161,11 +164,6 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 					id: user[0]._id,
 				};
 				const profileModel = await Profile.findOne({ authors: user[0]._id });
-				// Get IPv4 address using os module
-				// const networkInterfaces: any = os.networkInterfaces();
-				// const ipv4Interfaces = networkInterfaces['en0'].filter((iface: any) => iface.family === 'IPv4');
-				// const ipAddress = ipv4Interfaces.length > 0 ? ipv4Interfaces[0].address : '0.0.0.0';
-				// const addresses = getLocalIp()
 				let history = user[0].historyLogin;
 				if (history.length == 0) {
 					await history.push({

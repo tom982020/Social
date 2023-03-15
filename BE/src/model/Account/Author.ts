@@ -5,24 +5,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 const mongooseDelete = require('mongoose-delete');
 import paginate from 'mongoose-paginate-v2';
 import { authorConstants } from '../../constant/author.constant';
+import { IAuthor } from '../../interface/Schema/IAuthor';
 
-export interface IHistoryLogin {
-	username: string;
-	idProfile: Schema.Types.ObjectId;
-	dateLogin: Date;
-}
-
-export interface IAuthor {
-	name: string;
-	username: string;
-	hasPassword: string;
-	email: string;
-	phone: string;
-	access_token: string;
-	refresh_token: string;
-	historyLogin: Array<IHistoryLogin>;
-	deleted: boolean;
-}
 
 export interface IAuthorModel extends IAuthor, Document { }
 

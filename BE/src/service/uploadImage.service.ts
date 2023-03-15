@@ -8,24 +8,67 @@ import fs from 'fs'
 
 dotenv.config();
 
-const uploadImage = async (imagePath: any) => {
-	let res;
+const uploadAvatar = async (imagePath: any) => {
+	let res: any = [];
 	cloudinary.config({
 		cloud_name: config.CLOUD_NAME,
 		api_key: config.API_KEY,
 		api_secret: config.API_SECRET,
 		secure: true,
 	});
-	cloudinary.uploader
+	await cloudinary.uploader
 		.upload(imagePath, {
 			resource_type: 'image',
+			transformation: [
+				{ width: 500, height: 500, gravity: "faces", crop: "thumb" }
+			],
 		})
-		.then((result) => {
-			res = result;
+		.then(async (result) => {
+			await res.push(result);
 		});
-	return res;
+	return res[0];
+};
+
+const uploadBackground = async (imagePath: any) => {
+	let res: any = [];
+	cloudinary.config({
+		cloud_name: config.CLOUD_NAME,
+		api_key: config.API_KEY,
+		api_secret: config.API_SECRET,
+		secure: true,
+	});
+	await cloudinary.uploader
+		.upload(imagePath, {
+			resource_type: 'image',
+			transformation: [
+				{ effect: "trim:20" }
+			],
+		})
+		.then(async (result) => {
+			await res.push(result);
+		});
+	return res[0];
+};
+
+const deleteImage = async (publicId: any) => {
+	let res: any = [];
+	cloudinary.config({
+		cloud_name: config.CLOUD_NAME,
+		api_key: config.API_KEY,
+		api_secret: config.API_SECRET,
+		secure: true,
+	});
+	await cloudinary.uploader
+		.destroy(publicId, {
+		})
+		.then(async (result) => {
+			await res.push(result);
+		});
+	return res[0];
 };
 
 export default {
-	uploadImage,
+	uploadAvatar,
+	uploadBackground,
+	deleteImage,
 };

@@ -6,61 +6,72 @@ import AuthorModel from '../../model/Account/Author';
 import mongoose from 'mongoose';
 // import cloudinary from 'cloudinary';
 import uploadIMage from '../../service/uploadImage.service';
-import fs from 'fs';
-
+import { handleSingleUploadFile } from '../../library/handleSingleUploadFile';
+import { UploadedFile } from '../../interface/upload/image';
+import { ConvertImage } from '../../library/convertFile';
+import fs from 'fs'
 // const Cloudinary = cloudinary.v2;
-
 const createProfile = async (
 	request: Request,
 	response: Response,
 	next: NextFunction
 ) => {
-	const formData = request.body;
-	const file = request.file;
+	const form = request.body
 	let session = await mongoose.startSession();
 	session.startTransaction();
-
 	try {
 		const checkUser = await AuthorModel.findOne({
-			username: formData.username,
+			username: request.body.username,
 		}).lean();
 		if (checkUser) {
 			const checkProfile = await ProfileModel.findOne({
 				authors: checkUser._id,
 			});
 			if (checkProfile) {
-				const data = fs.readFileSync(formData.image, 'utf8');
-				const image = uploadIMage?.uploadImage(data);
-				// 	let avatar = {
-				// 		id: images.public_id,
-				// url: images.url
-				// secure_url: image.secure_url,
-				// format: image.format,
-				// resource_type: image.resourresource_type,
-				// created_at: image.created_at,
-				// 	}
-				// })
-				console.log(image);
-				return;
+				await handleSingleUploadFile(request, response).then(async (result: any) => {
+					const image = await uploadIMage.uploadAvatar(result.file.path);
+					let avatar = {
+						id: image?.public_id,
+						url: image?.url,
+						secure_url: image?.secure_url,
+						format: image?.format,
+						resource_type: image?.resource_type,
+						created_at: image?.created_at,
+					}
+					fs.unlinkSync(result.file.path)
 
-				// checkProfile.avatar = image
-				// checkProfile.nickname = formData.nickname;
-				// checkProfile.DOB = formData.DOB;
-				// checkProfile.BIO = formData.BIO;
-				// checkProfile.destination = formData.destination;
+					checkProfile.avatar = avatar
+					checkProfile.nickname = request.body.nickname;
+					checkProfile.DOB = request.body.DOB;
+					checkProfile.BIO = request.body.BIO;
+					checkProfile.destination = request.body.destination;
 
-				// await checkProfile
-				// 	.save({ session: session })
-				// 	.then(async (pro) => {
-				// 		await session.commitTransaction();
-				// 		session.endSession();
-				// 		response.status(200).json({ pro });
-				// 	})
-				// 	.catch((error) => {
-				// 		response.status(500).json({ error });
-				// 	});
+					await checkProfile
+						.save({ session: session })
+						.then(async (pro) => {
+							await session.commitTransaction();
+							session.endSession();
+							response.status(200).json({ pro });
+						})
+						.catch((error) => {
+							response.status(500).json({ error });
+						});
+				}).catch(async (err) => {
+					await session.abortTransaction();
+					session.endSession();
+					return response
+						.status(400)
+						.json({ status: false, message: err.message });
+				});
+
 			} else {
-				formData.authors = checkUser._id;
+				let formData = {
+					nickname: request.body.nickname,
+					DOB: request.body.DOB,
+					BIO: request.body.BIO,
+					destination: request.body.destination,
+					authors: checkUser._id
+				}
 				const profile = new ProfileModel(formData);
 				return profile
 					.save({ session: session })
@@ -99,9 +110,11 @@ const viewProfile = async (
 		const id = request.params.idAuthor;
 		const profile = await ProfileModel.findOne({ authors: id }).populate({
 			path: 'authors',
-			select: 'name username email phone',
+			select: 'name username email phone avatar',
 		});
 		if (profile) {
+			// profile.avatar.secure_url = ConvertImage(profile.avatar.secure_url)
+			// console.log(profile.avatar.secure_url)
 			await session.commitTransaction();
 			session.endSession();
 			return response.status(200).json({ profile: profile });
@@ -153,19 +166,29 @@ const updateProfile = async (
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	const id = request.params.id;
-	const formData = request.body;
+	const uploadResult = await handleSingleUploadFile(request, response);
+	const uploadedFile: UploadedFile = uploadResult.file;
 	try {
 		const profile = await ProfileModel.findById(id);
 		if (profile) {
-			profile.nickname = formData.nickname;
-			profile.DOB = formData.DOB;
-			profile.BIO = formData.BIO;
-			profile.avatar = formData.avatar ? formData.avatar : profile.avatar;
-			profile.background = formData.background
-				? formData.background
-				: profile.background;
-			profile.destination = formData.destination
-				? formData.destination
+			profile.nickname = request.body.nickname ? request.body.nickname : profile.nickname;
+			profile.DOB = request.body.DOB ? request.body.DOB : profile.DOB;
+			profile.BIO = request.body.BIO ? request.body.BIO : profile.DOB;
+			const imageAvatar = await uploadIMage.uploadAvatar(uploadedFile.path);
+			if (uploadedFile) {
+				if (profile.avatar) await uploadIMage.deleteImage(profile.avatar.id)
+			}
+			let avatar = {
+				id: imageAvatar?.public_id,
+				url: imageAvatar?.url,
+				secure_url: imageAvatar?.secure_url,
+				format: imageAvatar?.format,
+				resource_type: imageAvatar?.resource_type,
+				created_at: imageAvatar?.created_at,
+			}
+			profile.avatar = avatar ? avatar : profile.avatar;
+			profile.destination = request.body.destination
+				? request.body.destination
 				: profile.destination;
 
 			await profile
@@ -192,9 +215,76 @@ const updateProfile = async (
 	}
 };
 
+const updateProfileBackground = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	const id = request.params.id;
+
+	try {
+		const profile = await ProfileModel.findById(id);
+		if (profile) {
+			await handleSingleUploadFile(request, response).then(async (result: any) => {
+				if (result) {
+					if (profile.background.id != null) {
+						await uploadIMage.deleteImage(profile.background.id)
+					}
+				}
+				const image = await uploadIMage.uploadBackground(result.file.path);
+				fs.unlinkSync(result.file.path)
+
+
+				let background = {
+					id: image?.public_id,
+					url: image?.url,
+					secure_url: image?.secure_url,
+					format: image?.format,
+					resource_type: image?.resource_type,
+					created_at: image?.created_at,
+				}
+				profile.background = background
+					? background
+					: profile.background;
+
+				await profile
+					.save({ session: session })
+					.then(async (pro) => {
+						await session.commitTransaction();
+						session.endSession();
+						response.status(200).json({ pro });
+					})
+					.catch((error) => {
+						response.status(500).json({ error });
+					});
+			}).catch(async (err) => {
+				await session.abortTransaction();
+				session.endSession();
+				return response
+					.status(400)
+					.json({ status: false, message: err.message });
+			})
+
+		} else {
+			await session.abortTransaction();
+			session.endSession();
+			return response
+				.status(400)
+				.json({ status: false, message: 'Profile not found' });
+		}
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+};
+
 export default {
 	createProfile,
 	viewProfile,
 	updateProfile,
 	getProfileAccount,
+	updateProfileBackground,
 };

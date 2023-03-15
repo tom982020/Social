@@ -5,34 +5,9 @@ import { Timezone } from 'node-schedule';
 import { reactionConstants } from '../constant/iconReact.constant';
 const mongooseDelete = require('mongoose-delete');
 import paginate from 'mongoose-paginate-v2';
+import { IStories } from '../interface/Schema/IStories';
 
-export interface IAuthor {
-	id: Schema.Types.ObjectId;
-	like: string;
-}
-
-export interface ICloud {
-	id: string;
-	url: string;
-	secure_url: string;
-	format: string;
-	resource_type: string;
-	created_at: string;
-}
-
-export interface IStories {
-	images: ICloud;
-	videos: ICloud;
-	title: string;
-	isSave: boolean;
-	description: string;
-	timespan: Schema.Types.Date;
-	profile: Schema.Types.ObjectId;
-	views: Array<IAuthor>;
-	deleted: false;
-}
-
-export interface IStoriesModel extends IStories, Document {}
+export interface IStoriesModel extends IStories, Document { }
 
 const StoriesSchema = new Schema(
 	{

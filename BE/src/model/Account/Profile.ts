@@ -3,34 +3,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import mongooseDelete from 'mongoose-delete';
 import paginate from 'mongoose-paginate-v2';
+import { IProfile } from '../../interface/Schema/IProfile';
 
-export interface IRank {
-	id: Schema.Types.ObjectId;
-	star: number;
-}
-
-export interface ICloud {
-	id: string;
-	url: string;
-	secure_url: string;
-	format: string;
-	resource_type: string;
-	created_at: string;
-}
-
-export interface IProfile {
-	nickname: string;
-	authors: Schema.Types.ObjectId;
-	DOB: string;
-	BIO: string;
-	avatar: ICloud;
-	background: ICloud;
-	destination: string;
-	rank: Array<IRank>;
-	deleted: boolean;
-}
-
-export interface IProfileModel extends IProfile, Document {}
+export interface IProfileModel extends IProfile, Document { }
 
 const ProfileSchema = new Schema(
 	{

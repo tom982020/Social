@@ -5,9 +5,9 @@ const historyAccountType = {
     blocked: 'Blocked Account from user',
     createProfile: 'Create Profile from user',
     updateProfile: 'Update Profile from user',
-    error : 'Error from user'
+    error: 'Error from user'
 }
 
-export const historyAccount = {
+export const constantshistoryAccount = {
     typehistory: historyAccountType
 } 

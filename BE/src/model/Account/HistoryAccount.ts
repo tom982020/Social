@@ -1,13 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 const mongooseDelete = require('mongoose-delete');
 import paginate from 'mongoose-paginate-v2';
-
-
-export interface IHistoryAccount {
-    idAccount: Schema.Types.ObjectId;
-    description: string;
-    type: string;
-}
+import { IHistoryAccount } from '../../interface/Schema/IHistoryAccount';
 
 export interface IHistoryAccountModel extends IHistoryAccount, Document { }
 
