@@ -14,6 +14,7 @@ import { CronJob } from './CronJob/cronJob';
 import cors from 'cors';
 import methodOverride from 'method-override';
 import swagger from 'swagger-ui-express';
+import bodyParser from 'body-parser';
 // import swaggerDocument from './swagger.json'
 
 const swaggerDocument = require('./Doc/swagger-client.json');
@@ -38,7 +39,7 @@ const StartServer = () => {
 
 		next();
 	});
-	const allowedOrigins = ['http://localhost:3000'];
+	const allowedOrigins = ['*'];
 
 	const options: cors.CorsOptions = {
 		origin: allowedOrigins,
@@ -47,13 +48,14 @@ const StartServer = () => {
 	// router.use(bodyParser.urlencoded({ extended: true }));
 	// router.use(bodyParser.json());
 	// router.use(bodyParser.);
-	router.use(express.json({limit: '100mb'}));
-	router.use(express.urlencoded({ extended: true, limit: '100mb' }));
+	router.use(express.urlencoded({ extended: false, limit: '100mb' }));
+	// router.use(express.({ extended: false, limit: '100mb' }));
+	router.use(express.json({ limit: '100mb' }));
 	router.use(methodOverride('X-HTTP-Method')); //          Microsoft
 	router.use(methodOverride('X-HTTP-Method-Override')); // Google/GData
 	router.use(methodOverride('X-Method-Override'));
 	router.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+		res.header('Access-Control-Allow-Origin', '*');
 		res.header(
 			'Access-Control-Allow-Headers',
 			'Origin, X-Requested-With, Content-Type, Accept, Authorization'

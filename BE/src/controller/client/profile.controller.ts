@@ -8,17 +8,23 @@ import mongoose from 'mongoose';
 import uploadIMage from '../../service/uploadImage.service';
 import { handleSingleUploadFile } from '../../library/handleSingleUploadFile';
 import { UploadedFile } from '../../interface/upload/image';
-import { ConvertImage } from '../../library/convertFile';
 import fs from 'fs'
+import { Decreypter } from '../../library/Cipher';
 // const Cloudinary = cloudinary.v2;
 const createProfile = async (
 	request: Request,
 	response: Response,
 	next: NextFunction
 ) => {
-	const form = request.body
+	const uploadResult = await handleSingleUploadFile(request, response).then().catch((err) => {
+		return response
+			.status(404)
+			.json({ status: false, message: err.message });
+	});
+	const uploadedFile: UploadedFile = uploadResult.file;
 	let session = await mongoose.startSession();
 	session.startTransaction();
+
 	try {
 		const checkUser = await AuthorModel.findOne({
 			username: request.body.username,
@@ -28,42 +34,34 @@ const createProfile = async (
 				authors: checkUser._id,
 			});
 			if (checkProfile) {
-				await handleSingleUploadFile(request, response).then(async (result: any) => {
-					const image = await uploadIMage.uploadAvatar(result.file.path);
-					let avatar = {
-						id: image?.public_id,
-						url: image?.url,
-						secure_url: image?.secure_url,
-						format: image?.format,
-						resource_type: image?.resource_type,
-						created_at: image?.created_at,
-					}
-					fs.unlinkSync(result.file.path)
+				// const data = fs.readFileSync(formData.image, 'utf8');
+				const image = await uploadIMage.uploadAvatar(uploadedFile.path);
+				let avatar = {
+					id: image?.public_id,
+					url: image?.url,
+					secure_url: image?.secure_url,
+					format: image?.format,
+					resource_type: image?.resource_type,
+					created_at: image?.created_at,
+				}
+				fs.unlinkSync(uploadedFile.path)
 
-					checkProfile.avatar = avatar
-					checkProfile.nickname = request.body.nickname;
-					checkProfile.DOB = request.body.DOB;
-					checkProfile.BIO = request.body.BIO;
-					checkProfile.destination = request.body.destination;
+				checkProfile.avatar = avatar
+				checkProfile.nickname = request.body.nickname;
+				checkProfile.DOB = request.body.DOB;
+				checkProfile.BIO = request.body.BIO;
+				checkProfile.destination = request.body.destination;
 
-					await checkProfile
-						.save({ session: session })
-						.then(async (pro) => {
-							await session.commitTransaction();
-							session.endSession();
-							response.status(200).json({ pro });
-						})
-						.catch((error) => {
-							response.status(500).json({ error });
-						});
-				}).catch(async (err) => {
-					await session.abortTransaction();
-					session.endSession();
-					return response
-						.status(400)
-						.json({ status: false, message: err.message });
-				});
-
+				await checkProfile
+					.save({ session: session })
+					.then(async (pro) => {
+						await session.commitTransaction();
+						session.endSession();
+						response.status(200).json({ pro });
+					})
+					.catch((error) => {
+						response.status(500).json({ error });
+					});
 			} else {
 				let formData = {
 					nickname: request.body.nickname,
@@ -72,6 +70,7 @@ const createProfile = async (
 					destination: request.body.destination,
 					authors: checkUser._id
 				}
+				fs.unlinkSync(uploadedFile.path)
 				const profile = new ProfileModel(formData);
 				return profile
 					.save({ session: session })
@@ -106,15 +105,15 @@ const viewProfile = async (
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	try {
-		const user = request.body.user;
+		// const user = request.body.user;
 		const id = request.params.idAuthor;
-		const profile = await ProfileModel.findOne({ authors: id }).populate({
+		const profile: any = await ProfileModel.findOne({ authors: id }).populate({
 			path: 'authors',
 			select: 'name username email phone avatar',
-		});
+		}).lean();
 		if (profile) {
-			// profile.avatar.secure_url = ConvertImage(profile.avatar.secure_url)
-			// console.log(profile.avatar.secure_url)
+			const phone = await Decreypter(profile.authors.phone);
+			profile.authors.phone = phone
 			await session.commitTransaction();
 			session.endSession();
 			return response.status(200).json({ profile: profile });
@@ -226,6 +225,7 @@ const updateProfileBackground = async (
 
 	try {
 		const profile = await ProfileModel.findById(id);
+		const user = request
 		if (profile) {
 			await handleSingleUploadFile(request, response).then(async (result: any) => {
 				if (result) {

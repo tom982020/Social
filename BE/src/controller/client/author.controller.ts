@@ -12,27 +12,6 @@ import { constantshistoryAccount } from '../../constant/historyAccount.constant'
 import { IAuthorResponse } from '../../interface/Schema/IAuthor';
 import { IError } from '../../interface/err/IError';
 
-// function getLocalIp(): string {
-// 	const nets: any = networkInterfaces();
-// 	const results = Object.create(null);
-
-// 	for (const name of Object.keys(nets)) {
-// 		for (const net of nets[name]) {
-// 			// Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-// 			if (net.family === 'IPv4' && !net.internal) {
-// 				if (!results[name]) {
-// 					results[name] = [];
-// 				}
-// 				results[name].push(net.address);
-// 			}
-// 		}
-// 	}
-
-// 	return results['en0']?.[0] || ''; // return the first en0 IP address found
-// }
-
-// import { Decipher } from 'crypto';
-
 const createAuthor = async (
 	req: Request,
 	res: Response,

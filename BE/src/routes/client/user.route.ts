@@ -6,7 +6,7 @@ import { checkToken } from '../../middleware/auth.middleware';
 
 const routerUser = express.Router();
 routerUser.post('/create', controller.createAuthor);
-// routerUser.use(checkToken);
+routerUser.use(checkToken);
 routerUser.get('/', controller.readAllAuthor);
 routerUser.get('/checktoken/:authorId', controller.testJWT);
 routerUser.get('/:authorId', controller.readAuthor);
