@@ -12,24 +12,24 @@ import { historyAccount } from '../../constant/historyAccount.constant';
 import * as os from 'os';
 import { networkInterfaces } from 'os';
 
-function getLocalIp(): string {
-	const nets: any = networkInterfaces();
-	const results = Object.create(null);
+// function getLocalIp(): string {
+// 	const nets: any = networkInterfaces();
+// 	const results = Object.create(null);
 
-	for (const name of Object.keys(nets)) {
-		for (const net of nets[name]) {
-			// Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-			if (net.family === 'IPv4' && !net.internal) {
-				if (!results[name]) {
-					results[name] = [];
-				}
-				results[name].push(net.address);
-			}
-		}
-	}
+// 	for (const name of Object.keys(nets)) {
+// 		for (const net of nets[name]) {
+// 			// Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+// 			if (net.family === 'IPv4' && !net.internal) {
+// 				if (!results[name]) {
+// 					results[name] = [];
+// 				}
+// 				results[name].push(net.address);
+// 			}
+// 		}
+// 	}
 
-	return results['en0']?.[0] || ''; // return the first en0 IP address found
-}
+// 	return results['en0']?.[0] || ''; // return the first en0 IP address found
+// }
 
 // import { Decipher } from 'crypto';
 
@@ -162,17 +162,34 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 				};
 				const profileModel = await Profile.findOne({ authors: user[0]._id });
 				// Get IPv4 address using os module
-				const networkInterfaces: any = os.networkInterfaces();
-				const ipv4Interfaces = networkInterfaces['en0'].filter((iface: any) => iface.family === 'IPv4');
-				const ipAddress = ipv4Interfaces.length > 0 ? ipv4Interfaces[0].address : '0.0.0.0';
-				const addresses = getLocalIp()
+				// const networkInterfaces: any = os.networkInterfaces();
+				// const ipv4Interfaces = networkInterfaces['en0'].filter((iface: any) => iface.family === 'IPv4');
+				// const ipAddress = ipv4Interfaces.length > 0 ? ipv4Interfaces[0].address : '0.0.0.0';
+				// const addresses = getLocalIp()
 				let history = user[0].historyLogin;
-				await history.push({
-					username: user[0].username,
-					idProfile: profileModel?._id || null,
-					dateLogin: Date.now(),
-					IpAdress: ipAddress,
-				});
+				if (history.length == 0) {
+					await history.push({
+						username: user[0].username,
+						idProfile: profileModel?._id || null,
+						dateLogin: Date.now(),
+						IpAdress: req.socket.remoteAddress,
+					});
+				} else {
+					await user[0].historyLogin.map(async (item: any) => {
+						if (item.IpAdress != req.socket.remoteAddress) {
+							await history.push({
+								username: user[0].username,
+								idProfile: profileModel?._id || null,
+								dateLogin: Date.now(),
+								IpAdress: req.socket.remoteAddress,
+							});
+						} else {
+							item.dateLogin = Date.now();
+						}
+					})
+				}
+
+
 				const token = jwt.sign({ data: users }, config.secret, {
 					expiresIn: '1m',
 				});
