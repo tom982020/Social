@@ -9,6 +9,7 @@ const profile_controller_1 = __importDefault(require("../../controller/client/pr
 // var r = bodyParser.urlencoded({ extended: false });
 const profileRoute = express_1.default.Router();
 // profileRoute.use(checkToken);
+profileRoute.get('/:idAccount', profile_controller_1.default.getProfileAccount);
 profileRoute.post('/create', profile_controller_1.default.createProfile);
 profileRoute.get('/:idAuthor', profile_controller_1.default.viewProfile);
 profileRoute.put('/:id', profile_controller_1.default.updateProfile);

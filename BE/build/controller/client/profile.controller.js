@@ -13,8 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Profile_1 = __importDefault(require("../../model/Profile"));
-const Author_1 = __importDefault(require("../../model/Author"));
+const Profile_1 = __importDefault(require("../../model/Account/Profile"));
+const Author_1 = __importDefault(require("../../model/Account/Author"));
 const mongoose_1 = __importDefault(require("mongoose"));
 // import cloudinary from 'cloudinary';
 const uploadImage_service_1 = __importDefault(require("../../service/uploadImage.service"));
@@ -121,6 +121,29 @@ const viewProfile = (request, response, next) => __awaiter(void 0, void 0, void 
         return response.status(500).json({ error: err });
     }
 });
+const getProfileAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    const id = req.params.idAccount;
+    try {
+        const account = yield Author_1.default.findOne({ authors: id });
+        if (account) {
+            yield session.commitTransaction();
+            session.endSession();
+            return res.status(200).json({ account });
+        }
+        else {
+            yield session.commitTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Account not found' });
+        }
+    }
+    catch (err) {
+        yield session.commitTransaction();
+        session.endSession();
+        return res.status(500).json({ message: err });
+    }
+});
 const updateProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
@@ -168,4 +191,5 @@ exports.default = {
     createProfile,
     viewProfile,
     updateProfile,
+    getProfileAccount,
 };

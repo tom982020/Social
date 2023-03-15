@@ -1,12 +1,49 @@
 /** @format */
 
 import { NextFunction, Request, Response } from 'express';
-import Author from '../../model/Author';
-import Profile from '../../model/Profile';
+import Author from '../../model/Account/Author';
+import HistoryAccount from '../../model/Account/HistoryAccount';
+import Profile from '../../model/Account/Profile';
 import bcrypt from 'bcrypt';
 import { config } from '../../config/config';
 import { Encrypter, Decreypter } from '../../library/Cipher';
 import jwt from 'jsonwebtoken';
+import { historyAccount } from '../../constant/historyAccount.constant';
+import * as os from 'os';
+import { networkInterfaces } from 'os';
+
+function getIPv4Address(): string | undefined {
+	const interfaces = os.networkInterfaces();
+	for (const interfaceName of Object.keys(interfaces)) {
+		const addresses: any = interfaces[interfaceName];
+		for (const address of addresses) {
+			if (address.family === 'IPv4' && !address.internal) {
+				return address.address;
+			}
+		}
+	}
+	return undefined;
+}
+
+function getLocalIp(): string {
+	const nets: any = networkInterfaces();
+	const results = Object.create(null);
+
+	for (const name of Object.keys(nets)) {
+		for (const net of nets[name]) {
+			// Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+			if (net.family === 'IPv4' && !net.internal) {
+				if (!results[name]) {
+					results[name] = [];
+				}
+				results[name].push(net.address);
+			}
+		}
+	}
+
+	return results['en0']?.[0] || ''; // return the first en0 IP address found
+}
+
 // import { Decipher } from 'crypto';
 
 const createAuthor = async (
@@ -24,6 +61,7 @@ const createAuthor = async (
 
 		const hash = bcrypt.hashSync(password, parseInt(salt));
 		const author = new Author();
+		// Tạo mã hash cho satl với password với 100 kí tự mã hóa
 		author.hasPassword = hash;
 		// author.name = '';
 		author.username = username;
@@ -32,10 +70,26 @@ const createAuthor = async (
 		// author.created = new Date();
 		return author
 			.save()
-			.then((author) => res.status(201).json({ author }))
-			.catch((err) => res.status(500).json({ error: err }));
-		// Tạo mã hash cho satl với password với 100 kí tự mã hóa
+			.then((author) => {
+				const history = new HistoryAccount();
+				history.idAccount = author._id;
+				history.description = 'Create user successfully';
+				history.type = historyAccount.typehistory.create;
+				history.save();
+				res.status(201).json({ author });
+			})
+			.catch((err) => {
+				const history = new HistoryAccount();
+				history.description = 'Create user error' + err;
+				history.type = historyAccount.typehistory.error;
+				history.save();
+				res.status(500).json({ error: err });
+			});
 	} else {
+		const history = new HistoryAccount();
+		history.description = 'Create user error, User Existed';
+		history.type = historyAccount.typehistory.error;
+		history.save();
 		return res.status(500).json({ message: 'Tài khỏan hoặc email đã tồn tại' });
 	}
 };
@@ -62,13 +116,26 @@ const updateAuthor = (req: Request, res: Response, next: NextFunction) => {
 
 				return author
 					.save()
-					.then((author) => res.status(200).json({ author }))
+					.then((author) => {
+						const history = new HistoryAccount();
+						history.idAccount = author._id;
+						history.description = 'Update user successfully';
+						history.type = historyAccount.typehistory.update;
+						history.save();
+						res.status(200).json({ author });
+					})
 					.catch((err) => res.status(500).json({ error: err }));
 			} else {
 				return res.status(404).json({ message: 'Author not found' });
 			}
 		})
-		.catch((err) => res.status(500).json({ error: err }));
+		.catch((err) => {
+			const history = new HistoryAccount();
+			history.description = 'Update user error' + err;
+			history.type = historyAccount.typehistory.error;
+			history.save();
+			res.status(500).json({ error: err });
+		});
 };
 const readAllAuthor = (req: Request, res: Response, next: NextFunction) => {
 	return Author.find()
@@ -107,11 +174,17 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 					id: user[0]._id,
 				};
 				const profileModel = await Profile.findOne({ authors: user[0]._id });
+				// Get IPv4 address using os module
+				// const networkInterfaces: any = os.networkInterfaces();
+				// const ipv4Interfaces = networkInterfaces['en0'].filter((iface: any) => iface.family === 'IPv4');
+				// const ipAddress = ipv4Interfaces.length > 0 ? ipv4Interfaces[0].address : '0.0.0.0';
+				const addresses = getLocalIp()
 				let history = user[0].historyLogin;
 				await history.push({
 					username: user[0].username,
 					idProfile: profileModel?._id || null,
 					dateLogin: Date.now(),
+					IpAdress: addresses,
 				});
 				const token = jwt.sign({ data: users }, config.secret, {
 					expiresIn: '1m',

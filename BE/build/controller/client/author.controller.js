@@ -1,5 +1,28 @@
 "use strict";
 /** @format */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,11 +36,46 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Author_1 = __importDefault(require("../../model/Author"));
-const Profile_1 = __importDefault(require("../../model/Profile"));
+const Author_1 = __importDefault(require("../../model/Account/Author"));
+const HistoryAccount_1 = __importDefault(require("../../model/Account/HistoryAccount"));
+const Profile_1 = __importDefault(require("../../model/Account/Profile"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const config_1 = require("../../config/config");
+const Cipher_1 = require("../../library/Cipher");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const historyaccount_constant_1 = require("../../constant/historyaccount.constant");
+const os = __importStar(require("os"));
+const os_1 = require("os");
+function getIPv4Address() {
+    const interfaces = os.networkInterfaces();
+    for (const interfaceName of Object.keys(interfaces)) {
+        const addresses = interfaces[interfaceName];
+        for (const address of addresses) {
+            if (address.family === 'IPv4' && !address.internal) {
+                return address.address;
+            }
+        }
+    }
+    return undefined;
+}
+function getLocalIp() {
+    var _a;
+    const nets = (0, os_1.networkInterfaces)();
+    const results = Object.create(null);
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+            // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+            if (net.family === 'IPv4' && !net.internal) {
+                if (!results[name]) {
+                    results[name] = [];
+                }
+                results[name].push(net.address);
+            }
+        }
+    }
+    return ((_a = results['en0']) === null || _a === void 0 ? void 0 : _a[0]) || ''; // return the first en0 IP address found
+}
+// import { Decipher } from 'crypto';
 const createAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, username, password, email, phone } = req.body;
     // console.log(req.body);
@@ -27,37 +85,49 @@ const createAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const salt = bcrypt_1.default.genSaltSync(config_1.config.satlRound);
         const hash = bcrypt_1.default.hashSync(password, parseInt(salt));
         const author = new Author_1.default();
+        // Tạo mã hash cho satl với password với 100 kí tự mã hóa
         author.hasPassword = hash;
         // author.name = '';
         author.username = username;
         author.email = email;
-        author.phone = phone;
+        author.phone = yield (0, Cipher_1.Encrypter)(phone);
         // author.created = new Date();
         return author
             .save()
-            .then((author) => res.status(201).json({ author }))
-            .catch((err) => res.status(500).json({ error: err }));
-        // Tạo mã hash cho satl với password với 100 kí tự mã hóa
+            .then((author) => {
+            const history = new HistoryAccount_1.default();
+            history.idAccount = author._id;
+            history.description = 'Create user successfully';
+            history.type = historyaccount_constant_1.historyAccount.typehistory.create;
+            history.save();
+            res.status(201).json({ author });
+        })
+            .catch((err) => {
+            const history = new HistoryAccount_1.default();
+            history.description = 'Create user error' + err;
+            history.type = historyaccount_constant_1.historyAccount.typehistory.error;
+            history.save();
+            res.status(500).json({ error: err });
+        });
     }
     else {
-        return res.status(500).json({ error: 'Tài khỏan hoặc email đã tồn tại' });
+        const history = new HistoryAccount_1.default();
+        history.description = 'Create user error, User Existed';
+        history.type = historyaccount_constant_1.historyAccount.typehistory.error;
+        history.save();
+        return res.status(500).json({ message: 'Tài khỏan hoặc email đã tồn tại' });
     }
 });
 const readAuthor = (req, res, next) => {
     const authorId = req.params.authorId;
     return Author_1.default.findById(authorId)
-        .then((author) => {
-        //   const decode = jwt.verify(
-        //     author?.access_token,
-        //     config.secret,
-        //     (err: any, result: any) => {
-        //       if (result) return result;
-        //     }
-        //   );
+        .then((author) => __awaiter(void 0, void 0, void 0, function* () {
+        const phone = yield (0, Cipher_1.Decreypter)(author.phone);
+        author.phone = phone;
         author
             ? res.status(200).json({ author: author })
             : res.status(404).json({ message: 'Author not found' });
-    })
+    }))
         .catch((err) => res.status(500).json({ error: err }));
 };
 const updateAuthor = (req, res, next) => {
@@ -68,14 +138,27 @@ const updateAuthor = (req, res, next) => {
             author.set(req.body);
             return author
                 .save()
-                .then((author) => res.status(200).json({ author }))
+                .then((author) => {
+                const history = new HistoryAccount_1.default();
+                history.idAccount = author._id;
+                history.description = 'Update user successfully';
+                history.type = historyaccount_constant_1.historyAccount.typehistory.update;
+                history.save();
+                res.status(200).json({ author });
+            })
                 .catch((err) => res.status(500).json({ error: err }));
         }
         else {
             return res.status(404).json({ message: 'Author not found' });
         }
     })
-        .catch((err) => res.status(500).json({ error: err }));
+        .catch((err) => {
+        const history = new HistoryAccount_1.default();
+        history.description = 'Update user error' + err;
+        history.type = historyaccount_constant_1.historyAccount.typehistory.error;
+        history.save();
+        res.status(500).json({ error: err });
+    });
 };
 const readAllAuthor = (req, res, next) => {
     return Author_1.default.find()
@@ -108,16 +191,23 @@ const loginAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 phone: user[0].phone,
                 created: user[0].created,
                 type: user[0].type,
+                id: user[0]._id,
             };
             const profileModel = yield Profile_1.default.findOne({ authors: user[0]._id });
+            // Get IPv4 address using os module
+            // const networkInterfaces: any = os.networkInterfaces();
+            // const ipv4Interfaces = networkInterfaces['en0'].filter((iface: any) => iface.family === 'IPv4');
+            // const ipAddress = ipv4Interfaces.length > 0 ? ipv4Interfaces[0].address : '0.0.0.0';
+            const addresses = getLocalIp();
             let history = user[0].historyLogin;
             yield history.push({
                 username: user[0].username,
                 idProfile: (profileModel === null || profileModel === void 0 ? void 0 : profileModel._id) || null,
                 dateLogin: Date.now(),
+                IpAdress: addresses,
             });
             const token = jsonwebtoken_1.default.sign({ data: users }, config_1.config.secret, {
-                expiresIn: '30m',
+                expiresIn: '1m',
             });
             const refeshtoken = jsonwebtoken_1.default.sign({ data: users }, config_1.config.secret, {
                 expiresIn: '1y',

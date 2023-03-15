@@ -1,8 +1,8 @@
 /** @format */
 
 import { NextFunction, Request, Response } from 'express';
-import ProfileModel from '../../model/Profile';
-import AuthorModel from '../../model/Author';
+import ProfileModel from '../../model/Account/Profile';
+import AuthorModel from '../../model/Account/Author';
 import mongoose from 'mongoose';
 // import cloudinary from 'cloudinary';
 import uploadIMage from '../../service/uploadImage.service';

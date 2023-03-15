@@ -46,8 +46,10 @@
     "mongoose": "^6.3.5",
     "mongoose-delete": "^0.5.4",
     "mongoose-paginate-v2": "^1.7.1",
+    "network": "^0.6.1",
     "node-cron": "^3.0.2",
     "node-schedule": "^2.1.0",
+    "os": "^0.1.2",
     "swagger-ui-express": "^4.6.0"
   },
   "description": ""
