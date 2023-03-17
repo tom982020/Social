@@ -5,4 +5,14 @@ const isEmpty = (obj: any) => {
     }
     return true;
 }
-export default isEmpty
+
+const checkElementAlready = (arr: [], name: any, id: any) => {
+    const check = arr.find((element: any) => {
+        if (element.name === id) {
+            return true;
+        }
+        return false;
+    });
+    return check;
+}
+export default { isEmpty, checkElementAlready }

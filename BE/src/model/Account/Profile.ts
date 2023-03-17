@@ -3,6 +3,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import mongooseDelete from 'mongoose-delete';
 import paginate from 'mongoose-paginate-v2';
+import { profileContants } from '../../constant/profile.contant';
 import { IProfile } from '../../interface/Schema/IProfile';
 
 export interface IProfileModel extends IProfile, Document { }
@@ -48,12 +49,39 @@ const ProfileSchema = new Schema(
 		},
 		rank: [
 			{
-				id: Schema.Types.ObjectId,
+				id: {
+					type: Schema.Types.ObjectId,
+					ref: 'Profile'
+				},
 				star: {
 					type: Schema.Types.Number,
 					default: 0,
 				},
 			},
+		],
+		friend: [
+			{
+				id: {
+					type: Schema.Types.ObjectId,
+					ref: 'Profile'
+				},
+				accept: {
+					type: Schema.Types.Boolean,
+					default: false
+				}
+			}
+		],
+		follow: [
+			{
+				id: {
+					type: Schema.Types.ObjectId,
+					ref: 'Profile'
+				},
+				typeFollow: {
+					type: Schema.Types.String,
+					default: profileContants.typeFollow.NormalPerson
+				}
+			}
 		],
 		deleted: {
 			type: Schema.Types.Boolean,

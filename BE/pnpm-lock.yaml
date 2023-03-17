@@ -29,6 +29,7 @@ specifiers:
   jsonwebtoken: ^8.5.1
   jwks-rsa: ^2.1.4
   method-override: ^3.0.0
+  moment: ^2.29.4
   mongoose: ^6.3.5
   mongoose-delete: ^0.5.4
   mongoose-paginate-v2: ^1.7.1
@@ -60,6 +61,7 @@ dependencies:
   jsonwebtoken: 8.5.1
   jwks-rsa: 2.1.4
   method-override: 3.0.0
+  moment: 2.29.4
   mongoose: 6.4.6
   mongoose-delete: 0.5.4_mongoose@6.4.6
   mongoose-paginate-v2: 1.7.1

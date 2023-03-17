@@ -10,12 +10,16 @@ import { handleSingleUploadFile } from '../../library/handleSingleUploadFile';
 import { UploadedFile } from '../../interface/upload/image';
 import fs from 'fs'
 import { Decreypter } from '../../library/Cipher';
+import { SocketAddress } from 'net';
+import { profileContants } from '../../constant/profile.contant';
 // const Cloudinary = cloudinary.v2;
 const createProfile = async (
 	request: Request,
 	response: Response,
 	next: NextFunction
 ) => {
+	const r: any = request
+	const user = r.user
 	const uploadResult = await handleSingleUploadFile(request, response).then().catch((err) => {
 		return response
 			.status(404)
@@ -27,7 +31,7 @@ const createProfile = async (
 
 	try {
 		const checkUser = await AuthorModel.findOne({
-			username: request.body.username,
+			username: user.username,
 		}).lean();
 		if (checkUser) {
 			const checkProfile = await ProfileModel.findOne({
@@ -162,6 +166,8 @@ const updateProfile = async (
 	response: Response,
 	next: NextFunction
 ) => {
+	const r: any = request
+	const user = r.user
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	const id = request.params.id;
@@ -185,6 +191,7 @@ const updateProfile = async (
 				resource_type: imageAvatar?.resource_type,
 				created_at: imageAvatar?.created_at,
 			}
+			fs.unlinkSync(uploadedFile.path)
 			profile.avatar = avatar ? avatar : profile.avatar;
 			profile.destination = request.body.destination
 				? request.body.destination
@@ -225,7 +232,6 @@ const updateProfileBackground = async (
 
 	try {
 		const profile = await ProfileModel.findById(id);
-		const user = request
 		if (profile) {
 			await handleSingleUploadFile(request, response).then(async (result: any) => {
 				if (result) {
@@ -281,10 +287,247 @@ const updateProfileBackground = async (
 	}
 };
 
+const addFriendProfile = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	const r: any = request
+	const user = r.user
+	const id = request.body.idProfile
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	try {
+		const profile = await ProfileModel.findById(id);
+		const profileMe = await ProfileModel.findOne({ authors: user.id })
+		if (profile == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Profile not found');
+		}
+		if (profileMe == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Create profile before add friend');
+		}
+		let check: boolean = false;
+		await profileMe.friend.find((element: any) => {
+			if (element.id.toString() === profile._id.toString()) {
+				check = true;
+				return check;
+			}
+			check = false;
+			return check;
+		});
+		if (check == false) {
+			profileMe.friend.push({
+				id: profile._id,
+				accept: false
+			})
+		}
+		profileMe.save()
+			.then(async (pro) => {
+				await session.commitTransaction();
+				session.endSession();
+				response.status(200).json({ pro });
+			})
+			.catch(async (err) => {
+				await session.abortTransaction();
+				session.endSession();
+				return response.status(500).json({ error: err });
+			})
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+}
+
+const acceptFriendProfile = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	const r: any = request
+	const user = r.user
+	const id = request.body.idProfile
+	const accept = request.body.accept
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	try {
+		const profile = await ProfileModel.findById(id);
+		const profileMe = await ProfileModel.findOne({ authors: user.id })
+		if (profile == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Profile not found');
+		}
+		if (profileMe == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Create profile before add friend');
+		}
+
+		if (accept == false) {
+			await profileMe.friend.map((element: any, index: number) => {
+				if (element.id.toString() == id) {
+					profileMe.friend.splice(index, 1)
+				}
+			});
+		} else {
+			await profileMe.friend.map((element: any) => {
+				if (element.id.toString() === profile._id.toString()) {
+					element.accept = true;
+				}
+			});
+		}
+		profileMe.save()
+			.then(async (pro) => {
+				await session.commitTransaction();
+				session.endSession();
+				response.status(200).json({ pro });
+			})
+			.catch(async (err) => {
+				await session.abortTransaction();
+				session.endSession();
+				return response.status(500).json({ error: err });
+			})
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+}
+
+const rankProfile = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	const r: any = request
+	const user = r.user
+	const id = request.body.idProfile
+	const star = request.body.star
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	try {
+		const profile = await ProfileModel.findById(id);
+		const profileMe = await ProfileModel.findOne({ authors: user.id })
+		if (profile == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Profile not found');
+		}
+		if (profileMe == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Create profile before add friend');
+		}
+		let check: boolean = false;
+		await profileMe.rank.find((element: any) => {
+			if (element.id.toString() === profile._id.toString()) {
+				check = true;
+				element.star = star
+				return check;
+			}
+			check = false;
+			return check;
+		});
+		if (check == false) {
+			profileMe.rank.push({
+				id: profile._id,
+				star: star
+			});
+		}
+		profileMe.save()
+			.then(async (pro) => {
+				await session.commitTransaction();
+				session.endSession();
+				response.status(200).json({ pro });
+			})
+			.catch(async (err) => {
+				await session.abortTransaction();
+				session.endSession();
+				return response.status(500).json({ error: err });
+			})
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+}
+
+const followProfile = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	const r: any = request
+	const user = r.user
+	const id = request.body.idProfile
+	const typeFollow = request.body.star
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	try {
+		const profile = await ProfileModel.findById(id);
+		const profileMe = await ProfileModel.findOne({ authors: user.id })
+		if (profile == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Profile not found');
+		}
+		if (profileMe == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Create profile before add friend');
+		}
+		let check: boolean = false;
+		await profileMe.follow.find((element: any) => {
+			if (element.id.toString() === id) {
+				check = true;
+				return check;
+			}
+			check = false;
+			return check;
+		});
+		if (check == false) {
+			profileMe.follow.push({
+				id: profile._id,
+				typeFollow: typeFollow
+			});
+		} else {
+			await profileMe.follow.map((element: any, index: number) => {
+				if (element.id.toString() === id) {
+					profileMe.follow.splice(index, 1)
+					return;
+				}
+			})
+		}
+		profileMe.save()
+			.then(async (pro) => {
+				await session.commitTransaction();
+				session.endSession();
+				response.status(200).json({ pro });
+			})
+			.catch(async (err) => {
+				await session.abortTransaction();
+				session.endSession();
+				return response.status(500).json({ error: err });
+			})
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+}
 export default {
 	createProfile,
 	viewProfile,
 	updateProfile,
 	getProfileAccount,
 	updateProfileBackground,
+	addFriendProfile,
+	acceptFriendProfile,
+	rankProfile,
+	followProfile
 };

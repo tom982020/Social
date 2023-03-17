@@ -15,6 +15,7 @@ import cors from 'cors';
 import methodOverride from 'method-override';
 import swagger from 'swagger-ui-express';
 import bodyParser from 'body-parser';
+import storiesRoute from './routes/client/stories.route';
 // import swaggerDocument from './swagger.json'
 
 const swaggerDocument = require('./Doc/swagger-client.json');
@@ -48,9 +49,9 @@ const StartServer = () => {
 	// router.use(bodyParser.urlencoded({ extended: true }));
 	// router.use(bodyParser.json());
 	// router.use(bodyParser.);
-	router.use(express.urlencoded({ extended: false, limit: '100mb' }));
+	router.use(express.urlencoded({ extended: true, limit: '1000mb' }));
 	// router.use(express.({ extended: false, limit: '100mb' }));
-	router.use(express.json({ limit: '100mb' }));
+	router.use(express.json({ limit: '1000mb' }));
 	router.use(methodOverride('X-HTTP-Method')); //          Microsoft
 	router.use(methodOverride('X-HTTP-Method-Override')); // Google/GData
 	router.use(methodOverride('X-Method-Override'));
@@ -77,6 +78,7 @@ const StartServer = () => {
 	router.use('/login', routerLogin);
 	router.use('/authors', routerUser);
 	router.use('/profile', routerProfile);
+	router.use('/stories', storiesRoute);
 
 	router.get('/ping', (req, res, next) =>
 		res.status(200).json({ message: 'pong' })

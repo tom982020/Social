@@ -17,23 +17,63 @@ const cloudinary_1 = require("cloudinary");
 const dotenv_1 = __importDefault(require("dotenv"));
 const config_1 = require("../config/config");
 dotenv_1.default.config();
-const uploadImage = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
-    let res;
+const uploadAvatar = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
     cloudinary_1.v2.config({
         cloud_name: config_1.config.CLOUD_NAME,
         api_key: config_1.config.API_KEY,
         api_secret: config_1.config.API_SECRET,
         secure: true,
     });
-    cloudinary_1.v2.uploader
+    yield cloudinary_1.v2.uploader
         .upload(imagePath, {
         resource_type: 'image',
+        transformation: [
+            { width: 500, height: 500, gravity: "faces", crop: "thumb" }
+        ],
     })
-        .then((result) => {
-        res = result;
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
+});
+const uploadBackground = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
+    cloudinary_1.v2.config({
+        cloud_name: config_1.config.CLOUD_NAME,
+        api_key: config_1.config.API_KEY,
+        api_secret: config_1.config.API_SECRET,
+        secure: true,
     });
-    return res;
+    yield cloudinary_1.v2.uploader
+        .upload(imagePath, {
+        resource_type: 'image',
+        transformation: [
+            { effect: "trim:20" }
+        ],
+    })
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
+});
+const deleteImage = (publicId) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
+    cloudinary_1.v2.config({
+        cloud_name: config_1.config.CLOUD_NAME,
+        api_key: config_1.config.API_KEY,
+        api_secret: config_1.config.API_SECRET,
+        secure: true,
+    });
+    yield cloudinary_1.v2.uploader
+        .destroy(publicId, {})
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
 });
 exports.default = {
-    uploadImage,
+    uploadAvatar,
+    uploadBackground,
+    deleteImage,
 };

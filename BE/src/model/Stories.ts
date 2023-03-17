@@ -6,6 +6,8 @@ import { reactionConstants } from '../constant/iconReact.constant';
 const mongooseDelete = require('mongoose-delete');
 import paginate from 'mongoose-paginate-v2';
 import { IStories } from '../interface/Schema/IStories';
+import { constantsStory } from '../constant/stories.constant';
+import { string } from 'joi';
 
 export interface IStoriesModel extends IStories, Document { }
 
@@ -38,13 +40,24 @@ const StoriesSchema = new Schema(
 			type: Schema.Types.String,
 		},
 		timespan: Schema.Types.Date,
-		profile: Schema.Types.ObjectId,
+		profiles: {
+			type: Schema.Types.ObjectId,
+			ref: 'Profile'
+		},
 		views: [
 			{
-				id: Schema.Types.ObjectId,
-				like: Schema.Types.String,
+				account: Schema.Types.ObjectId,
+				react: Schema.Types.String,
 			},
 		],
+		typeStories: {
+			type: Schema.Types.String,
+			default: constantsStory.typestories.public
+		},
+		currentStatus: {
+			type: Schema.Types.String,
+			default: constantsStory.typeCurrent.display
+		},
 		deleted: {
 			type: Schema.Types.Boolean,
 			default: false,
@@ -66,4 +79,4 @@ StoriesSchema.plugin(mongooseDelete, {
 // paginate
 StoriesSchema.plugin(paginate);
 
-export default mongoose.model<IStoriesModel>('Profile', StoriesSchema);
+export default mongoose.model<IStoriesModel>('Stories', StoriesSchema);

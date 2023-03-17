@@ -15,6 +15,10 @@ profileRoute.get('/view/:idAuthor', profileController.viewProfile);
 profileRoute.post('/create', profileController.createProfile);
 profileRoute.put('/:id', profileController.updateProfile);
 profileRoute.put('/update-background/:id', profileController.updateProfileBackground);
+profileRoute.patch('/add-friend', profileController.addFriendProfile);
+profileRoute.patch('/accept-friend', profileController.acceptFriendProfile);
+profileRoute.patch('/star-friend', profileController.rankProfile);
+profileRoute.patch('/follow-friend', profileController.followProfile);
 
 
 export = profileRoute;

@@ -32,7 +32,7 @@ const StartServer = () => {
         });
         next();
     });
-    const allowedOrigins = ['http://localhost:3000'];
+    const allowedOrigins = ['*'];
     const options = {
         origin: allowedOrigins,
     };
@@ -40,13 +40,14 @@ const StartServer = () => {
     // router.use(bodyParser.urlencoded({ extended: true }));
     // router.use(bodyParser.json());
     // router.use(bodyParser.);
+    router.use(express_1.default.urlencoded({ extended: false, limit: '100mb' }));
+    // router.use(express.({ extended: false, limit: '100mb' }));
     router.use(express_1.default.json({ limit: '100mb' }));
-    router.use(express_1.default.urlencoded({ extended: true, limit: '100mb' }));
     router.use((0, method_override_1.default)('X-HTTP-Method')); //          Microsoft
     router.use((0, method_override_1.default)('X-HTTP-Method-Override')); // Google/GData
     router.use((0, method_override_1.default)('X-Method-Override'));
     router.use((req, res, next) => {
-        res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
         if (req.method == 'OPTIONS') {
             res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');

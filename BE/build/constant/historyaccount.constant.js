@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.historyAccount = void 0;
+exports.constantshistoryAccount = void 0;
 const historyAccountType = {
     create: 'Create Account from user',
     update: 'Update Account from user',
@@ -10,6 +10,6 @@ const historyAccountType = {
     updateProfile: 'Update Profile from user',
     error: 'Error from user'
 };
-exports.historyAccount = {
+exports.constantshistoryAccount = {
     typehistory: historyAccountType
 };

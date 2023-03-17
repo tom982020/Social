@@ -12,22 +12,22 @@ export interface ICloud {
 }
 export interface IStories {
     images: ICloud;
-    videos: ICloud;
+    video: ICloud;
     title: string;
     isSave: boolean;
     description: string;
     timespan: Schema.Types.Date;
-    profile: Schema.Types.ObjectId;
+    profiles: Schema.Types.ObjectId;
     views: Array<{
         account: Schema.Types.ObjectId;
-        seen: {
-            type: boolean,
-            default: false
+        react: {
+            type: string
         }
     }>;
-    type: {
+    typeStories: {
         type: string;
         default: 'public',
-    }
+    },
+    currentStatus: string;
     deleted: false;
 }

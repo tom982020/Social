@@ -50,6 +50,69 @@ const uploadBackground = async (imagePath: any) => {
 	return res[0];
 };
 
+const uploadImage = async (imagePath: any) => {
+	let res: any = [];
+	cloudinary.config({
+		cloud_name: config.CLOUD_NAME,
+		api_key: config.API_KEY,
+		api_secret: config.API_SECRET,
+		secure: true,
+	});
+	await cloudinary.uploader
+		.upload(imagePath, {
+			resource_type: 'image',
+			effect: "improve"
+		})
+		.then(async (result) => {
+			await res.push(result);
+		});
+	return res[0];
+};
+const uploadVideo = async (imagePath: any) => {
+	let res: any = [];
+	cloudinary.config({
+		cloud_name: config.CLOUD_NAME,
+		api_key: config.API_KEY,
+		api_secret: config.API_SECRET,
+		secure: true,
+	});
+	await cloudinary.uploader
+		.upload(imagePath, {
+			resource_type: 'video',
+			crop: "scale",
+			end_offset: "60",
+			audio_codec: "none",
+			eager_async: true
+		})
+		.then(async (result) => {
+			await res.push(result);
+		});
+	return res[0];
+};
+
+const uploadShortVideo = async (imagePath: any) => {
+	let res: any = [];
+	cloudinary.config({
+		cloud_name: config.CLOUD_NAME,
+		api_key: config.API_KEY,
+		api_secret: config.API_SECRET,
+		secure: true,
+	});
+	await cloudinary.uploader
+		.upload(imagePath, {
+			resource_type: 'video',
+			crop: "scale",
+			end_offset: "4",
+			audio_codec: "none",
+			effect: "boomerang", duration: "4",
+			eager_async: true
+		})
+		.then(async (result) => {
+			await res.push(result);
+		});
+	return res[0];
+};
+
 const deleteImage = async (publicId: any) => {
 	let res: any = [];
 	cloudinary.config({
@@ -67,8 +130,27 @@ const deleteImage = async (publicId: any) => {
 	return res[0];
 };
 
+const deleteVideo = async (publicId: any) => {
+	let res: any = [];
+	cloudinary.config({
+		cloud_name: config.CLOUD_NAME,
+		api_key: config.API_KEY,
+		api_secret: config.API_SECRET,
+		secure: true,
+	});
+	await cloudinary.api.delete_resources_by_prefix(publicId)
+		.then(async (result) => {
+			await res.push(result)
+		})
+	return res[0];
+};
+
 export default {
 	uploadAvatar,
 	uploadBackground,
 	deleteImage,
+	uploadImage,
+	uploadShortVideo,
+	uploadVideo,
+	deleteVideo
 };

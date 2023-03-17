@@ -18,53 +18,64 @@ const Author_1 = __importDefault(require("../../model/Account/Author"));
 const mongoose_1 = __importDefault(require("mongoose"));
 // import cloudinary from 'cloudinary';
 const uploadImage_service_1 = __importDefault(require("../../service/uploadImage.service"));
+const handleSingleUploadFile_1 = require("../../library/handleSingleUploadFile");
 const fs_1 = __importDefault(require("fs"));
+const Cipher_1 = require("../../library/Cipher");
 // const Cloudinary = cloudinary.v2;
 const createProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const formData = request.body;
-    const file = request.file;
+    const uploadResult = yield (0, handleSingleUploadFile_1.handleSingleUploadFile)(request, response).then().catch((err) => {
+        return response
+            .status(404)
+            .json({ status: false, message: err.message });
+    });
+    const uploadedFile = uploadResult.file;
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {
         const checkUser = yield Author_1.default.findOne({
-            username: formData.username,
+            username: request.body.username,
         }).lean();
         if (checkUser) {
             const checkProfile = yield Profile_1.default.findOne({
                 authors: checkUser._id,
             });
             if (checkProfile) {
-                const data = fs_1.default.readFileSync(formData.image, 'utf8');
-                const image = uploadImage_service_1.default === null || uploadImage_service_1.default === void 0 ? void 0 : uploadImage_service_1.default.uploadImage(data);
-                // 	let avatar = {
-                // 		id: images.public_id,
-                // url: images.url
-                // secure_url: image.secure_url,
-                // format: image.format,
-                // resource_type: image.resourresource_type,
-                // created_at: image.created_at,
-                // 	}
-                // })
-                console.log(image);
-                return;
-                // checkProfile.avatar = image
-                // checkProfile.nickname = formData.nickname;
-                // checkProfile.DOB = formData.DOB;
-                // checkProfile.BIO = formData.BIO;
-                // checkProfile.destination = formData.destination;
-                // await checkProfile
-                // 	.save({ session: session })
-                // 	.then(async (pro) => {
-                // 		await session.commitTransaction();
-                // 		session.endSession();
-                // 		response.status(200).json({ pro });
-                // 	})
-                // 	.catch((error) => {
-                // 		response.status(500).json({ error });
-                // 	});
+                // const data = fs.readFileSync(formData.image, 'utf8');
+                const image = yield uploadImage_service_1.default.uploadAvatar(uploadedFile.path);
+                let avatar = {
+                    id: image === null || image === void 0 ? void 0 : image.public_id,
+                    url: image === null || image === void 0 ? void 0 : image.url,
+                    secure_url: image === null || image === void 0 ? void 0 : image.secure_url,
+                    format: image === null || image === void 0 ? void 0 : image.format,
+                    resource_type: image === null || image === void 0 ? void 0 : image.resource_type,
+                    created_at: image === null || image === void 0 ? void 0 : image.created_at,
+                };
+                fs_1.default.unlinkSync(uploadedFile.path);
+                checkProfile.avatar = avatar;
+                checkProfile.nickname = request.body.nickname;
+                checkProfile.DOB = request.body.DOB;
+                checkProfile.BIO = request.body.BIO;
+                checkProfile.destination = request.body.destination;
+                yield checkProfile
+                    .save({ session: session })
+                    .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
+                    yield session.commitTransaction();
+                    session.endSession();
+                    response.status(200).json({ pro });
+                }))
+                    .catch((error) => {
+                    response.status(500).json({ error });
+                });
             }
             else {
-                formData.authors = checkUser._id;
+                let formData = {
+                    nickname: request.body.nickname,
+                    DOB: request.body.DOB,
+                    BIO: request.body.BIO,
+                    destination: request.body.destination,
+                    authors: checkUser._id
+                };
+                fs_1.default.unlinkSync(uploadedFile.path);
                 const profile = new Profile_1.default(formData);
                 return profile
                     .save({ session: session })
@@ -96,13 +107,15 @@ const viewProfile = (request, response, next) => __awaiter(void 0, void 0, void 
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const user = request.body.user;
+        // const user = request.body.user;
         const id = request.params.idAuthor;
         const profile = yield Profile_1.default.findOne({ authors: id }).populate({
             path: 'authors',
-            select: 'name username email phone',
-        });
+            select: 'name username email phone avatar',
+        }).lean();
         if (profile) {
+            const phone = yield (0, Cipher_1.Decreypter)(profile.authors.phone);
+            profile.authors.phone = phone;
             yield session.commitTransaction();
             session.endSession();
             return response.status(200).json({ profile: profile });
@@ -148,19 +161,30 @@ const updateProfile = (request, response, next) => __awaiter(void 0, void 0, voi
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
     const id = request.params.id;
-    const formData = request.body;
+    const uploadResult = yield (0, handleSingleUploadFile_1.handleSingleUploadFile)(request, response);
+    const uploadedFile = uploadResult.file;
     try {
         const profile = yield Profile_1.default.findById(id);
         if (profile) {
-            profile.nickname = formData.nickname;
-            profile.DOB = formData.DOB;
-            profile.BIO = formData.BIO;
-            profile.avatar = formData.avatar ? formData.avatar : profile.avatar;
-            profile.background = formData.background
-                ? formData.background
-                : profile.background;
-            profile.destination = formData.destination
-                ? formData.destination
+            profile.nickname = request.body.nickname ? request.body.nickname : profile.nickname;
+            profile.DOB = request.body.DOB ? request.body.DOB : profile.DOB;
+            profile.BIO = request.body.BIO ? request.body.BIO : profile.DOB;
+            const imageAvatar = yield uploadImage_service_1.default.uploadAvatar(uploadedFile.path);
+            if (uploadedFile) {
+                if (profile.avatar)
+                    yield uploadImage_service_1.default.deleteImage(profile.avatar.id);
+            }
+            let avatar = {
+                id: imageAvatar === null || imageAvatar === void 0 ? void 0 : imageAvatar.public_id,
+                url: imageAvatar === null || imageAvatar === void 0 ? void 0 : imageAvatar.url,
+                secure_url: imageAvatar === null || imageAvatar === void 0 ? void 0 : imageAvatar.secure_url,
+                format: imageAvatar === null || imageAvatar === void 0 ? void 0 : imageAvatar.format,
+                resource_type: imageAvatar === null || imageAvatar === void 0 ? void 0 : imageAvatar.resource_type,
+                created_at: imageAvatar === null || imageAvatar === void 0 ? void 0 : imageAvatar.created_at,
+            };
+            profile.avatar = avatar ? avatar : profile.avatar;
+            profile.destination = request.body.destination
+                ? request.body.destination
                 : profile.destination;
             yield profile
                 .save({ session: session })
@@ -187,9 +211,69 @@ const updateProfile = (request, response, next) => __awaiter(void 0, void 0, voi
         return response.status(500).json({ error: err });
     }
 });
+const updateProfileBackground = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    const id = request.params.id;
+    try {
+        const profile = yield Profile_1.default.findById(id);
+        const user = request;
+        if (profile) {
+            yield (0, handleSingleUploadFile_1.handleSingleUploadFile)(request, response).then((result) => __awaiter(void 0, void 0, void 0, function* () {
+                if (result) {
+                    if (profile.background.id != null) {
+                        yield uploadImage_service_1.default.deleteImage(profile.background.id);
+                    }
+                }
+                const image = yield uploadImage_service_1.default.uploadBackground(result.file.path);
+                fs_1.default.unlinkSync(result.file.path);
+                let background = {
+                    id: image === null || image === void 0 ? void 0 : image.public_id,
+                    url: image === null || image === void 0 ? void 0 : image.url,
+                    secure_url: image === null || image === void 0 ? void 0 : image.secure_url,
+                    format: image === null || image === void 0 ? void 0 : image.format,
+                    resource_type: image === null || image === void 0 ? void 0 : image.resource_type,
+                    created_at: image === null || image === void 0 ? void 0 : image.created_at,
+                };
+                profile.background = background
+                    ? background
+                    : profile.background;
+                yield profile
+                    .save({ session: session })
+                    .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
+                    yield session.commitTransaction();
+                    session.endSession();
+                    response.status(200).json({ pro });
+                }))
+                    .catch((error) => {
+                    response.status(500).json({ error });
+                });
+            })).catch((err) => __awaiter(void 0, void 0, void 0, function* () {
+                yield session.abortTransaction();
+                session.endSession();
+                return response
+                    .status(400)
+                    .json({ status: false, message: err.message });
+            }));
+        }
+        else {
+            yield session.abortTransaction();
+            session.endSession();
+            return response
+                .status(400)
+                .json({ status: false, message: 'Profile not found' });
+        }
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        session.endSession();
+        return response.status(500).json({ error: err });
+    }
+});
 exports.default = {
     createProfile,
     viewProfile,
     updateProfile,
     getProfileAccount,
+    updateProfileBackground,
 };
