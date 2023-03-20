@@ -1,9 +1,0 @@
-FROM node:18.14.2
-WORKDIR /usr
-COPY package.json ./
-COPY tsconfig.json ./
-COPY src ./usr
-RUN ls -a
-RUN yarn
-EXPOSE 8080
-CMD ["yarn","run","dev"]
