@@ -28,3 +28,4 @@ services:
       - mongo
 volumes:
   mongo-data:
+    driver: local
