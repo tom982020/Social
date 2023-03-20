@@ -17,7 +17,7 @@ const http = require('https'); // or 'https' for https:// URLs
 import * as path from 'path';
 
 dotenv.config()
-const file = fs.createWriteStream("file.mp3");
+
 
 const spotifyApi = new SpotifyWebApi({
     clientId: process.env.ClientID,
@@ -47,6 +47,7 @@ const createStoriesImage = async (
         } else {
             await handleSingleUploadFileNoLimit(request, response).then(async (result: any) => {
                 let formData: any;
+                const file = fs.createWriteStream("file.mp3");
                 if (request.body.mp3) {
                     await http.get(request.body.mp3,
                         async function (resp: any) {

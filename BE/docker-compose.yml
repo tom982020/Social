@@ -1,14 +1,5 @@
 version: "3.7"
 
-networks:
-  hfnet:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.1.0/24
-          gateway: 192.168.1.1
-
 services:
   mongo:
     container_name: mongo
@@ -18,9 +9,6 @@ services:
       - ./data:/data/db
     ports:
       - 27017:27017
-    networks:
-      hfnet:
-        ipv4_address: 192.168.1.5
   app:
     container_name: BE_DEV
     restart: always
@@ -34,9 +22,6 @@ services:
       - MONGO_URL=${MONGODB_URL}
     ports:
       - 8080:8080
-    networks:
-      hfnet:
-        ipv4_address: 192.168.1.4
     external_links:
       - mongo
     depends_on:
