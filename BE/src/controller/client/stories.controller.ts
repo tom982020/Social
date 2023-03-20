@@ -10,7 +10,6 @@ import fs from 'fs'
 import moment from 'moment';
 import { IStories } from '../../interface/Schema/IStories';
 import checkElementAlready from '../../library/checkObject';
-import { getVideoDurationInSeconds } from 'get-video-duration';
 import SpotifyWebApi from 'spotify-web-api-node'
 import dotenv from 'dotenv';
 const http = require('https'); // or 'https' for https:// URLs

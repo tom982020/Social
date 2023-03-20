@@ -7,4 +7,13 @@ const isEmpty = (obj) => {
     }
     return true;
 };
-exports.default = isEmpty;
+const checkElementAlready = (arr, name, id) => {
+    const check = arr.find((element) => {
+        if (element.name === id) {
+            return true;
+        }
+        return false;
+    });
+    return check;
+};
+exports.default = { isEmpty, checkElementAlready };

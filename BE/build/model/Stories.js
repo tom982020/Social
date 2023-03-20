@@ -30,6 +30,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const mongooseDelete = require('mongoose-delete');
 const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
+const stories_constant_1 = require("../constant/stories.constant");
 const StoriesSchema = new mongoose_1.Schema({
     image: {
         id: mongoose_1.Schema.Types.String,
@@ -57,14 +58,25 @@ const StoriesSchema = new mongoose_1.Schema({
     description: {
         type: mongoose_1.Schema.Types.String,
     },
-    timespan: mongoose_1.Schema.Types.Date,
-    profile: mongoose_1.Schema.Types.ObjectId,
+    timespan: mongoose_1.Schema.Types.String,
+    profiles: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'Profile'
+    },
     views: [
         {
-            id: mongoose_1.Schema.Types.ObjectId,
-            like: mongoose_1.Schema.Types.String,
+            account: mongoose_1.Schema.Types.ObjectId,
+            react: mongoose_1.Schema.Types.String,
         },
     ],
+    typeStories: {
+        type: mongoose_1.Schema.Types.String,
+        default: stories_constant_1.constantsStory.typestories.public
+    },
+    currentStatus: {
+        type: mongoose_1.Schema.Types.String,
+        default: stories_constant_1.constantsStory.typeCurrent.display
+    },
     deleted: {
         type: mongoose_1.Schema.Types.Boolean,
         default: false,
@@ -81,4 +93,4 @@ StoriesSchema.plugin(mongooseDelete, {
 });
 // paginate
 StoriesSchema.plugin(mongoose_paginate_v2_1.default);
-exports.default = mongoose_1.default.model('Profile', StoriesSchema);
+exports.default = mongoose_1.default.model('Stories', StoriesSchema);

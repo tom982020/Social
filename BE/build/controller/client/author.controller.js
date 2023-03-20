@@ -132,6 +132,7 @@ const loginAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         }
         else {
             const hash = bcrypt_1.default.compareSync(req.body.password, user[0].hasPassword);
+            const profileModel = yield Profile_1.default.findOne({ authors: user[0]._id });
             const users = {
                 username: user[0].username,
                 hasPassword: user[0].hasPassword,
@@ -140,8 +141,8 @@ const loginAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 created: user[0].created,
                 type: user[0].type,
                 id: user[0]._id,
+                profile: profileModel
             };
-            const profileModel = yield Profile_1.default.findOne({ authors: user[0]._id });
             let history = user[0].historyLogin;
             if (history.length == 0) {
                 yield history.push({

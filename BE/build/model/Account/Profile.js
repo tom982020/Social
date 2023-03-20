@@ -30,11 +30,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const mongoose_delete_1 = __importDefault(require("mongoose-delete"));
 const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
+const profile_contant_1 = require("../../constant/profile.contant");
 const ProfileSchema = new mongoose_1.Schema({
     authors: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Author',
         default: null,
+    },
+    route: {
+        type: mongoose_1.Schema.Types.String
     },
     nickname: {
         type: mongoose_1.Schema.Types.String,
@@ -70,12 +74,39 @@ const ProfileSchema = new mongoose_1.Schema({
     },
     rank: [
         {
-            id: mongoose_1.Schema.Types.ObjectId,
+            id: {
+                type: mongoose_1.Schema.Types.ObjectId,
+                ref: 'Profile'
+            },
             star: {
                 type: mongoose_1.Schema.Types.Number,
                 default: 0,
             },
         },
+    ],
+    friend: [
+        {
+            id: {
+                type: mongoose_1.Schema.Types.ObjectId,
+                ref: 'Profile'
+            },
+            accept: {
+                type: mongoose_1.Schema.Types.Boolean,
+                default: false
+            }
+        }
+    ],
+    follow: [
+        {
+            id: {
+                type: mongoose_1.Schema.Types.ObjectId,
+                ref: 'Profile'
+            },
+            typeFollow: {
+                type: mongoose_1.Schema.Types.String,
+                default: profile_contant_1.profileContants.typeFollow.NormalPerson
+            }
+        }
     ],
     deleted: {
         type: mongoose_1.Schema.Types.Boolean,

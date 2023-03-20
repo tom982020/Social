@@ -57,6 +57,104 @@ const uploadBackground = (imagePath) => __awaiter(void 0, void 0, void 0, functi
     }));
     return res[0];
 });
+const uploadImage = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
+    cloudinary_1.v2.config({
+        cloud_name: config_1.config.CLOUD_NAME,
+        api_key: config_1.config.API_KEY,
+        api_secret: config_1.config.API_SECRET,
+        secure: true,
+    });
+    yield cloudinary_1.v2.uploader
+        .upload(imagePath, {
+        resource_type: 'image',
+        effect: "improve"
+    })
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
+});
+const uploadImageVideo = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
+    cloudinary_1.v2.config({
+        cloud_name: config_1.config.CLOUD_NAME,
+        api_key: config_1.config.API_KEY,
+        api_secret: config_1.config.API_SECRET,
+        secure: true,
+    });
+    yield cloudinary_1.v2.uploader
+        .upload(imagePath, {
+        resource_type: 'image',
+        crop: "scale",
+        audio_codec: "none",
+        effect: "boomerang", duration: "8",
+    })
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
+});
+const uploadVideo = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
+    cloudinary_1.v2.config({
+        cloud_name: config_1.config.CLOUD_NAME,
+        api_key: config_1.config.API_KEY,
+        api_secret: config_1.config.API_SECRET,
+        secure: true,
+    });
+    yield cloudinary_1.v2.uploader
+        .upload(imagePath, {
+        resource_type: 'video',
+        crop: "scale",
+        end_offset: "60",
+        audio_codec: "none",
+        eager_async: true
+    })
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
+});
+const uploadShortVideo = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
+    cloudinary_1.v2.config({
+        cloud_name: config_1.config.CLOUD_NAME,
+        api_key: config_1.config.API_KEY,
+        api_secret: config_1.config.API_SECRET,
+        secure: true,
+    });
+    yield cloudinary_1.v2.uploader
+        .upload(imagePath, {
+        resource_type: 'video',
+        crop: "scale",
+        end_offset: "4",
+        audio_codec: "none",
+        effect: "boomerang", duration: "4",
+        eager_async: true
+    })
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
+});
+const uploadMp3 = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
+    cloudinary_1.v2.config({
+        cloud_name: config_1.config.CLOUD_NAME,
+        api_key: config_1.config.API_KEY,
+        api_secret: config_1.config.API_SECRET,
+        secure: true,
+    });
+    yield cloudinary_1.v2.uploader
+        .upload(imagePath, {
+        resource_type: 'video'
+    })
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
+});
 const deleteImage = (publicId) => __awaiter(void 0, void 0, void 0, function* () {
     let res = [];
     cloudinary_1.v2.config({
@@ -72,8 +170,28 @@ const deleteImage = (publicId) => __awaiter(void 0, void 0, void 0, function* ()
     }));
     return res[0];
 });
+const deleteVideo = (publicId) => __awaiter(void 0, void 0, void 0, function* () {
+    let res = [];
+    cloudinary_1.v2.config({
+        cloud_name: config_1.config.CLOUD_NAME,
+        api_key: config_1.config.API_KEY,
+        api_secret: config_1.config.API_SECRET,
+        secure: true,
+    });
+    yield cloudinary_1.v2.api.delete_resources_by_prefix(publicId)
+        .then((result) => __awaiter(void 0, void 0, void 0, function* () {
+        yield res.push(result);
+    }));
+    return res[0];
+});
 exports.default = {
     uploadAvatar,
     uploadBackground,
     deleteImage,
+    uploadImage,
+    uploadShortVideo,
+    uploadVideo,
+    deleteVideo,
+    uploadMp3,
+    uploadImageVideo
 };

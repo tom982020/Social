@@ -23,6 +23,8 @@ const fs_1 = __importDefault(require("fs"));
 const Cipher_1 = require("../../library/Cipher");
 // const Cloudinary = cloudinary.v2;
 const createProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const r = request;
+    const user = r.user;
     const uploadResult = yield (0, handleSingleUploadFile_1.handleSingleUploadFile)(request, response).then().catch((err) => {
         return response
             .status(404)
@@ -33,7 +35,7 @@ const createProfile = (request, response, next) => __awaiter(void 0, void 0, voi
     session.startTransaction();
     try {
         const checkUser = yield Author_1.default.findOne({
-            username: request.body.username,
+            username: user.username,
         }).lean();
         if (checkUser) {
             const checkProfile = yield Profile_1.default.findOne({
@@ -68,8 +70,19 @@ const createProfile = (request, response, next) => __awaiter(void 0, void 0, voi
                 });
             }
             else {
+                const ExistName = yield Profile_1.default.find({ nickname: request.body.nickname }).lean();
+                if (ExistName.length > 0) {
+                    yield session.abortTransaction();
+                    session.endSession();
+                    return response
+                        .status(404)
+                        .json({ status: false, message: 'Nick name is exist' });
+                }
+                const randomNumber = Math.floor(Math.random() * 1000) + 1;
+                const getDOB = request.body.DOB.split('/')[0];
                 let formData = {
                     nickname: request.body.nickname,
+                    route: request.body.nickname + getDOB + randomNumber,
                     DOB: request.body.DOB,
                     BIO: request.body.BIO,
                     destination: request.body.destination,
@@ -104,21 +117,48 @@ const createProfile = (request, response, next) => __awaiter(void 0, void 0, voi
     }
 });
 const viewProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const route = yield request.params.routeProfile;
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        // const user = request.body.user;
-        const id = request.params.idAuthor;
-        const profile = yield Profile_1.default.findOne({ authors: id }).populate({
+        const profile = yield Profile_1.default.findOne({
+            $and: [
+                {
+                    route: route,
+                },
+                {
+                    deleted: false,
+                }
+            ]
+        }).populate({
             path: 'authors',
             select: 'name username email phone avatar',
         }).lean();
         if (profile) {
             const phone = yield (0, Cipher_1.Decreypter)(profile.authors.phone);
+            let star = 0;
+            let temp = {};
             profile.authors.phone = phone;
+            yield profile.rank.map((item) => {
+                star = star + item.star;
+                return star;
+            });
+            temp.id = profile._id;
+            temp.authors = profile.authors;
+            temp.nickname = profile.nickname;
+            temp.DOB = profile.DOB;
+            temp.BIO = profile.BIO;
+            temp.destination = profile.destination;
+            temp.friend = profile.friend;
+            temp.follow = profile.follow;
+            temp.route = profile.route;
+            temp.rank = star / profile.rank.length;
+            temp.evaluate = profile.rank.length;
+            temp.friendNumber = profile.friend.length;
+            temp.followNumber = profile.follow.length;
             yield session.commitTransaction();
             session.endSession();
-            return response.status(200).json({ profile: profile });
+            return response.status(200).json({ profile: temp });
         }
         else {
             yield session.abortTransaction();
@@ -158,6 +198,8 @@ const getProfileAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 const updateProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const r = request;
+    const user = r.user;
     let session = yield mongoose_1.default.startSession();
     session.startTransaction();
     const id = request.params.id;
@@ -182,6 +224,7 @@ const updateProfile = (request, response, next) => __awaiter(void 0, void 0, voi
                 resource_type: imageAvatar === null || imageAvatar === void 0 ? void 0 : imageAvatar.resource_type,
                 created_at: imageAvatar === null || imageAvatar === void 0 ? void 0 : imageAvatar.created_at,
             };
+            fs_1.default.unlinkSync(uploadedFile.path);
             profile.avatar = avatar ? avatar : profile.avatar;
             profile.destination = request.body.destination
                 ? request.body.destination
@@ -217,7 +260,6 @@ const updateProfileBackground = (request, response, next) => __awaiter(void 0, v
     const id = request.params.id;
     try {
         const profile = yield Profile_1.default.findById(id);
-        const user = request;
         if (profile) {
             yield (0, handleSingleUploadFile_1.handleSingleUploadFile)(request, response).then((result) => __awaiter(void 0, void 0, void 0, function* () {
                 if (result) {
@@ -270,10 +312,233 @@ const updateProfileBackground = (request, response, next) => __awaiter(void 0, v
         return response.status(500).json({ error: err });
     }
 });
+const addFriendProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const r = request;
+    const user = r.user;
+    const id = request.body.idProfile;
+    let session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const profile = yield Profile_1.default.findById(id);
+        const profileMe = yield Profile_1.default.findOne({ authors: user.id });
+        if (profile == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Profile not found');
+        }
+        if (profileMe == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Create profile before add friend');
+        }
+        let check = false;
+        yield profileMe.friend.find((element) => {
+            if (element.id.toString() === profile._id.toString()) {
+                check = true;
+                return check;
+            }
+            check = false;
+            return check;
+        });
+        if (check == false) {
+            profileMe.friend.push({
+                id: profile._id,
+                accept: false
+            });
+        }
+        profileMe.save()
+            .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.commitTransaction();
+            session.endSession();
+            response.status(200).json({ pro });
+        }))
+            .catch((err) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(500).json({ error: err });
+        }));
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        session.endSession();
+        return response.status(500).json({ error: err });
+    }
+});
+const acceptFriendProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const r = request;
+    const user = r.user;
+    const id = request.body.idProfile;
+    const accept = request.body.accept;
+    let session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const profile = yield Profile_1.default.findById(id);
+        const profileMe = yield Profile_1.default.findOne({ authors: user.id });
+        if (profile == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Profile not found');
+        }
+        if (profileMe == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Create profile before add friend');
+        }
+        if (accept == false) {
+            yield profileMe.friend.map((element, index) => {
+                if (element.id.toString() == id) {
+                    profileMe.friend.splice(index, 1);
+                }
+            });
+        }
+        else {
+            yield profileMe.friend.map((element) => {
+                if (element.id.toString() === profile._id.toString()) {
+                    element.accept = true;
+                }
+            });
+        }
+        profileMe.save()
+            .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.commitTransaction();
+            session.endSession();
+            response.status(200).json({ pro });
+        }))
+            .catch((err) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(500).json({ error: err });
+        }));
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        session.endSession();
+        return response.status(500).json({ error: err });
+    }
+});
+const rankProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const r = request;
+    const user = r.user;
+    const id = request.body.idProfile;
+    const star = request.body.star;
+    let session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const profile = yield Profile_1.default.findById(id);
+        const profileMe = yield Profile_1.default.findOne({ authors: user.id });
+        if (profile == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Profile not found');
+        }
+        if (profileMe == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Create profile before add friend');
+        }
+        let check = false;
+        yield profileMe.rank.find((element) => {
+            if (element.id.toString() === profile._id.toString()) {
+                check = true;
+                element.star = star;
+                return check;
+            }
+            check = false;
+            return check;
+        });
+        if (check == false) {
+            profileMe.rank.push({
+                id: profile._id,
+                star: star
+            });
+        }
+        profileMe.save()
+            .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.commitTransaction();
+            session.endSession();
+            response.status(200).json({ pro });
+        }))
+            .catch((err) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(500).json({ error: err });
+        }));
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        session.endSession();
+        return response.status(500).json({ error: err });
+    }
+});
+const followProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const r = request;
+    const user = r.user;
+    const id = request.body.idProfile;
+    const typeFollow = request.body.star;
+    let session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const profile = yield Profile_1.default.findById(id);
+        const profileMe = yield Profile_1.default.findOne({ authors: user.id });
+        if (profile == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Profile not found');
+        }
+        if (profileMe == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Create profile before add friend');
+        }
+        let check = false;
+        yield profileMe.follow.find((element) => {
+            if (element.id.toString() === id) {
+                check = true;
+                return check;
+            }
+            check = false;
+            return check;
+        });
+        if (check == false) {
+            profileMe.follow.push({
+                id: profile._id,
+                typeFollow: typeFollow
+            });
+        }
+        else {
+            yield profileMe.follow.map((element, index) => {
+                if (element.id.toString() === id) {
+                    profileMe.follow.splice(index, 1);
+                    return;
+                }
+            });
+        }
+        profileMe.save()
+            .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.commitTransaction();
+            session.endSession();
+            response.status(200).json({ pro });
+        }))
+            .catch((err) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(500).json({ error: err });
+        }));
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        session.endSession();
+        return response.status(500).json({ error: err });
+    }
+});
 exports.default = {
     createProfile,
     viewProfile,
     updateProfile,
     getProfileAccount,
     updateProfileBackground,
+    addFriendProfile,
+    acceptFriendProfile,
+    rankProfile,
+    followProfile
 };

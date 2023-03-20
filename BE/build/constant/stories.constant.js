@@ -6,6 +6,12 @@ const TYPE_STORIES = {
     friend: 'friend',
     me: 'me'
 };
+const TYPE_CURRENT = {
+    time_out: 'time-out',
+    delete: 'delete',
+    display: 'display'
+};
 exports.constantsStory = {
-    typestories: TYPE_STORIES
+    typestories: TYPE_STORIES,
+    typeCurrent: TYPE_CURRENT
 };

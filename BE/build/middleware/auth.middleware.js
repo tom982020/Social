@@ -30,6 +30,7 @@ const checkToken = (req, res, next) => {
                     .json({ error: true, message: 'Unauthorized access.' });
             decoded.data.phone = yield (0, Cipher_1.Decreypter)(decoded.data.phone);
             req.user = decoded.data;
+            req.token = token;
             next();
         }));
     }

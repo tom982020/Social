@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleSingleUploadFile = void 0;
+exports.handleSingleVideo = exports.handleSingleUploadFileNoLimit = exports.handleSingleUploadFile = void 0;
 const path = __importStar(require("path"));
 const multer_1 = __importDefault(require("multer"));
 const uploadFilePath = path.resolve(__dirname, '../..', 'public/uploads');
@@ -57,6 +57,30 @@ const uploadFile = (0, multer_1.default)({
         callback(new Error('Invalid file type. Only picture file on type PNG and JPG are allowed!'));
     },
 }).single('picture');
+const uploadFileNoLimit = (0, multer_1.default)({
+    storage: storageFile,
+    limits: { fileSize: 5 * 1920 * 1080 },
+    fileFilter(req, file, callback) {
+        const extension = ['.png', '.jpg', '.jpeg'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
+        const mimeType = ['image/png', 'image/jpg', 'image/jpeg'].indexOf(file.mimetype) >= 0;
+        if (extension && mimeType) {
+            return callback(null, true);
+        }
+        callback(new Error('Invalid file type. Only picture file on type PNG and JPG are allowed!'));
+    },
+}).single('image');
+const uploadVideo = (0, multer_1.default)({
+    storage: storageFile,
+    limits: { fileSize: 100 * 1920 * 1080 },
+    fileFilter(req, file, callback) {
+        const extension = ['.mp4'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
+        const mimeType = ['video/mp4'].indexOf(file.mimetype) >= 0;
+        if (extension && mimeType) {
+            return callback(null, true);
+        }
+        callback(new Error('Invalid file type. Only picture file on type PNG and JPG are allowed!'));
+    },
+}).single('video');
 const handleSingleUploadFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return new Promise((resolve, reject) => {
         uploadFile(req, res, (error) => {
@@ -68,3 +92,25 @@ const handleSingleUploadFile = (req, res) => __awaiter(void 0, void 0, void 0, f
     });
 });
 exports.handleSingleUploadFile = handleSingleUploadFile;
+const handleSingleUploadFileNoLimit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        uploadFileNoLimit(req, res, (error) => {
+            if (error) {
+                reject(error);
+            }
+            resolve({ file: req.file, body: req.body });
+        });
+    });
+});
+exports.handleSingleUploadFileNoLimit = handleSingleUploadFileNoLimit;
+const handleSingleVideo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        uploadVideo(req, res, (error) => {
+            if (error) {
+                reject(error);
+            }
+            resolve({ file: req.file, body: req.body });
+        });
+    });
+});
+exports.handleSingleVideo = handleSingleVideo;
