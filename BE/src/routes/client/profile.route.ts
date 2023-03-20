@@ -11,7 +11,7 @@ const profileRoute = express.Router();
 
 profileRoute.use(checkToken);
 profileRoute.get('/:idAccount', profileController.getProfileAccount);
-profileRoute.get('/view/:idAuthor', profileController.viewProfile);
+profileRoute.get('/view/:routeProfile', profileController.viewProfile);
 profileRoute.post('/create', profileController.createProfile);
 profileRoute.put('/:id', profileController.updateProfile);
 profileRoute.put('/update-background/:id', profileController.updateProfileBackground);

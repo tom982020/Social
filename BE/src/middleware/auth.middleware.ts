@@ -21,6 +21,7 @@ export const checkToken = (req: any, res: Response, next: NextFunction) => {
 					.json({ error: true, message: 'Unauthorized access.' });
 			decoded.data.phone = await Decreypter(decoded.data.phone);
 			req.user = decoded.data;
+			req.token = token
 			next();
 		});
 	} else {

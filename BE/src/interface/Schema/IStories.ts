@@ -16,7 +16,7 @@ export interface IStories {
     title: string;
     isSave: boolean;
     description: string;
-    timespan: Schema.Types.Date;
+    timespan: Schema.Types.String;
     profiles: Schema.Types.ObjectId;
     views: Array<{
         account: Schema.Types.ObjectId;

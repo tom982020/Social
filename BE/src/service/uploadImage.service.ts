@@ -68,6 +68,27 @@ const uploadImage = async (imagePath: any) => {
 		});
 	return res[0];
 };
+
+const uploadImageVideo = async (imagePath: any) => {
+	let res: any = [];
+	cloudinary.config({
+		cloud_name: config.CLOUD_NAME,
+		api_key: config.API_KEY,
+		api_secret: config.API_SECRET,
+		secure: true,
+	});
+	await cloudinary.uploader
+		.upload(imagePath, {
+			resource_type: 'image',
+			crop: "scale",
+			audio_codec: "none",
+			effect: "boomerang", duration: "8",
+		})
+		.then(async (result) => {
+			await res.push(result);
+		});
+	return res[0];
+};
 const uploadVideo = async (imagePath: any) => {
 	let res: any = [];
 	cloudinary.config({
@@ -106,6 +127,23 @@ const uploadShortVideo = async (imagePath: any) => {
 			audio_codec: "none",
 			effect: "boomerang", duration: "4",
 			eager_async: true
+		})
+		.then(async (result) => {
+			await res.push(result);
+		});
+	return res[0];
+};
+const uploadMp3 = async (imagePath: any) => {
+	let res: any = [];
+	cloudinary.config({
+		cloud_name: config.CLOUD_NAME,
+		api_key: config.API_KEY,
+		api_secret: config.API_SECRET,
+		secure: true,
+	});
+	await cloudinary.uploader
+		.upload(imagePath, {
+			resource_type: 'video'
 		})
 		.then(async (result) => {
 			await res.push(result);
@@ -152,5 +190,7 @@ export default {
 	uploadImage,
 	uploadShortVideo,
 	uploadVideo,
-	deleteVideo
+	deleteVideo,
+	uploadMp3,
+	uploadImageVideo
 };

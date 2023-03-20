@@ -12,6 +12,9 @@ import fs from 'fs'
 import { Decreypter } from '../../library/Cipher';
 import { SocketAddress } from 'net';
 import { profileContants } from '../../constant/profile.contant';
+import Profile from '../../model/Account/Profile';
+import { IProfile, IRank } from '../../interface/Schema/IProfile';
+import { AnyAaaaRecord } from 'dns';
 // const Cloudinary = cloudinary.v2;
 const createProfile = async (
 	request: Request,
@@ -67,8 +70,20 @@ const createProfile = async (
 						response.status(500).json({ error });
 					});
 			} else {
+				const ExistName = await ProfileModel.find({ nickname: request.body.nickname }).lean()
+				if (ExistName.length > 0) {
+					await session.abortTransaction();
+					session.endSession();
+					return response
+						.status(404)
+						.json({ status: false, message: 'Nick name is exist' });
+
+				}
+				const randomNumber = Math.floor(Math.random() * 1000) + 1;
+				const getDOB = request.body.DOB.split('/')[0]
 				let formData = {
 					nickname: request.body.nickname,
+					route: request.body.nickname + getDOB + randomNumber,
 					DOB: request.body.DOB,
 					BIO: request.body.BIO,
 					destination: request.body.destination,
@@ -106,21 +121,48 @@ const viewProfile = async (
 	response: Response,
 	next: NextFunction
 ) => {
+	const route = await request.params.routeProfile;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	try {
-		// const user = request.body.user;
-		const id = request.params.idAuthor;
-		const profile: any = await ProfileModel.findOne({ authors: id }).populate({
+		const profile: any = await ProfileModel.findOne({
+			$and: [
+				{
+					route: route,
+				},
+				{
+					deleted: false,
+				}
+			]
+		}).populate({
 			path: 'authors',
 			select: 'name username email phone avatar',
 		}).lean();
 		if (profile) {
 			const phone = await Decreypter(profile.authors.phone);
-			profile.authors.phone = phone
+			let star: any = 0;
+			let temp: any = {};
+			profile.authors.phone = phone;
+			await profile.rank.map((item: IRank) => {
+				star = star + item.star
+				return star;
+			});
+			temp.id = profile._id;
+			temp.authors = profile.authors;
+			temp.nickname = profile.nickname;
+			temp.DOB = profile.DOB;
+			temp.BIO = profile.BIO;
+			temp.destination = profile.destination;
+			temp.friend = profile.friend;
+			temp.follow = profile.follow;
+			temp.route = profile.route;
+			temp.rank = star / profile.rank.length;
+			temp.evaluate = profile.rank.length;
+			temp.friendNumber = profile.friend.length;
+			temp.followNumber = profile.follow.length;
 			await session.commitTransaction();
 			session.endSession();
-			return response.status(200).json({ profile: profile });
+			return response.status(200).json({ profile: temp });
 		} else {
 			await session.abortTransaction();
 			session.endSession();

@@ -39,7 +39,7 @@ const StoriesSchema = new Schema(
 		description: {
 			type: Schema.Types.String,
 		},
-		timespan: Schema.Types.Date,
+		timespan: Schema.Types.String,
 		profiles: {
 			type: Schema.Types.ObjectId,
 			ref: 'Profile'

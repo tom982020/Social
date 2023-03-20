@@ -15,6 +15,9 @@ const ProfileSchema = new Schema(
 			ref: 'Author',
 			default: null,
 		},
+		route: {
+			type: Schema.Types.String
+		},
 		nickname: {
 			type: Schema.Types.String,
 			default: null,

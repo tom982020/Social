@@ -133,6 +133,7 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 				});
 			} else {
 				const hash = bcrypt.compareSync(req.body.password, user[0].hasPassword);
+				const profileModel = await Profile.findOne({ authors: user[0]._id });
 				const users = {
 					username: user[0].username,
 					hasPassword: user[0].hasPassword,
@@ -141,8 +142,9 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 					created: user[0].created,
 					type: user[0].type,
 					id: user[0]._id,
+					profile: profileModel
 				};
-				const profileModel = await Profile.findOne({ authors: user[0]._id });
+
 				let history = user[0].historyLogin;
 				if (history.length == 0) {
 					await history.push({

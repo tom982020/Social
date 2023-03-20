@@ -4,6 +4,7 @@ import { ICloud } from './IStories';
 
 export interface IProfile {
     nickname: string;
+    route: string;
     authors: Schema.Types.ObjectId;
     DOB: string;
     BIO: string;

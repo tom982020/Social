@@ -7,6 +7,7 @@ import { checkToken } from '../../middleware/auth.middleware';
 
 const storiesRoute = express.Router();
 storiesRoute.use(checkToken);
+// storiesRoute.get('/search', storiesController.getSpotify);
 storiesRoute.post('/create-image', storiesController.createStoriesImage);
 storiesRoute.post('/create-video', storiesController.createStoriesVideo);
 storiesRoute.put('/update-video/:id', storiesController.updateStoriesVideo);
