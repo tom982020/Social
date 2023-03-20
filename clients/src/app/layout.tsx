@@ -17,8 +17,6 @@ export default function RootLayout({
 		<html lang="en">
 			<head />
 			<body>
-				<AuthContextProvider
-				/>
 				<MantineProvider
 					withGlobalStyles
 					withNormalizeCSS

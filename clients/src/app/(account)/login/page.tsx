@@ -16,7 +16,6 @@ import {
 } from '@mantine/core';
 import { IconAlertCircle, IconLockOpen, IconUserCheck } from '@tabler/icons';
 import { motion } from 'framer-motion';
-
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
 import { ILogin } from 'constant/interface/IvalidationAccount';
@@ -52,9 +51,8 @@ const LoginComponent = () => {
 
 	const handleSubmit = () => {
 		// e.preventDefault();
-		setVisible(true);
-		if (validate.email == '' && validate.password == '') {
-			// return;
+		if (form.values.username != '' && form.values.password != '') {
+			setVisible(true);
 			const url = 'http://localhost:8080/login';
 			const options = {
 				method: 'POST',
@@ -96,7 +94,7 @@ const LoginComponent = () => {
 					setVisible(false);
 				});
 		} else {
-			toast.error('Input Wrong !', {
+			toast.error('Input Not Empty !', {
 				position: toast.POSITION.TOP_CENTER,
 			});
 		}
