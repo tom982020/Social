@@ -49,7 +49,7 @@ const StartServer = () => {
 
 		next();
 	});
-	const allowedOrigins = ['*', 'http://localhost:8080'];
+	const allowedOrigins = ['*', 'http://localhost:8080', 'http://localhost:3000/'];
 
 	const options: cors.CorsOptions = {
 		origin: allowedOrigins,
