@@ -6,7 +6,7 @@ import HistoryAccount from '../../model/Account/HistoryAccount';
 import Profile from '../../model/Account/Profile';
 import bcrypt from 'bcrypt';
 import { config } from '../../config/config';
-import { Encrypter, Decreypter } from '../../library/Cipher';
+import { Encrypter, Decrypter } from '../../library/Cipher';
 import jwt from 'jsonwebtoken';
 import { constantshistoryAccount } from '../../constant/historyAccount.constant';
 import { IAuthorResponse } from '../../interface/Schema/IAuthor';
@@ -62,7 +62,7 @@ const readAuthor = (req: Request, res: Response, next: NextFunction) => {
 
 	return Author.findById(authorId)
 		.then(async (author: any) => {
-			const phone = await Decreypter(author.phone);
+			const phone = await Decrypter(author.phone);
 			author.phone = phone;
 			author
 				? res.status(200).json({ author: author })
@@ -225,12 +225,13 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 		jwt.verify(access_token, config.secret, (err: any, decoded: any) => {
 			if (err) {
 				if (refresh_token) {
-					jwt.verify(refresh_token, config.secret, (err: any, decoded: any) => {
+					jwt.verify(refresh_token, config.secret, async (err: any, decoded: any) => {
 						if (err) {
 							return res
 								.status(401)
 								.json({ error: true, message: 'Unauthorized access.' });
 						} else {
+							decoded.data.phone = await Decrypter(decoded.data.phone);
 							return res.status(201).json({
 								decode: decoded,
 							});

@@ -24,7 +24,7 @@ export const Encrypter = (phone: string) => {
 	return encryptedData;
 };
 
-export const Decreypter = (phone: string) => {
+export const Decrypter = (phone: string) => {
 	const decipher = crypto.createDecipheriv(algorithm, sercurity, vector);
 
 	let decryptedData = decipher.update(phone, 'hex', 'utf8');

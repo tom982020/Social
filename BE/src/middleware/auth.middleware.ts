@@ -3,7 +3,7 @@
 import { NextFunction, Request, Response, ErrorRequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
-import { Decreypter } from '../library/Cipher';
+import { Decrypter } from '../library/Cipher';
 
 export const checkToken = (req: any, res: Response, next: NextFunction) => {
 
@@ -19,7 +19,7 @@ export const checkToken = (req: any, res: Response, next: NextFunction) => {
 				return res
 					.status(401)
 					.json({ error: true, message: 'Unauthorized access.' });
-			decoded.data.phone = await Decreypter(decoded.data.phone);
+			decoded.data.phone = await Decrypter(decoded.data.phone);
 			req.user = decoded.data;
 			req.token = token
 			next();

@@ -9,7 +9,7 @@ import uploadIMage from '../../service/uploadImage.service';
 import { handleSingleUploadFile } from '../../library/handleSingleUploadFile';
 import { UploadedFile } from '../../interface/upload/image';
 import fs from 'fs'
-import { Decreypter } from '../../library/Cipher';
+import { Decrypter } from '../../library/Cipher';
 import { SocketAddress } from 'net';
 import { profileContants } from '../../constant/profile.contant';
 import Profile from '../../model/Account/Profile';
@@ -141,7 +141,7 @@ const viewProfile = async (
 			select: 'name username email phone avatar',
 		}).lean();
 		if (profile) {
-			const phone = await Decreypter(profile.authors.phone);
+			const phone = await Decrypter(profile.authors.phone);
 			let star: any = 0;
 			let temp: any = {};
 			profile.authors.phone = phone;
