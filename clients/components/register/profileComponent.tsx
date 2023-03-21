@@ -22,35 +22,20 @@ import {
 import { IProfile } from 'constant/interface/IvalidationAccount';
 import { useState } from 'react';
 import 'dayjs/locale/vi';
-import { DatePicker } from '@mantine/dates';
+import { DateInput, DatePicker } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 type ChildProps = {
 	// items: Item[];
-	toggleState: (e: React.MouseEvent, active: number, idAcount: string,visible:boolean) => void;
-	id: string;
+	togglestate: (e: React.MouseEvent, active: number, idAcount: string,visible:boolean) => void;
 	// −−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−^^^^^^^^^^^^^^^
 };
 
 const ProfileComponent: React.FC<ChildProps> = (props) => {
 	const [actived, setActive] = useState(0);
 	const [opened, handleOpen] = useDisclosure(false);
-	const nextStep = () => {
-		handleOpen.open();
-	};
-
-	const handleSubmit = (e: React.MouseEvent) => {
-		handleOpen.open();
-		props.toggleState(e, 2,'',false);
-		setActive(1);
-		handleOpen.close();
-	};
-
-	const prevStep = (e: React.MouseEvent) => {
-		setActive(0);
-		props.toggleState(e, 0,'',false);
-	};
-
 	const [validate, setValidate] = useState<IProfile>({
 		nickname: '',
 		DOB: '',
@@ -75,8 +60,73 @@ const ProfileComponent: React.FC<ChildProps> = (props) => {
 				value.length > 0 ? '' : 'Input your phone number',
 		},
 	});
+
+	const nextStep = () => {
+		handleOpen.open();
+	};
+
+	const token = localStorage.getItem('token');
+
+	const handleSubmit = (e: React.MouseEvent) => {
+		handleOpen.open();
+		props.togglestate(e, 1, '', false);
+		if (
+			validate.DOB == '' ||
+			validate.destination == ''
+		) {
+			const formData = {
+				nickname: form.values.nickname,
+			DOB: form.values.DOB.toString(),
+			BIO: form.values.BIO,
+			destination: form.values.destination,
+			}
+
+			const url = 'http://localhost:8080/profile/create';
+			const options = {
+				method: 'POST',
+				headers: {
+					"Access-Control-Allow-Origi": "*",
+					Authorization: "Bearer " + token,
+					'content-type': 'application/x-www-form-urlencoded'
+				},
+				data: formData,
+				url,
+			};
+			axios(options)
+				.then((response) => {
+					if (response.status === 201) {
+						toast.success('create sucessfully', {
+							position: toast.POSITION.TOP_RIGHT,
+						});
+						props.togglestate(e, 2, response.data.pro.authors.id, false);
+						localStorage.setItem('CHECKPROFILE',response.data.checkUser.exist_Profile)
+					}
+				})
+				.catch((error) => {
+					console.log(error);
+					toast.error('Wrong! ' + error.response.data.message, {
+						position: toast.POSITION.TOP_CENTER,
+					});
+					props.togglestate(e, 1, '',false);
+				});
+		} else {
+			toast.error('Input Wrong !', {
+				position: toast.POSITION.TOP_CENTER,
+			});
+		}
+		handleOpen.close();
+	};
+
+	const prevStep = (e: React.MouseEvent) => {
+		setActive(0);
+		props.togglestate(e, 0,'',false);
+	};
+
+
+	
 	return (
-		<Box sx={{ maxWidth: '65%' }}>
+		<div>
+<Box sx={{ maxWidth: '65%' }}>
 			<form
 				onSubmit={form.onSubmit(
 					(values, _event) => {
@@ -144,16 +194,6 @@ const ProfileComponent: React.FC<ChildProps> = (props) => {
 					}
 				/>
 
-				<DatePicker
-					withAsterisk
-					locale="vi"
-					icon={<IconCalendarTime size={16} />}
-					placeholder="Pick a date"
-					label="DOB"
-					defaultValue={new Date()}
-					{...form.getInputProps('DOB')}
-				/>
-
 				<TextInput
 					withAsterisk
 					type={'text'}
@@ -178,6 +218,16 @@ const ProfileComponent: React.FC<ChildProps> = (props) => {
 						) : null
 					}
 				/>
+
+				<DateInput
+					locale="vi"
+					icon={<IconCalendarTime size={16} />}
+					placeholder="Pick a date"
+					label="DOB"
+					withAsterisk
+					defaultValue={new Date()}
+					{...form.getInputProps('DOB')}
+				/>
 			</form>
 
 			<Group
@@ -198,10 +248,8 @@ const ProfileComponent: React.FC<ChildProps> = (props) => {
 			<Modal
 				opened={opened}
 				onClose={() => handleOpen.close()}
-				transition="slide-down"
-				transitionDuration={600}
-				transitionTimingFunction="ease"
 				size="auto"
+				transitionProps={{ transition: 'fade', duration: 300, timingFunction: 'linear' }}
 				centered>
 				<Text mx="auto">Are your sure create ?</Text>
 
@@ -223,6 +271,8 @@ const ProfileComponent: React.FC<ChildProps> = (props) => {
 				</Group>
 			</Modal>
 		</Box>
+		</div>
+		
 	);
 };
 export default ProfileComponent;

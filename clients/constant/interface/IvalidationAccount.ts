@@ -19,3 +19,12 @@ export interface IProfile {
 	BIO: string;
 	destination: string;
 }
+
+export interface IAvatar { 
+	created_at:string;
+	format:string;
+	id:string;
+	resource_type:string;
+	secure_url:string;
+	url: string;
+}

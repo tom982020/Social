@@ -11,7 +11,6 @@ import {
 	TextInput,
 	Checkbox,
 	Tooltip,
-	GroupedTransition,
 	LoadingOverlay,
 } from '@mantine/core';
 import { IconAlertCircle, IconLockOpen, IconUserCheck } from '@tabler/icons';
@@ -63,16 +62,32 @@ const LoginComponent = () => {
 			axios(options)
 				.then(async (response) => {
 					if (response.status === 201) {
+						localStorage.setItem('token', response.data.refresh_token);
+						const token = localStorage.getItem('token');
+						const config = {
+							headers: {
+								Authorization: `Bearer ${token}`,
+								'Content-Type': 'text/plain',
+							},
+						};
 						axios
-							.get(`http://localhost:8080/profile/${response.data.users.id}`)
+							(`http://localhost:8080/profile/${response.data.users.id}`,{
+								method:'GET',
+								headers: {
+									"Access-Control-Allow-Origi": "*",
+									Authorization: "Bearer " + token,
+									'content-type': 'application/x-www-form-urlencoded'
+								},
+							})
 							.then((res) => {
 								toast.success('Login sucessfully', {
 									position: toast.POSITION.TOP_RIGHT,
 								});
-								localStorage.setItem('USER', JSON.stringify(res.data.account));
+								localStorage.setItem('USER', JSON.stringify(res?.data.account));
+								localStorage.setItem('CHECKPROFILE',res.data.account.exist_Profile)
 								if (!res.data.account.exist_Profile) {
 									router.push('/register');
-									setVisible(false);
+									// setVisible(false);
 								} else {
 									router.push('/');
 									setVisible(false);

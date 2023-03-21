@@ -6,13 +6,14 @@ import { motion } from 'framer-motion';
 import { useDisclosure } from '@mantine/hooks';
 import RegisterComponents from 'components/register/registerComponent';
 import ProfileComponent from 'components/register/profileComponent';
+import UploadImageProfileComponent from 'components/register/uploadAvatarProfileComponent';
 
 const RegisterComponent: React.FC = () => {
 	const [someState, setSomeState] = useState(0);
 	const [idAcount, setIDAccount] = useState('');
 	const [visible,setVisible] = useState(false);
 
-	const toggleState = (
+	const toggleState :any = (
 		e: React.MouseEvent,
 		active: number,
 		idAcount: string,
@@ -23,18 +24,17 @@ const RegisterComponent: React.FC = () => {
 		setVisible(visible)
 	};
 	useEffect(() => {
-		let checkUser = localStorage.getItem('USER');
+		let checkUser = localStorage.getItem('CHECKPROFILE');
 		if (checkUser) {
 			const check = JSON.parse(checkUser);
-			!check.exist_Profile ? setSomeState(1) : setSomeState(0);
+			!check ? setSomeState(1) : setSomeState(2);
 		}
 	});
-	// console.log(name)
 
 	const [opened, handleOpen] = useDisclosure(false);
 
 	return (
-		<Box sx={{ width: '40%' }}>
+		<Box sx={{ width: '40%',height:'50%' }}>
 			<LoadingOverlay
 				loaderProps={{ size: 'xl', color: 'cyan', variant: 'bars' }}
 				overlayOpacity={0.4}
@@ -61,10 +61,10 @@ const RegisterComponent: React.FC = () => {
 								className="box"
 								// style={{ width: '30%' }}
 								animate={{ x: '50%' }}
-								transition={{ type: 'spring', duration: 1.5 }}>
+								transition={{ type: 'spring', stiffness: 100 }}>
 								<div style={{ marginLeft: '-49%' }}>
 									<RegisterComponents
-										toggleState={(e, active, idAcount,visible) =>
+										togglestate={(e, active, idAcount,visible) =>
 											toggleState(e, active, idAcount,visible)
 										}
 									/>
@@ -79,12 +79,11 @@ const RegisterComponent: React.FC = () => {
 								className="box"
 								// style={{ width: '30%' }}
 								animate={{ x: '50%' }}
-								transition={{ type: 'spring', duration: 1.5 }}>
+								transition={{ type: 'spring', stiffness: 100 }}>
 								<div style={{ marginLeft: '-50%' }}>
 									<ProfileComponent
-										id={idAcount}
-										toggleState={(e, active, idAcount,name) =>
-											toggleState(e, active, '',name)
+										togglestate={(e, active, idAcount,name) =>
+											toggleState(e, active, idAcount,name)
 										}
 									/>
 								</div>
@@ -97,9 +96,12 @@ const RegisterComponent: React.FC = () => {
 								className="box"
 								// style={{ width: '30%' }}
 								animate={{ x: '50%' }}
-								transition={{ type: 'spring', duration: 1.5 }}>
+								transition={{ type: 'spring', stiffness: 100 }}>
 								<div style={{ marginLeft: '-50%' }}>
-									Step 3 content: Create an account
+									<UploadImageProfileComponent
+										togglestate={(e, active, idAcount,name) =>
+											toggleState(e, active, idAcount,name)
+										} />
 								</div>
 							</motion.div>
 						</Stepper.Step>

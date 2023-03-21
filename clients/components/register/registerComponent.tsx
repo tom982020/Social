@@ -26,20 +26,25 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 type ChildProps = {
-	toggleState: (e: React.MouseEvent, active: number, idAcount: string,visible:boolean) => void;
+	togglestate: (
+		e: React.MouseEvent,
+		active: number,
+		idAcount: string,
+		visible: boolean
+	) => void;
 };
 
 const RegisterComponents: React.FC<ChildProps> = (props) => {
 	const [opened, handleOpen] = useDisclosure(false);
 	const [visible, setVisible] = useState(false);
-
 	const nextStep = () => {
+		setVisible(false);
 		handleOpen.open();
 	};
 
 	const handleSubmit = (e: React.MouseEvent) => {
 		handleOpen.open();
-		props.toggleState(e, 0, '',true);
+		props.togglestate(e, 0, '', true);
 		if (
 			validate.email == '' &&
 			validate.password == '' &&
@@ -59,7 +64,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 						toast.success('create sucessfully', {
 							position: toast.POSITION.TOP_RIGHT,
 						});
-						props.toggleState(e, 1, response.data.author._id,false);
+						props.togglestate(e, 1, response.data.author._id, false);
 					}
 				})
 				.catch((error) => {
@@ -67,7 +72,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 					toast.error('Wrong! ' + error.response.data.message, {
 						position: toast.POSITION.TOP_CENTER,
 					});
-					props.toggleState(e, 0, '',false);
+					props.togglestate(e, 0, '', false);
 				});
 		} else {
 			toast.error('Input Wrong !', {
@@ -78,7 +83,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 	};
 
 	const prevStep = (e: React.MouseEvent) => {
-		props.toggleState(e, 0, '', true);
+		props.togglestate(e, 0, '', true);
 		window.location.href = '/login';
 	};
 
@@ -107,9 +112,8 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 	});
 
 	return (
-		<>
-			
-			<Box sx={{ maxWidth: '65%' }}>
+		<div>
+			<Box sx={{ maxWidth: '75%' }}>
 				<form
 					onSubmit={form.onSubmit(
 						(values, _event) => {
@@ -240,11 +244,13 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 				<Modal
 					opened={opened}
 					onClose={() => handleOpen.close()}
-					transition="slide-down"
-					transitionDuration={600}
-					transitionTimingFunction="ease"
-					size="auto"
-					centered>
+					transitionProps={{
+						transition: 'fade',
+						duration: 300,
+						timingFunction: 'linear',
+					}}
+					centered
+					size="auto">
 					<Text mx="auto">Are your sure create ?</Text>
 
 					<Group
@@ -265,7 +271,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 					</Group>
 				</Modal>
 			</Box>
-		</>
+		</div>
 	);
 };
 
