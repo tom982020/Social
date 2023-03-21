@@ -18,6 +18,10 @@ const ProfileSchema = new Schema(
 		route: {
 			type: Schema.Types.String
 		},
+		avatar_saved: {
+			type: Schema.Types.Boolean,
+			default: false,
+		},
 		nickname: {
 			type: Schema.Types.String,
 			default: null,

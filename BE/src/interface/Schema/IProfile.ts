@@ -7,6 +7,7 @@ export interface IProfile {
     route: string;
     authors: Schema.Types.ObjectId;
     DOB: string;
+    avatar_saved: boolean;
     BIO: string;
     avatar: ICloud;
     background: ICloud;

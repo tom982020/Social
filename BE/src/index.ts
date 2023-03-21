@@ -49,7 +49,7 @@ const StartServer = () => {
 
 		next();
 	});
-	const allowedOrigins = ['*', 'http://localhost:8080', 'http://localhost:3000/'];
+	const allowedOrigins = ['http://localhost:3000'];
 
 	const options: cors.CorsOptions = {
 		origin: allowedOrigins,
@@ -60,9 +60,9 @@ const StartServer = () => {
 	// router.use(bodyParser.urlencoded({ extended: true }));
 	// router.use(bodyParser.json());
 	// router.use(bodyParser.);
-	router.use(express.urlencoded({ extended: true, limit: '1000mb' }));
+	router.use(express.urlencoded({ extended: false, limit: '100mb' }));
 	// router.use(express.({ extended: false, limit: '100mb' }));
-	router.use(express.json({ limit: '1000mb' }));
+	router.use(express.json({ limit: '100mb' }));
 	router.use(methodOverride('X-HTTP-Method')); //          Microsoft
 	router.use(methodOverride('X-HTTP-Method-Override')); // Google/GData
 	router.use(methodOverride('X-Method-Override'));

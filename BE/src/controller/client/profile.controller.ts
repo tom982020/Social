@@ -15,6 +15,7 @@ import { profileContants } from '../../constant/profile.contant';
 import Profile from '../../model/Account/Profile';
 import { IProfile, IRank } from '../../interface/Schema/IProfile';
 import { AnyAaaaRecord } from 'dns';
+import moment from 'moment';
 // const Cloudinary = cloudinary.v2;
 const createProfile = async (
 	request: Request,
@@ -35,7 +36,7 @@ const createProfile = async (
 	try {
 		const checkUser = await AuthorModel.findOne({
 			username: user.username,
-		}).lean();
+		});
 		if (checkUser) {
 			const checkProfile = await ProfileModel.findOne({
 				authors: checkUser._id,
@@ -52,19 +53,18 @@ const createProfile = async (
 					created_at: image?.created_at,
 				}
 				fs.unlinkSync(uploadedFile.path)
+				if (checkProfile?.avatar.id != undefined) {
+					await uploadIMage.deleteImage(checkProfile.avatar?.id)
+				}
 
 				checkProfile.avatar = avatar
-				checkProfile.nickname = request.body.nickname;
-				checkProfile.DOB = request.body.DOB;
-				checkProfile.BIO = request.body.BIO;
-				checkProfile.destination = request.body.destination;
 
 				await checkProfile
 					.save({ session: session })
 					.then(async (pro) => {
 						await session.commitTransaction();
 						session.endSession();
-						response.status(200).json({ pro });
+						response.status(201).json({ pro });
 					})
 					.catch((error) => {
 						response.status(500).json({ error });
@@ -80,23 +80,25 @@ const createProfile = async (
 
 				}
 				const randomNumber = Math.floor(Math.random() * 1000) + 1;
-				const getDOB = request.body.DOB.split('/')[0]
+				const getDOB = moment(new Date(request.body.DOB)).format("DD/MM/YYYY").toString()
 				let formData = {
 					nickname: request.body.nickname,
-					route: request.body.nickname + getDOB + randomNumber,
-					DOB: request.body.DOB,
+					route: request.body.nickname + getDOB.split('/')[0] + randomNumber,
+					DOB: moment(new Date(request.body.DOB)).format("DD/MM/YYYY").toString(),
 					BIO: request.body.BIO,
 					destination: request.body.destination,
 					authors: checkUser._id
 				}
-				fs.unlinkSync(uploadedFile.path)
+				// fs.unlinkSync(uploadedFile.path)
 				const profile = new ProfileModel(formData);
+				checkUser.exist_Profile = true;
+				checkUser.save()
 				return profile
 					.save({ session: session })
 					.then(async (pro) => {
 						await session.commitTransaction();
 						session.endSession();
-						response.status(200).json({ pro });
+						response.status(201).json({ pro });
 					})
 					.catch((error) => {
 						response.status(500).json({ error });
@@ -186,7 +188,7 @@ const getProfileAccount = async (
 	session.startTransaction();
 	const id = req.params.idAccount;
 	try {
-		const account = await AuthorModel.findOne({ authors: id });
+		const account = await AuthorModel.findById(id);
 		if (account) {
 			await session.commitTransaction();
 			session.endSession();
@@ -562,6 +564,44 @@ const followProfile = async (
 		return response.status(500).json({ error: err });
 	}
 }
+
+const updateAvatarSave = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	const r: any = request
+	const user = r.user
+	const id = request.body.idProfile
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	try {
+		const profile = await ProfileModel.findById(id)
+		if (profile == null) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Profile not found');
+		}
+		profile.avatar_saved = true;
+		profile.save()
+			.then(async (pro) => {
+				await session.commitTransaction();
+				session.endSession();
+				response.status(201).json({ pro });
+			})
+			.catch(async (error) => {
+				await session.abortTransaction();
+				session.endSession();
+				return response.status(500).json(error);
+			})
+
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+
+}
 export default {
 	createProfile,
 	viewProfile,
@@ -571,5 +611,6 @@ export default {
 	addFriendProfile,
 	acceptFriendProfile,
 	rankProfile,
-	followProfile
+	followProfile,
+	updateAvatarSave
 };

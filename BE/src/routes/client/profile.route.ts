@@ -19,6 +19,7 @@ profileRoute.patch('/add-friend', profileController.addFriendProfile);
 profileRoute.patch('/accept-friend', profileController.acceptFriendProfile);
 profileRoute.patch('/star-friend', profileController.rankProfile);
 profileRoute.patch('/follow-friend', profileController.followProfile);
+profileRoute.patch('/avata-saved/:idProfile', profileController.updateAvatarSave);
 
 
 export = profileRoute;

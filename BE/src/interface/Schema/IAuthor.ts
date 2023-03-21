@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IAuthor {
     name: string;
     username: string;
+    exist_Profile: boolean;
     hasPassword: string;
     email: string;
     phone: string;
@@ -22,6 +23,7 @@ export interface IAuthorResponse {
     name: string | null;
     username: string | null;
     hasPassword: string | null;
+    exist_Profile: boolean | null;
     email: string | null;
     phone: string | null;
     access_token: string | null;
