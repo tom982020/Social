@@ -13,7 +13,6 @@ const ProfileSchema = new Schema(
 		authors: {
 			type: Schema.Types.ObjectId,
 			ref: 'Author',
-			default: null,
 		},
 		route: {
 			type: Schema.Types.String

@@ -98,7 +98,7 @@ const createProfile = async (
 					.then(async (pro) => {
 						await session.commitTransaction();
 						session.endSession();
-						response.status(201).json({ pro });
+						response.status(201).json({ pro, checkUser });
 					})
 					.catch((error) => {
 						response.status(500).json({ error });
@@ -189,10 +189,16 @@ const getProfileAccount = async (
 	const id = req.params.idAccount;
 	try {
 		const account = await AuthorModel.findById(id);
+		const profile = await ProfileModel.findOne({
+			authors: id
+		}).populate({
+			path: 'authors'
+		})
 		if (account) {
+			account.phone = await Decrypter(account.phone)
 			await session.commitTransaction();
 			session.endSession();
-			return res.status(200).json({ account });
+			return res.status(200).json({ account, profile });
 		} else {
 			await session.commitTransaction();
 			session.endSession();

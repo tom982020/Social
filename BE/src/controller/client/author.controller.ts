@@ -222,7 +222,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 		req.headers.authorization?.split(' ')[1];
 
 	if (access_token) {
-		jwt.verify(access_token, config.secret, (err: any, decoded: any) => {
+		jwt.verify(access_token, config.secret, async (err: any, decoded: any) => {
 			if (err) {
 				if (refresh_token) {
 					jwt.verify(refresh_token, config.secret, async (err: any, decoded: any) => {
@@ -233,7 +233,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 						} else {
 							decoded.data.phone = await Decrypter(decoded.data.phone);
 							return res.status(201).json({
-								decode: decoded,
+								decode: decoded.data,
 							});
 						}
 					});
@@ -242,8 +242,9 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 					.status(401)
 					.json({ error: true, message: 'Unauthorized access.' });
 			} else {
+				decoded.data.phone = await Decrypter(decoded.data.phone);
 				return res.status(201).json({
-					decode: decoded,
+					decode: decoded.data,
 				});
 			}
 		});
