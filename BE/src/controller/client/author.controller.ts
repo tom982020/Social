@@ -140,6 +140,7 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 					email: user[0].email,
 					phone: user[0].phone,
 					created: user[0].created,
+					exist_Profile: user[0].exist_Profile,
 					type: user[0].type,
 					id: user[0]._id,
 					profile: profileModel
