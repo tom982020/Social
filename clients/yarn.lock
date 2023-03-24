@@ -223,12 +223,12 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@mantine/carousel@^6.0.2":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@mantine/carousel/-/carousel-6.0.2.tgz#1c5ed97548edaf50b60c6c72518783d1f8ee1063"
-  integrity sha512-LnIpDm0Z0myMuZbFcivFOUd/I5WDFUl9Mwr4SNi0sp3gVZF9QtsCRSUwVAAY2bx3AEqr1uwmyoFdSWelLuTFsw==
+"@mantine/carousel@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@mantine/carousel/-/carousel-6.0.4.tgz#c80756c1159201071554251d067759a959708181"
+  integrity sha512-Hr7OQRJjJ7UhIUpd+iQxkZTm4P+W/JPfT0HRPkePesySpPv5RD+t808FLmSQ0CXQz809MQ9pn4xWvvZsgLQG2g==
   dependencies:
-    "@mantine/utils" "6.0.2"
+    "@mantine/utils" "6.0.4"
 
 "@mantine/core@^6.0.2":
   version "6.0.2"
@@ -293,12 +293,12 @@
     "@mantine/utils" "6.0.2"
     react-transition-group "4.4.2"
 
-"@mantine/nprogress@^6.0.2":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@mantine/nprogress/-/nprogress-6.0.2.tgz#fa0fe45e24ff4bde89dd3a87830e3003596eb26b"
-  integrity sha512-P5nWqPwwc1d4ixLpbx2vAhw9oAngfOz8LGb+zO1DZg1mSiXPn9u+lGkrKETy0rjYgFDd1TPUXNgue//OYfgfZg==
+"@mantine/nprogress@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@mantine/nprogress/-/nprogress-6.0.4.tgz#92d414a32ad20ae7eb6043c6245552385ad4c108"
+  integrity sha512-OVDMsUPHBWa3psgTkNbWEWqgkcidqiGhdGiwufSG8pszlZwweL+R59bQCt+Y0KClJQAKiR45NbJ/T7IgeQaYug==
   dependencies:
-    "@mantine/utils" "6.0.2"
+    "@mantine/utils" "6.0.4"
 
 "@mantine/prism@^6.0.2":
   version "6.0.2"
@@ -350,6 +350,11 @@
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-6.0.2.tgz#06da9dfb390a026e005f7e2712a3a30373a2b4c3"
   integrity sha512-fx+cmkb8PMpkr65nUs8YgaXFJbtNY+ybSXDfBxwFAWMTLAocbNo7vjkSvPWZVS1O2szPK/s4Rqdw0W76dyG4+w==
+
+"@mantine/utils@6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-6.0.4.tgz#e4a265bf135124915f4b218954c9a4533e392681"
+  integrity sha512-oggRX3fC/tsoxEaxJ+3DhFpb4D4YeCg5XvueGsX3AuoHY87bypaI3JyvFbSIV8oLMW6B/heHNu6VPHVSnrim9A==
 
 "@motionone/animation@^10.15.1":
   version "10.15.1"
@@ -1388,6 +1393,11 @@ domutils@^2.8.0:
     dom-serializer "^1.0.1"
     domelementtype "^2.2.0"
     domhandler "^4.2.0"
+
+dotenv@^16.0.3:
+  version "16.0.3"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.3.tgz#115aec42bac5053db3c456db30cc243a5a836a07"
+  integrity sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==
 
 duplexer2@^0.1.2:
   version "0.1.4"

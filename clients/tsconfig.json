@@ -24,6 +24,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "configs/altogic.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx","environment.d.ts", ".next/types/**/*.ts", "configs/altogic.js"],
   "exclude": ["node_modules"]
 }

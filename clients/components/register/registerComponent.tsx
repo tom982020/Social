@@ -24,6 +24,8 @@ import axios from 'axios';
 import { useDisclosure } from '@mantine/hooks';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import router from 'next/router';
+import { AxiosClientAPI } from 'core/AxiosClient';
 
 type ChildProps = {
 	togglestate: (
@@ -51,29 +53,53 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 			validate.username == '' &&
 			validate.phone == ''
 		) {
-			const url = 'http://localhost:8080/authors/create';
-			const options = {
-				method: 'POST',
-				headers: { 'content-type': 'application/x-www-form-urlencoded' },
-				data: form.values,
-				url,
-			};
-			axios(options)
-				.then((response) => {
-					if (response.status === 201) {
-						toast.success('create sucessfully', {
-							position: toast.POSITION.TOP_RIGHT,
+			const createAccount = AxiosClientAPI.post(
+				'authors/create',
+				form.values,
+				'Create Account',
+				true
+			);
+			createAccount.then((response) => {
+				const urlLogin = 'login';
+				const data = {
+					username: form.values.username,
+					password: form.values.password,
+				};
+				const login = AxiosClientAPI.post(urlLogin, data, '',false);
+				login
+					.then((respo) => {
+						if (respo?.status === 201) {
+							localStorage.setItem('token', respo?.data?.refresh_token);
+							const res = AxiosClientAPI.getDetail(
+								'profile',
+								respo?.data?.users.id,
+								'',
+								false
+							);
+							res
+								.then((resp: any) => {
+									localStorage.setItem(
+										'USER',
+										JSON.stringify(resp?.data?.account)
+									);
+									localStorage.setItem(
+										'CHECKPROFILE',
+										resp.data?.account.exist_Profile
+									);
+								})
+								.catch((err) => {
+									setVisible(false);
+								});
+						}
+					})
+					.catch((error) => {
+						toast.error('Wrong! ' + error.response.data.message, {
+							position: toast.POSITION.TOP_CENTER,
 						});
-						props.togglestate(e, 1, response.data.author._id, false);
-					}
-				})
-				.catch((error) => {
-					// console.log(error)
-					toast.error('Wrong! ' + error.response.data.message, {
-						position: toast.POSITION.TOP_CENTER,
+						setVisible(false);
 					});
-					props.togglestate(e, 0, '', false);
-				});
+				props.togglestate(e, 1, response?.data.author._id, false);
+			});
 		} else {
 			toast.error('Input Wrong !', {
 				position: toast.POSITION.TOP_CENTER,
@@ -113,7 +139,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 
 	return (
 		<div>
-			<Box sx={{ maxWidth: '75%' }}>
+			<Box sx={{ maxWidth: '65%' }}>
 				<form
 					onSubmit={form.onSubmit(
 						(values, _event) => {

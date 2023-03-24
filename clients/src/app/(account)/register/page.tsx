@@ -1,40 +1,65 @@
 /** @format */
 'use client';
 import { useEffect, useState } from 'react';
-import { Stepper, Box, Container, Card, LoadingOverlay } from '@mantine/core';
+import {
+	Stepper,
+	Box,
+	Container,
+	Card,
+	LoadingOverlay,
+	ThemeIcon,
+	Group,
+	Title,
+} from '@mantine/core';
 import { motion } from 'framer-motion';
 import { useDisclosure } from '@mantine/hooks';
 import RegisterComponents from 'components/register/registerComponent';
 import ProfileComponent from 'components/register/profileComponent';
 import UploadImageProfileComponent from 'components/register/uploadAvatarProfileComponent';
+import { IconCheck } from '@tabler/icons';
+import router from 'next/router';
+import useRegisterStyles from './style';
 
 const RegisterComponent: React.FC = () => {
+	//Declare
+	const {classes} = useRegisterStyles()
 	const [someState, setSomeState] = useState(0);
 	const [idAcount, setIDAccount] = useState('');
-	const [visible,setVisible] = useState(false);
+	const [visible, setVisible] = useState(false);
 
-	const toggleState :any = (
+	const toggleState: any = (
 		e: React.MouseEvent,
 		active: number,
 		idAcount: string,
-		visible:boolean
+		visible: boolean
 	) => {
 		setSomeState(active);
 		setIDAccount(idAcount);
-		setVisible(visible)
+		setVisible(visible);
 	};
 	useEffect(() => {
 		let checkUser = localStorage.getItem('CHECKPROFILE');
+		const checkAvatar: any = localStorage.getItem('PROFILE');
 		if (checkUser) {
 			const check = JSON.parse(checkUser);
-			!check ? setSomeState(1) : setSomeState(2);
+			const checkAva = JSON.parse(checkAvatar);
+			!check
+				? setSomeState(1)
+				: !checkAva.avatar_saved
+				? setSomeState(2)
+				: setSomeState(3);
+		}
+		if (someState == 3) {
+			setTimeout(() => {
+				window.location.href = '/';
+			}, 3000);
 		}
 	});
 
 	const [opened, handleOpen] = useDisclosure(false);
 
 	return (
-		<Box sx={{ width: '40%',height:'50%' }}>
+		<Box className={classes.root}>
 			<LoadingOverlay
 				loaderProps={{ size: 'xl', color: 'cyan', variant: 'bars' }}
 				overlayOpacity={0.4}
@@ -64,8 +89,8 @@ const RegisterComponent: React.FC = () => {
 								transition={{ type: 'spring', stiffness: 100 }}>
 								<div style={{ marginLeft: '-49%' }}>
 									<RegisterComponents
-										togglestate={(e, active, idAcount,visible) =>
-											toggleState(e, active, idAcount,visible)
+										togglestate={(e, active, idAcount, visible) =>
+											toggleState(e, active, idAcount, visible)
 										}
 									/>
 								</div>
@@ -82,8 +107,8 @@ const RegisterComponent: React.FC = () => {
 								transition={{ type: 'spring', stiffness: 100 }}>
 								<div style={{ marginLeft: '-50%' }}>
 									<ProfileComponent
-										togglestate={(e, active, idAcount,name) =>
-											toggleState(e, active, idAcount,name)
+										togglestate={(e, active, idAcount, name) =>
+											toggleState(e, active, idAcount, name)
 										}
 									/>
 								</div>
@@ -91,7 +116,7 @@ const RegisterComponent: React.FC = () => {
 						</Stepper.Step>
 						<Stepper.Step
 							label="Final step"
-							description="Get full access">
+							description="Upload your Avatar">
 							<motion.div
 								className="box"
 								// style={{ width: '30%' }}
@@ -99,9 +124,10 @@ const RegisterComponent: React.FC = () => {
 								transition={{ type: 'spring', stiffness: 100 }}>
 								<div style={{ marginLeft: '-50%' }}>
 									<UploadImageProfileComponent
-										togglestate={(e, active, idAcount,name) =>
-											toggleState(e, active, idAcount,name)
-										} />
+										togglestate={(e, active, idAcount, name) =>
+											toggleState(e, active, idAcount, name)
+										}
+									/>
 								</div>
 							</motion.div>
 						</Stepper.Step>
@@ -112,7 +138,18 @@ const RegisterComponent: React.FC = () => {
 								animate={{ x: '50%' }}
 								transition={{ type: 'spring', duration: 1.5 }}>
 								<div style={{ marginLeft: '-50%' }}>
-									Step 3 content: Create an account
+									<Group
+										sx={{ width: '65%' }}
+										position="center"
+										spacing="md">
+										<Title order={4}>Create Your Avatar Sucessfully</Title>
+										<ThemeIcon
+											radius="xl"
+											size="xl"
+											color="teal">
+											<IconCheck />
+										</ThemeIcon>
+									</Group>
 								</div>
 							</motion.div>
 						</Stepper.Completed>

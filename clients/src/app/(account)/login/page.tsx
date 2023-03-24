@@ -23,8 +23,12 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { AxiosClientAPI } from 'core/AxiosClient';
+import useLoginStyles from './style';
 
 const LoginComponent = () => {
+	// Declare
+	const { classes } = useLoginStyles()
 	const [validate, setValidate] = useState<ILogin>({
 		email: '',
 		password: '',
@@ -34,6 +38,7 @@ const LoginComponent = () => {
 	const [visible, setVisible] = useState<boolean>(false);
 	const router = useRouter();
 
+	// form
 	const form = useForm({
 		initialValues: {
 			email: '',
@@ -48,69 +53,60 @@ const LoginComponent = () => {
 		},
 	});
 
+	//handle
 	const handleSubmit = () => {
-		// e.preventDefault();
+		let formData = {
+			username: form.values.username.split('@')[1] == undefined ? form.values.username : '',
+			email: form.values.username.split('@')[1] != undefined ? form.values.username : '',
+			password: form.values.password
+		}
 		if (form.values.username != '' && form.values.password != '') {
 			setVisible(true);
 			const url = 'http://localhost:8080/login';
-			const options = {
-				method: 'POST',
-				headers: { 'content-type': 'application/x-www-form-urlencoded' },
-				data: form.values,
-				url,
-			};
-			axios(options)
-				.then(async (response) => {
-					if (response.status === 201) {
-						localStorage.setItem('token', response.data.refresh_token);
-						const token = localStorage.getItem('token');
-						const config = {
-							headers: {
-								Authorization: `Bearer ${token}`,
-								'Content-Type': 'text/plain',
-							},
-						};
-						axios
-							(`http://localhost:8080/profile/${response.data.users.id}`,{
-								method:'GET',
-								headers: {
-									"Access-Control-Allow-Origi": "*",
-									Authorization: "Bearer " + token,
-									'content-type': 'application/x-www-form-urlencoded'
-								},
-							})
-							.then((res) => {
-								toast.success('Login sucessfully', {
-									position: toast.POSITION.TOP_RIGHT,
-								});
-								localStorage.setItem('USER', JSON.stringify(res?.data.account));
-								localStorage.setItem('CHECKPROFILE',res.data.account.exist_Profile)
-								if (!res.data.account.exist_Profile) {
-									router.push('/register');
-									// setVisible(false);
-								} else {
-									router.push('/');
-									setVisible(false);
-								}
-							})
-							.catch((err) => {
-								toast.error('Wrong! ' + err, {
-									position: toast.POSITION.TOP_CENTER,
-								});
-								setVisible(false);
-							});
-					}
-				})
-				.catch((error) => {
-					// console.log(error)
-					toast.error('Wrong! ' + error.response.data.message, {
-						position: toast.POSITION.TOP_CENTER,
+			const resLogin = AxiosClientAPI.post('login', formData, 'Login', true);
+			resLogin.then(async (response) => {
+				if (response?.status === 201) {
+					localStorage.setItem('token', response.data.refresh_token);
+					// const token = localStorage.getItem('token');
+					const resProfile = AxiosClientAPI.getDetail(
+						'profile',
+						response.data.users.id,
+						'',
+						false
+					);
+					resProfile.then(async (resp) => {
+						localStorage.setItem('USER', JSON.stringify(resp?.data.account));
+						localStorage.setItem(
+							'CHECKPROFILE',
+							resp?.data.account.exist_Profile
+						);
+						if (!resp?.data.account.exist_Profile) {
+							router.push('/register');
+							// setVisible(false);
+						} else {
+							router.push('/');
+							setVisible(false);
+						}
+					}).catch((err) => {
+						setVisible(false);
 					});
-					setVisible(false);
+				} else {
+					setTimeout(() => {
+						toast.error('Error username or passwrod!', {
+							position: toast.POSITION.TOP_RIGHT,
+						});
+						setVisible(false);
+					}, 1000)
+				}
+			}).catch((error) => {
+				toast.error('Error username or passwrod!', {
+					position: toast.POSITION.TOP_RIGHT,
 				});
+				setVisible(false);
+			});
 		} else {
 			toast.error('Input Not Empty !', {
-				position: toast.POSITION.TOP_CENTER,
+				position: toast.POSITION.TOP_RIGHT,
 			});
 		}
 	};
@@ -125,22 +121,18 @@ const LoginComponent = () => {
 				visible={visible}
 			/>
 			<motion.div
-				className="box"
-				style={{ width: '30%' }}
+				className={classes.root}
 				animate={{ x: '50%' }}
 				transition={{ type: 'spring', duration: 1.5 }}>
-				<Box sx={{ width: '100%', marginLeft: '-50%' }}>
+				<Box className={classes.box}>
 					<Container
-						size="xl"
-						px="xs">
+						size="sm">
 						<Card
 							shadow="sm"
-							p="lg"
+							p=""
 							radius="md"
 							withBorder>
-							<Card.Section
-								component="a"
-								href="https://mantine.dev/">
+							<Card.Section>
 								<Image
 									src="https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80"
 									height={160}
@@ -162,8 +154,7 @@ const LoginComponent = () => {
 							</Group>
 
 							<Box
-								sx={{ maxWidth: '90%' }}
-								// style={{marginLeft: '-45%'}}
+								className={classes.boxInput}
 								mx="auto">
 								<form
 									onSubmit={form.onSubmit(
@@ -247,14 +238,15 @@ const LoginComponent = () => {
 											variant="light"
 											color="teal"
 											type="submit"
+											className={classes.button}
 											onClick={handleSubmit}>
 											Log In
 										</Button>
-										<Button variant="light">
+										<Button className={classes.button} variant="light">
 											<Link
 												onClick={() => setVisible(true)}
 												href="/register"
-												style={{ textDecoration: 'none', color: 'blue' }}>
+												style={{ textDecoration: 'none', color: "#8282ff" }}>
 												Register
 											</Link>
 										</Button>

@@ -26,6 +26,7 @@ import { DateInput, DatePicker } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { AxiosClientAPI } from 'core/AxiosClient';
 
 type ChildProps = {
 	// items: Item[];
@@ -85,30 +86,28 @@ const ProfileComponent: React.FC<ChildProps> = (props) => {
 			const options = {
 				method: 'POST',
 				headers: {
-					"Access-Control-Allow-Origi": "*",
+					"Access-Control-Allow-Origin": "*",
 					Authorization: "Bearer " + token,
 					'content-type': 'application/x-www-form-urlencoded'
 				},
 				data: formData,
 				url,
 			};
-			axios(options)
-				.then((response) => {
-					if (response.status === 201) {
-						toast.success('create sucessfully', {
-							position: toast.POSITION.TOP_RIGHT,
-						});
-						props.togglestate(e, 2, response.data.pro.authors.id, false);
-						localStorage.setItem('CHECKPROFILE',response.data.checkUser.exist_Profile)
-					}
-				})
-				.catch((error) => {
-					console.log(error);
+
+			const res = AxiosClientAPI.post('profile/create', formData, 'Create profile', true)
+			res.then((response) => { 
+				if (response?.status === 201) {
+					props.togglestate(e, 2, response?.data.pro.authors.id, false);
+					localStorage.setItem('PROFILE', JSON.stringify(response?.data?.pro))
+					localStorage.setItem('CHECKPROFILE',response?.data.checkUser.exist_Profile)
+				}
+			}).catch((error) => { 
+				console.log(error);
 					toast.error('Wrong! ' + error.response.data.message, {
 						position: toast.POSITION.TOP_CENTER,
 					});
 					props.togglestate(e, 1, '',false);
-				});
+			})
 		} else {
 			toast.error('Input Wrong !', {
 				position: toast.POSITION.TOP_CENTER,
