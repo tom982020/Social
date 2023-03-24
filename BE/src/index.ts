@@ -1,26 +1,22 @@
 /** @format */
 'use strict';
 
-import express, { Express, Request, response, Response } from 'express';
+import express, {  } from 'express';
 import dotenv from 'dotenv';
 import http from 'http';
 import routerUser from './routes/client/user.route';
 import routerLogin from './routes/client/login.route';
 import Logging from './library/Logging';
 import { config } from './config/config';
-import { checkToken } from './middleware/auth.middleware';
 import routerProfile from './routes/client/profile.route';
 import { CronJob } from './CronJob/cronJob';
 import cors from 'cors';
 import methodOverride from 'method-override';
-import swagger from 'swagger-ui-express';
-import bodyParser from 'body-parser';
 import storiesRoute from './routes/client/stories.route';
 import SpotifyWebApi from 'spotify-web-api-node';
-import { resolve } from 'node:path/win32';
 // import swaggerDocument from './swagger.json'
 
-const swaggerDocument = require('./Doc/swagger-client.json');
+// const swaggerDocument = require('./Doc/swagger-client.json');
 require('./db');
 
 dotenv.config();
@@ -88,7 +84,7 @@ const StartServer = () => {
 	spotifyApi.setAccessToken(token)
 
 	// Routes
-	router.use('/api-client-docs', swagger.serve, swagger.setup(swaggerDocument));
+	// router.use('/api-client-docs', swagger.serve, swagger.setup(swaggerDocument));
 	router.use('/login', routerLogin);
 	router.use('/authors', routerUser);
 	router.use('/profile', routerProfile);

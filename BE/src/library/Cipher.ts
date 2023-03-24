@@ -15,8 +15,10 @@ const vector = process.env.VECTOR || '1234567812345678'
 const initVector = crypto.randomBytes(16);
 
 export const Encrypter = (phone: string) => {
-	const cipher = crypto.createCipheriv(algorithm, sercurity, vector);
-
+	const codeRandom = [process.env.VECTOR, process.env.VECTOR2, process.env.VECTOR3, process.env.VECTOR4]
+	let random = Math.floor(Math.random() * codeRandom.length)
+	let code: any = codeRandom[random]
+	const cipher = crypto.createCipheriv(algorithm, sercurity, code);
 	let encryptedData = cipher.update(phone, 'utf8', 'hex');
 
 	encryptedData += cipher.final('hex');
@@ -24,11 +26,18 @@ export const Encrypter = (phone: string) => {
 	return encryptedData;
 };
 
-export const Decrypter = (phone: string) => {
-	const decipher = crypto.createDecipheriv(algorithm, sercurity, vector);
-
-	let decryptedData = decipher.update(phone, 'hex', 'utf8');
-
-	decryptedData += decipher.final('utf8');
-	return decryptedData;
+export const Decrypter = async (phone: string) => {
+	const codeRandom = [process.env.VECTOR, process.env.VECTOR2, process.env.VECTOR3, process.env.VECTOR4]
+	let random = Math.floor(Math.random() * codeRandom.length)
+	let code: any = codeRandom[random]
+	let result: any;
+	const decipher = crypto.createDecipheriv(algorithm, sercurity, code);
+	try {
+		let decryptedData = await decipher.update(phone, 'hex', 'utf8');
+		decryptedData += decipher.final('utf8');
+		result = decryptedData;
+	} catch (e) {
+		Decrypter(phone)
+	}
+	return result;
 };

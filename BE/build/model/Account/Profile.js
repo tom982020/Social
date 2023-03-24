@@ -35,10 +35,13 @@ const ProfileSchema = new mongoose_1.Schema({
     authors: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Author',
-        default: null,
     },
     route: {
         type: mongoose_1.Schema.Types.String
+    },
+    avatar_saved: {
+        type: mongoose_1.Schema.Types.Boolean,
+        default: false,
     },
     nickname: {
         type: mongoose_1.Schema.Types.String,

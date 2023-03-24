@@ -10,11 +10,7 @@ import { handleSingleUploadFile } from '../../library/handleSingleUploadFile';
 import { UploadedFile } from '../../interface/upload/image';
 import fs from 'fs'
 import { Decrypter } from '../../library/Cipher';
-import { SocketAddress } from 'net';
-import { profileContants } from '../../constant/profile.contant';
-import Profile from '../../model/Account/Profile';
-import { IProfile, IRank } from '../../interface/Schema/IProfile';
-import { AnyAaaaRecord } from 'dns';
+import { IRank } from '../../interface/Schema/IProfile';
 import moment from 'moment';
 // const Cloudinary = cloudinary.v2;
 const createProfile = async (
@@ -195,7 +191,12 @@ const getProfileAccount = async (
 			path: 'authors'
 		})
 		if (account) {
-			account.phone = await Decrypter(account.phone)
+			let pho: any
+			pho = await Decrypter(account.phone)
+			do {
+				pho = await Decrypter(account.phone)
+			} while (pho == undefined)
+			account.phone = pho
 			await session.commitTransaction();
 			session.endSession();
 			return res.status(200).json({ account, profile });
@@ -578,7 +579,7 @@ const updateAvatarSave = async (
 ) => {
 	const r: any = request
 	const user = r.user
-	const id = request.body.idProfile
+	const id = request.params.idProfile
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	try {

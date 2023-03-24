@@ -1,4 +1,5 @@
 import schedule from 'node-cron'
+import { handleAvatar } from '../Job/profile.job';
 import {StoriesJob} from '../Job/stories.job'
 
 
@@ -8,9 +9,12 @@ export class CronJob  {
 }
 
     cronStories = async ()=>{
-        schedule.schedule('* * * * * *', async () => {
-            StoriesJob
-            // console.log('success')
+        schedule.schedule('* * 0 * * *', async () => {
+            try {
+                handleAvatar()
+            } catch (err) {
+                console.log(err)
+            }
         })
     }
     

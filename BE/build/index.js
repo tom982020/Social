@@ -15,11 +15,10 @@ const profile_route_1 = __importDefault(require("./routes/client/profile.route")
 const cronJob_1 = require("./CronJob/cronJob");
 const cors_1 = __importDefault(require("cors"));
 const method_override_1 = __importDefault(require("method-override"));
-const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const stories_route_1 = __importDefault(require("./routes/client/stories.route"));
 const spotify_web_api_node_1 = __importDefault(require("spotify-web-api-node"));
 // import swaggerDocument from './swagger.json'
-const swaggerDocument = require('./Doc/swagger-client.json');
+// const swaggerDocument = require('./Doc/swagger-client.json');
 require('./db');
 dotenv_1.default.config();
 const router = (0, express_1.default)();
@@ -39,7 +38,7 @@ const StartServer = () => {
         });
         next();
     });
-    const allowedOrigins = ['*'];
+    const allowedOrigins = ['http://localhost:3000'];
     const options = {
         origin: allowedOrigins,
     };
@@ -47,9 +46,9 @@ const StartServer = () => {
     // router.use(bodyParser.urlencoded({ extended: true }));
     // router.use(bodyParser.json());
     // router.use(bodyParser.);
-    router.use(express_1.default.urlencoded({ extended: true, limit: '1000mb' }));
+    router.use(express_1.default.urlencoded({ extended: false, limit: '100mb' }));
     // router.use(express.({ extended: false, limit: '100mb' }));
-    router.use(express_1.default.json({ limit: '1000mb' }));
+    router.use(express_1.default.json({ limit: '100mb' }));
     router.use((0, method_override_1.default)('X-HTTP-Method')); //          Microsoft
     router.use((0, method_override_1.default)('X-HTTP-Method-Override')); // Google/GData
     router.use((0, method_override_1.default)('X-Method-Override'));
@@ -66,7 +65,7 @@ const StartServer = () => {
     const token = "BQCxydGyjAtgGh_lKsqySGNv4lzIisTwD9vwTOtBYQtUVwQTNTROuQtrKxdCvNrhNDskwjfF3RaiuWQr7b20dbfB-RlYkKepc7Tf-r1jf9VfuX8BbyMfAbgVg6F2CeweOwB2xlby9juceNw9F4Y9gGDvCqXLV9uKnLh2yUJ5tHIQXNiiUgmgedI-zcXbu04sxnEvw5lDXNtOPNOTeov2NUZPyo8MVcNMx8wzbgS8l4a6em2zWIJSEsFgIRY9vM3_Yd_P6rMK11tyZDckxZePWlb0ewO3M5KJVK0uU5bxTAkJ0_H6KpfbqZR6yMRZOg";
     spotifyApi.setAccessToken(token);
     // Routes
-    router.use('/api-client-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocument));
+    // router.use('/api-client-docs', swagger.serve, swagger.setup(swaggerDocument));
     router.use('/login', login_route_1.default);
     router.use('/authors', user_route_1.default);
     router.use('/profile', profile_route_1.default);

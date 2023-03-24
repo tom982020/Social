@@ -28,7 +28,7 @@ const checkToken = (req, res, next) => {
                 return res
                     .status(401)
                     .json({ error: true, message: 'Unauthorized access.' });
-            decoded.data.phone = yield (0, Cipher_1.Decreypter)(decoded.data.phone);
+            decoded.data.phone = yield (0, Cipher_1.Decrypter)(decoded.data.phone);
             req.user = decoded.data;
             req.token = token;
             next();

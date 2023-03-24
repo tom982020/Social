@@ -21,8 +21,10 @@ const uploadImage_service_1 = __importDefault(require("../../service/uploadImage
 const handleSingleUploadFile_1 = require("../../library/handleSingleUploadFile");
 const fs_1 = __importDefault(require("fs"));
 const Cipher_1 = require("../../library/Cipher");
+const moment_1 = __importDefault(require("moment"));
 // const Cloudinary = cloudinary.v2;
 const createProfile = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const r = request;
     const user = r.user;
     const uploadResult = yield (0, handleSingleUploadFile_1.handleSingleUploadFile)(request, response).then().catch((err) => {
@@ -36,7 +38,7 @@ const createProfile = (request, response, next) => __awaiter(void 0, void 0, voi
     try {
         const checkUser = yield Author_1.default.findOne({
             username: user.username,
-        }).lean();
+        });
         if (checkUser) {
             const checkProfile = yield Profile_1.default.findOne({
                 authors: checkUser._id,
@@ -53,17 +55,16 @@ const createProfile = (request, response, next) => __awaiter(void 0, void 0, voi
                     created_at: image === null || image === void 0 ? void 0 : image.created_at,
                 };
                 fs_1.default.unlinkSync(uploadedFile.path);
+                if ((checkProfile === null || checkProfile === void 0 ? void 0 : checkProfile.avatar.id) != undefined) {
+                    yield uploadImage_service_1.default.deleteImage((_a = checkProfile.avatar) === null || _a === void 0 ? void 0 : _a.id);
+                }
                 checkProfile.avatar = avatar;
-                checkProfile.nickname = request.body.nickname;
-                checkProfile.DOB = request.body.DOB;
-                checkProfile.BIO = request.body.BIO;
-                checkProfile.destination = request.body.destination;
                 yield checkProfile
                     .save({ session: session })
                     .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
                     yield session.commitTransaction();
                     session.endSession();
-                    response.status(200).json({ pro });
+                    response.status(201).json({ pro });
                 }))
                     .catch((error) => {
                     response.status(500).json({ error });
@@ -79,23 +80,25 @@ const createProfile = (request, response, next) => __awaiter(void 0, void 0, voi
                         .json({ status: false, message: 'Nick name is exist' });
                 }
                 const randomNumber = Math.floor(Math.random() * 1000) + 1;
-                const getDOB = request.body.DOB.split('/')[0];
+                const getDOB = (0, moment_1.default)(new Date(request.body.DOB)).format("DD/MM/YYYY").toString();
                 let formData = {
                     nickname: request.body.nickname,
-                    route: request.body.nickname + getDOB + randomNumber,
-                    DOB: request.body.DOB,
+                    route: request.body.nickname + getDOB.split('/')[0] + randomNumber,
+                    DOB: (0, moment_1.default)(new Date(request.body.DOB)).format("DD/MM/YYYY").toString(),
                     BIO: request.body.BIO,
                     destination: request.body.destination,
                     authors: checkUser._id
                 };
-                fs_1.default.unlinkSync(uploadedFile.path);
+                // fs.unlinkSync(uploadedFile.path)
                 const profile = new Profile_1.default(formData);
+                checkUser.exist_Profile = true;
+                checkUser.save();
                 return profile
                     .save({ session: session })
                     .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
                     yield session.commitTransaction();
                     session.endSession();
-                    response.status(200).json({ pro });
+                    response.status(201).json({ pro, checkUser });
                 }))
                     .catch((error) => {
                     response.status(500).json({ error });
@@ -135,7 +138,7 @@ const viewProfile = (request, response, next) => __awaiter(void 0, void 0, void 
             select: 'name username email phone avatar',
         }).lean();
         if (profile) {
-            const phone = yield (0, Cipher_1.Decreypter)(profile.authors.phone);
+            const phone = yield (0, Cipher_1.Decrypter)(profile.authors.phone);
             let star = 0;
             let temp = {};
             profile.authors.phone = phone;
@@ -179,11 +182,17 @@ const getProfileAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     session.startTransaction();
     const id = req.params.idAccount;
     try {
-        const account = yield Author_1.default.findOne({ authors: id });
+        const account = yield Author_1.default.findById(id);
+        const profile = yield Profile_1.default.findOne({
+            authors: id
+        }).populate({
+            path: 'authors'
+        });
         if (account) {
+            account.phone = yield (0, Cipher_1.Decrypter)(account.phone);
             yield session.commitTransaction();
             session.endSession();
-            return res.status(200).json({ account });
+            return res.status(200).json({ account, profile });
         }
         else {
             yield session.commitTransaction();
@@ -531,6 +540,38 @@ const followProfile = (request, response, next) => __awaiter(void 0, void 0, voi
         return response.status(500).json({ error: err });
     }
 });
+const updateAvatarSave = (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const r = request;
+    const user = r.user;
+    const id = request.params.idProfile;
+    let session = yield mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const profile = yield Profile_1.default.findById(id);
+        if (profile == null) {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(400).json('Profile not found');
+        }
+        profile.avatar_saved = true;
+        profile.save()
+            .then((pro) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.commitTransaction();
+            session.endSession();
+            response.status(201).json({ pro });
+        }))
+            .catch((error) => __awaiter(void 0, void 0, void 0, function* () {
+            yield session.abortTransaction();
+            session.endSession();
+            return response.status(500).json(error);
+        }));
+    }
+    catch (err) {
+        yield session.abortTransaction();
+        session.endSession();
+        return response.status(500).json({ error: err });
+    }
+});
 exports.default = {
     createProfile,
     viewProfile,
@@ -540,5 +581,6 @@ exports.default = {
     addFriendProfile,
     acceptFriendProfile,
     rankProfile,
-    followProfile
+    followProfile,
+    updateAvatarSave
 };

@@ -14,13 +14,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CronJob = void 0;
 const node_cron_1 = __importDefault(require("node-cron"));
-const stories_job_1 = require("../Job/stories.job");
+const profile_job_1 = require("../Job/profile.job");
 class CronJob {
     constructor() {
         this.cronStories = () => __awaiter(this, void 0, void 0, function* () {
-            node_cron_1.default.schedule('* * * * * *', () => __awaiter(this, void 0, void 0, function* () {
-                stories_job_1.StoriesJob;
-                // console.log('success')
+            node_cron_1.default.schedule('* * 0 * * *', () => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    (0, profile_job_1.handleAvatar)();
+                }
+                catch (err) {
+                    console.log(err);
+                }
             }));
         });
         this.cronStories();

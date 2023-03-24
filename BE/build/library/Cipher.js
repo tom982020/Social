@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Decreypter = exports.Encrypter = void 0;
+exports.Decrypter = exports.Encrypter = void 0;
 const crypto_1 = __importDefault(require("crypto"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -20,10 +20,10 @@ const Encrypter = (phone) => {
     return encryptedData;
 };
 exports.Encrypter = Encrypter;
-const Decreypter = (phone) => {
+const Decrypter = (phone) => {
     const decipher = crypto_1.default.createDecipheriv(algorithm, sercurity, vector);
     let decryptedData = decipher.update(phone, 'hex', 'utf8');
     decryptedData += decipher.final('utf8');
     return decryptedData;
 };
-exports.Decreypter = Decreypter;
+exports.Decrypter = Decrypter;

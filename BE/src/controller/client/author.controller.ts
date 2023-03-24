@@ -224,20 +224,6 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 	if (access_token) {
 		jwt.verify(access_token, config.secret, async (err: any, decoded: any) => {
 			if (err) {
-				if (refresh_token) {
-					jwt.verify(refresh_token, config.secret, async (err: any, decoded: any) => {
-						if (err) {
-							return res
-								.status(401)
-								.json({ error: true, message: 'Unauthorized access.' });
-						} else {
-							decoded.data.phone = await Decrypter(decoded.data.phone);
-							return res.status(201).json({
-								decode: decoded.data,
-							});
-						}
-					});
-				}
 				return res
 					.status(401)
 					.json({ error: true, message: 'Unauthorized access.' });

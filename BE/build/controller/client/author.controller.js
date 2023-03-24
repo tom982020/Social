@@ -65,7 +65,7 @@ const readAuthor = (req, res, next) => {
     const authorId = req.params.authorId;
     return Author_1.default.findById(authorId)
         .then((author) => __awaiter(void 0, void 0, void 0, function* () {
-        const phone = yield (0, Cipher_1.Decreypter)(author.phone);
+        const phone = yield (0, Cipher_1.Decrypter)(author.phone);
         author.phone = phone;
         author
             ? res.status(200).json({ author: author })
@@ -139,6 +139,7 @@ const loginAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 email: user[0].email,
                 phone: user[0].phone,
                 created: user[0].created,
+                exist_Profile: user[0].exist_Profile,
                 type: user[0].type,
                 id: user[0]._id,
                 profile: profileModel
@@ -215,32 +216,33 @@ const verifyToken = (req, res, next) => {
         req.headers['x-header-token'] ||
         ((_b = req.headers.authorization) === null || _b === void 0 ? void 0 : _b.split(' ')[1]);
     if (access_token) {
-        jsonwebtoken_1.default.verify(access_token, config_1.config.secret, (err, decoded) => {
+        jsonwebtoken_1.default.verify(access_token, config_1.config.secret, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
             if (err) {
-                if (refresh_token) {
-                    jsonwebtoken_1.default.verify(refresh_token, config_1.config.secret, (err, decoded) => {
-                        if (err) {
-                            return res
-                                .status(401)
-                                .json({ error: true, message: 'Unauthorized access.' });
-                        }
-                        else {
-                            return res.status(201).json({
-                                decode: decoded,
-                            });
-                        }
-                    });
-                }
+                // if (refresh_token) {
+                // 	jwt.verify(refresh_token, config.secret, async (err: any, decoded: any) => {
+                // 		if (err) {
+                // 			return res
+                // 				.status(401)
+                // 				.json({ error: true, message: 'Unauthorized access.' });
+                // 		} else {
+                // 			decoded.data.phone = await Decrypter(decoded.data.phone);
+                // 			return res.status(201).json({
+                // 				decode: decoded.data,
+                // 			});
+                // 		}
+                // 	});
+                // }
                 return res
                     .status(401)
                     .json({ error: true, message: 'Unauthorized access.' });
             }
             else {
+                decoded.data.phone = yield (0, Cipher_1.Decrypter)(decoded.data.phone);
                 return res.status(201).json({
-                    decode: decoded,
+                    decode: decoded.data,
                 });
             }
-        });
+        }));
     }
 };
 exports.default = {
