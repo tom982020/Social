@@ -56,6 +56,15 @@ const useHomeStyles = createStyles((theme) => ({
         [theme.fn.smallerThan('md')]: {
             display: 'none'
         },
+    },
+    cardPost: {
+        [theme.fn.largerThan('md')]: {
+            paddingRight: '350px',
+            paddingLeft: '350px',
+            marginTop: '200px',
+        },
+        [theme.fn.smallerThan('md')]: {
+        },
     }
 }));
 

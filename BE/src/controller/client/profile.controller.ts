@@ -6,7 +6,7 @@ import AuthorModel from '../../model/Account/Author';
 import mongoose from 'mongoose';
 // import cloudinary from 'cloudinary';
 import uploadIMage from '../../service/uploadImage.service';
-import { handleSingleUploadFile } from '../../library/handleSingleUploadFile';
+import { handleSingleUploadFile, handleSingleUploadFileNoLimit } from '../../library/handleSingleUploadFile';
 import { UploadedFile } from '../../interface/upload/image';
 import fs from 'fs'
 import { Decrypter } from '../../library/Cipher';
@@ -284,9 +284,9 @@ const updateProfileBackground = async (
 	try {
 		const profile = await ProfileModel.findById(id);
 		if (profile) {
-			await handleSingleUploadFile(request, response).then(async (result: any) => {
+			await handleSingleUploadFileNoLimit(request, response).then(async (result: any) => {
 				if (result) {
-					if (profile.background.id != null) {
+					if (profile.background.id != undefined) {
 						await uploadIMage.deleteImage(profile.background.id)
 					}
 				}

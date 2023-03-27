@@ -16,7 +16,9 @@ import {
 	Center,
 	Tabs,
 	Transition,
+	Modal,
 } from '@mantine/core';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import {
 	IconMoonStars,
 	IconPower,
@@ -45,6 +47,16 @@ const NavbarComponent: React.FC<ChildProps> = (props) => {
 	const [activeChild, setActiveChild] = useState(0);
 	const [opened, setOpened] = useState(true);
 	const [opened1, setOpened1] = useState(false);
+	const [openModal, handle] = useDisclosure(false);
+	const isMobile = useMediaQuery('(max-width: 50em)');
+
+	const handleSubmit = (name: string) => {
+		if (name == 'Profile') {
+			const profile = localStorage.getItem('PROFILE');
+			console.log(name);
+			handle.open();
+		}
+	};
 
 	const itemsSystem = dataNavbar.map((item, index) => {
 		return (
@@ -68,9 +80,9 @@ const NavbarComponent: React.FC<ChildProps> = (props) => {
 					<NavLink
 						key={child.label}
 						label={child.label}
-						active={idx === activeChild}
+						active={child.id === activeChild}
 						onClick={() => {
-							setActiveChild(idx);
+							setActiveChild(child.id);
 						}}
 					/>
 				))}
@@ -95,7 +107,7 @@ const NavbarComponent: React.FC<ChildProps> = (props) => {
 				style={{
 					fontSize: '20px',
 				}}
-				onClick={() => setActive(index)}>
+				onClick={() => { setActive(index);  handleSubmit(item.label)}}>
 				{item.child?.map((child, idx) => (
 					<NavLink
 						key={child.label}
@@ -111,132 +123,142 @@ const NavbarComponent: React.FC<ChildProps> = (props) => {
 	});
 
 	return (
-		<Navbar
-			p="md"
-			hiddenBreakpoint="sm"
-			withBorder={true}
-			style={{
-				backgroundColor:
-					theme.colorScheme === 'dark'
-						? theme.colors.dark[8]
-						: theme.colors.gray[0],
-			}}
-			color=""
-			hidden={!props.visible}
-			width={{ sm: 200, lg: 300 }}
-			height={'100%'}>
-			<Navbar.Section grow>
-				<Tabs
-					className={classes.Tab}
-					color="green"
-					defaultValue="gallery">
-					<Tabs.List>
-						<Tabs.Tab
+		<>
+			<Navbar
+				p="md"
+				hiddenBreakpoint="sm"
+				withBorder={true}
+				style={{
+					backgroundColor:
+						theme.colorScheme === 'dark'
+							? theme.colors.dark[8]
+							: theme.colors.gray[0],
+				}}
+				color=""
+				hidden={!props.visible}
+				width={{ sm: 200, lg: 300 }}
+				height={'100%'}>
+				<Navbar.Section grow>
+					<Tabs
+						className={classes.Tab}
+						color="green"
+						defaultValue="gallery">
+						<Tabs.List>
+							<Tabs.Tab
+								value="gallery"
+								key={1}
+								onClick={() => {
+									setOpened(true);
+									setOpened1(false);
+								}}
+								icon={<IconSettings size="0.8rem" />}>
+								System
+							</Tabs.Tab>
+							<Tabs.Tab
+								value="messages"
+								key={2}
+								onClick={() => {
+									setOpened(false);
+									setOpened1(true);
+								}}
+								icon={<IconUser size="0.8rem" />}>
+								Account
+							</Tabs.Tab>
+						</Tabs.List>
+
+						<Tabs.Panel
 							value="gallery"
-							key={1}
-							onClick={() => {
-								setOpened(true)
-								setOpened1(false)
-							}}
-							icon={<IconSettings size="0.8rem" />}>
-							System
-						</Tabs.Tab>
-						<Tabs.Tab
+							pt="xs">
+							<Transition
+								mounted={opened}
+								transition="slide-right"
+								duration={400}
+								timingFunction="ease">
+								{(styles) => <div style={styles}>{itemsSystem}</div>}
+							</Transition>
+						</Tabs.Panel>
+
+						<Tabs.Panel
 							value="messages"
-							key={2}
-							onClick={() => {
-								setOpened(false)
-								setOpened1(true)
-							}}
-							icon={<IconUser size="0.8rem" />}>
-							Account
-						</Tabs.Tab>
-					</Tabs.List>
+							pt="xs">
+							<Transition
+								mounted={opened1}
+								transition="slide-right"
+								duration={400}
+								timingFunction="ease">
+								{(styles) => <div style={styles}>{itemsUser}</div>}
+							</Transition>
+						</Tabs.Panel>
+					</Tabs>
 
-					<Tabs.Panel
-						value="gallery"
-						pt="xs">
-						<Transition
-							mounted={opened}
-							transition="slide-right"
-							duration={400}
-							timingFunction="ease">
-							{(styles) => <div style={styles}>{itemsSystem}</div>}
-						</Transition>
-					</Tabs.Panel>
+					<div className={classes.TabDesktop}>{itemsSystem}</div>
+				</Navbar.Section>
+				<div className={classes.footerNav}>
+					<Grid>
+						<Grid.Col span={6}>
+							<Switch
+								className={classes.SwitchColor}
+								checked={colorScheme === 'dark'}
+								onChange={() => toggleColorScheme()}
+								size="lg"
+								onLabel={
+									<IconSun
+										color={theme.white}
+										size="1.25rem"
+										stroke={1.5}
+									/>
+								}
+								offLabel={
+									<IconMoonStars
+										color={theme.colors.gray[6]}
+										size="1.25rem"
+										stroke={1.5}
+									/>
+								}
+							/>
+						</Grid.Col>
+						<Grid.Col span={6}>
+							<Stack
+								align="flex-end"
+								justify="center"
+								h={'100%'}
+								sx={(theme) => ({
+									backgroundColor:
+										theme.colorScheme === 'dark'
+											? theme.colors.dark[8]
+											: theme.colors.gray[0],
+								})}>
+								<div style={{ display: 'flex' }}>
+									<Center>
+										<Text>
+											<ThemeIcon
+												variant="light"
+												size="xl"
+												color="red">
+												<IconPower className={classes.SizeIcon} />
+											</ThemeIcon>
+										</Text>
+									</Center>
 
-					<Tabs.Panel
-						value="messages"
-						pt="xs">
-						<Transition
-							mounted={opened1}
-							transition="slide-right"
-							duration={400}
-							timingFunction="ease">
-							{(styles) => <div style={styles}>{itemsUser}</div>}
-						</Transition>
-					</Tabs.Panel>
-				</Tabs>
-
-				<div className={classes.TabDesktop}>{itemsSystem}</div>
-			</Navbar.Section>
-			<div className={classes.footerNav}>
-				<Grid>
-					<Grid.Col span={6}>
-						<Switch
-							className={classes.SwitchColor}
-							checked={colorScheme === 'dark'}
-							onChange={() => toggleColorScheme()}
-							size="lg"
-							onLabel={
-								<IconSun
-									color={theme.white}
-									size="1.25rem"
-									stroke={1.5}
-								/>
-							}
-							offLabel={
-								<IconMoonStars
-									color={theme.colors.gray[6]}
-									size="1.25rem"
-									stroke={1.5}
-								/>
-							}
-						/>
-					</Grid.Col>
-					<Grid.Col span={6}>
-						<Stack
-							align="flex-end"
-							justify="center"
-							h={'100%'}
-							sx={(theme) => ({
-								backgroundColor:
-									theme.colorScheme === 'dark'
-										? theme.colors.dark[8]
-										: theme.colors.gray[0],
-							})}>
-							<div style={{ display: 'flex' }}>
-								<Center>
-									<Text>
-										<ThemeIcon
-											variant="light"
-											size="xl"
-											color="red">
-											<IconPower className={classes.SizeIcon} />
-										</ThemeIcon>
-									</Text>
-								</Center>
-
-								<Space w="xs" />
-								<Center>
-									<Text>Sign Out</Text>
-								</Center>
-							</div>
-						</Stack>
-					</Grid.Col>
-				</Grid>
-			</div>
-		</Navbar>
+									<Space w="xs" />
+									<Center>
+										<Text>Sign Out</Text>
+									</Center>
+								</div>
+							</Stack>
+						</Grid.Col>
+					</Grid>
+				</div>
+			</Navbar>
+			<Modal
+				opened={openModal}
+				onClose={() => handle.close()}
+				fullScreen={isMobile}
+				size="75%"
+				transitionProps={{ transition: 'scale', duration: 400 }}>
+				{/* Modal content */}
+			</Modal>
+		</>
 	);
 };
 export default NavbarComponent;

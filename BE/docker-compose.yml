@@ -1,6 +1,12 @@
 version: "3.7"
 
 services:
+  nginx:
+      image: nginx
+      container_name: nginx-container
+      networks:
+        static-network:
+          ipv4_address: 14.169.15.183
   mongo:
     container_name: mongo
     image: mongo

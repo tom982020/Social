@@ -218,20 +218,6 @@ const verifyToken = (req, res, next) => {
     if (access_token) {
         jsonwebtoken_1.default.verify(access_token, config_1.config.secret, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
             if (err) {
-                // if (refresh_token) {
-                // 	jwt.verify(refresh_token, config.secret, async (err: any, decoded: any) => {
-                // 		if (err) {
-                // 			return res
-                // 				.status(401)
-                // 				.json({ error: true, message: 'Unauthorized access.' });
-                // 		} else {
-                // 			decoded.data.phone = await Decrypter(decoded.data.phone);
-                // 			return res.status(201).json({
-                // 				decode: decoded.data,
-                // 			});
-                // 		}
-                // 	});
-                // }
                 return res
                     .status(401)
                     .json({ error: true, message: 'Unauthorized access.' });

@@ -189,7 +189,12 @@ const getProfileAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             path: 'authors'
         });
         if (account) {
-            account.phone = yield (0, Cipher_1.Decrypter)(account.phone);
+            let pho;
+            pho = yield (0, Cipher_1.Decrypter)(account.phone);
+            do {
+                pho = yield (0, Cipher_1.Decrypter)(account.phone);
+            } while (pho == undefined);
+            account.phone = pho;
             yield session.commitTransaction();
             session.endSession();
             return res.status(200).json({ account, profile });

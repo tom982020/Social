@@ -83,16 +83,6 @@ const ProfileComponent: React.FC<ChildProps> = (props) => {
 			}
 
 			const url = 'http://localhost:8080/profile/create';
-			const options = {
-				method: 'POST',
-				headers: {
-					"Access-Control-Allow-Origin": "*",
-					Authorization: "Bearer " + token,
-					'content-type': 'application/x-www-form-urlencoded'
-				},
-				data: formData,
-				url,
-			};
 
 			const res = AxiosClientAPI.post('profile/create', formData, 'Create profile', true)
 			res.then((response) => { 

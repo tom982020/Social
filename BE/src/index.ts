@@ -1,7 +1,7 @@
 /** @format */
 'use strict';
 
-import express, {  } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
 import http from 'http';
 import routerUser from './routes/client/user.route';
@@ -14,6 +14,7 @@ import cors from 'cors';
 import methodOverride from 'method-override';
 import storiesRoute from './routes/client/stories.route';
 import SpotifyWebApi from 'spotify-web-api-node';
+import postRoute from './routes/client/post.route';
 // import swaggerDocument from './swagger.json'
 
 // const swaggerDocument = require('./Doc/swagger-client.json');
@@ -26,7 +27,7 @@ const router = express();
 const spotifyApi = new SpotifyWebApi({
 	clientId: process.env.ClientID,
 	clientSecret: process.env.ClientSecret,
-	redirectUri: 'http://localhost:8080/callback'
+	redirectUri: 'http://localhost:8080/callback',
 });
 
 const StartServer = () => {
@@ -50,7 +51,6 @@ const StartServer = () => {
 	const options: cors.CorsOptions = {
 		origin: allowedOrigins,
 	};
-
 
 	router.use(cors(options));
 	// router.use(bodyParser.urlencoded({ extended: true }));
@@ -79,9 +79,10 @@ const StartServer = () => {
 		next();
 	});
 	router.use(methodOverride('_method'));
-	const token = "BQCxydGyjAtgGh_lKsqySGNv4lzIisTwD9vwTOtBYQtUVwQTNTROuQtrKxdCvNrhNDskwjfF3RaiuWQr7b20dbfB-RlYkKepc7Tf-r1jf9VfuX8BbyMfAbgVg6F2CeweOwB2xlby9juceNw9F4Y9gGDvCqXLV9uKnLh2yUJ5tHIQXNiiUgmgedI-zcXbu04sxnEvw5lDXNtOPNOTeov2NUZPyo8MVcNMx8wzbgS8l4a6em2zWIJSEsFgIRY9vM3_Yd_P6rMK11tyZDckxZePWlb0ewO3M5KJVK0uU5bxTAkJ0_H6KpfbqZR6yMRZOg"
+	const token =
+		'BQCxydGyjAtgGh_lKsqySGNv4lzIisTwD9vwTOtBYQtUVwQTNTROuQtrKxdCvNrhNDskwjfF3RaiuWQr7b20dbfB-RlYkKepc7Tf-r1jf9VfuX8BbyMfAbgVg6F2CeweOwB2xlby9juceNw9F4Y9gGDvCqXLV9uKnLh2yUJ5tHIQXNiiUgmgedI-zcXbu04sxnEvw5lDXNtOPNOTeov2NUZPyo8MVcNMx8wzbgS8l4a6em2zWIJSEsFgIRY9vM3_Yd_P6rMK11tyZDckxZePWlb0ewO3M5KJVK0uU5bxTAkJ0_H6KpfbqZR6yMRZOg';
 
-	spotifyApi.setAccessToken(token)
+	spotifyApi.setAccessToken(token);
 
 	// Routes
 	// router.use('/api-client-docs', swagger.serve, swagger.setup(swaggerDocument));
@@ -89,26 +90,32 @@ const StartServer = () => {
 	router.use('/authors', routerUser);
 	router.use('/profile', routerProfile);
 	router.use('/stories', storiesRoute);
+	router.use('/post', postRoute);
 	router.get('/', (req, res, next) => {
-		res.redirect(spotifyApi.createAuthorizeURL([
-			"ugc-image-upload",
-			"user-read-playback-state",
-			"app-remote-control",
-			"user-modify-playback-state",
-			"playlist-read-private",
-			"user-follow-modify",
-			"playlist-read-collaborative",
-			"user-follow-read",
-			"user-read-currently-playing",
-			"user-read-playback-position",
-			"user-library-modify",
-			"playlist-modify-private",
-			"playlist-modify-public",
-			"user-read-email",
-			"user-top-read",
-			"streaming"
-		], ""))
-	})
+		res.redirect(
+			spotifyApi.createAuthorizeURL(
+				[
+					'ugc-image-upload',
+					'user-read-playback-state',
+					'app-remote-control',
+					'user-modify-playback-state',
+					'playlist-read-private',
+					'user-follow-modify',
+					'playlist-read-collaborative',
+					'user-follow-read',
+					'user-read-currently-playing',
+					'user-read-playback-position',
+					'user-library-modify',
+					'playlist-modify-private',
+					'playlist-modify-public',
+					'user-read-email',
+					'user-top-read',
+					'streaming',
+				],
+				''
+			)
+		);
+	});
 	// router.get('/callback', (req, res, next) => {
 	// 	console.log("req",req.query)
 	// 	const code: any = req.query.code
@@ -119,19 +126,20 @@ const StartServer = () => {
 	// 	})
 	// })
 
-
 	router.get('/ping', (req, res, next) =>
 		res.status(200).json({ message: 'pong' })
 	);
 	router.get('/search', (req: any, res, next) => {
-		spotifyApi.searchTracks(req.query.search)
-			.then(function (data: any) {
+		spotifyApi.searchTracks(req.query.search).then(
+			function (data: any) {
 				console.log('Search by "Love"', data.body);
-				res.status(200).json({ data: data.body.tracks })
-			}, function (err) {
+				res.status(200).json({ data: data.body.tracks });
+			},
+			function (err) {
 				console.error(err);
-			});
-	})
+			}
+		);
+	});
 
 	// Error handlers
 

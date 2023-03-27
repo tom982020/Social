@@ -1,4 +1,5 @@
 /** @format */
+
 'use client';
 
 import useHomeStyles from '@/app/styleHome';
@@ -9,24 +10,32 @@ import {
 	Grid,
 	Header,
 	MediaQuery,
+	Space,
 	Switch,
+	Text,
 	useMantineColorScheme,
 	useMantineTheme,
+	Avatar,
+	Stack,
 } from '@mantine/core';
 import { IconMoonStars, IconSun } from '@tabler/icons';
+import { IProfileResponse } from 'constant/interface/IvalidationAccount';
 import { useState } from 'react';
 type ChildProps = {
 	// items: Item[];
 	togglestate: (e: React.MouseEvent, visible: boolean) => void;
 	visible: boolean;
+	// avatar: string;
+	profile: IProfileResponse | undefined;
 	// −−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−^^^^^^^^^^^^^^^
 };
 
 const HeaderComponent: React.FC<ChildProps> = (props) => {
+	const isBrowser = () => typeof window !== 'undefined';
 	const { classes, cx } = useHomeStyles();
 	const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-	const [opened, setOpened] = useState(false);
 	const theme = useMantineTheme();
+
 	return (
 		<Header height={{ base: 50, md: 70 }}>
 			<div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
@@ -35,7 +44,7 @@ const HeaderComponent: React.FC<ChildProps> = (props) => {
 					styles={{ display: 'none' }}>
 					<Burger
 						opened={props.visible}
-						onClick={(e) => props.togglestate(e,props.visible)}
+						onClick={(e) => props.togglestate(e, props.visible)}
 						size="sm"
 						color={theme.colors.gray[6]}
 						mr="xl"
@@ -53,27 +62,60 @@ const HeaderComponent: React.FC<ChildProps> = (props) => {
 						<Center>2</Center>
 					</Grid.Col>
 					<Grid.Col span={2}>
-						<Center>
-							<Switch
-								checked={colorScheme === 'dark'}
-								onChange={() => toggleColorScheme()}
-								size="lg"
-								onLabel={
-									<IconSun
-										color={theme.white}
-										size="1.25rem"
-										stroke={1.5}
-									/>
-								}
-								offLabel={
-									<IconMoonStars
-										color={theme.colors.gray[6]}
-										size="1.25rem"
-										stroke={1.5}
-									/>
-								}
-							/>
-						</Center>
+						<Box>
+							<Grid>
+								<Grid.Col span={6}>
+									<Center>
+										<Stack
+											align="center"
+											w={'40%'}>
+											<Avatar
+												src={
+													props.profile?.avatar_saved
+														? props.profile?.avatar
+														: ''
+												}
+												radius="xl"
+											/>
+										</Stack>
+
+										<Space h="xl" />
+										<Stack
+											align="flex-end"
+											w={'80%'}>
+											<Text>{props.profile?.nickname}</Text>
+										</Stack>
+									</Center>
+								</Grid.Col>
+								<Grid.Col span={6}>
+									<Center sx={{ marginTop: '7px' }}>
+										<Stack
+											align="flex-end"
+											w={'100%'}>
+											<Switch
+												checked={colorScheme === 'dark'}
+												onChange={() => toggleColorScheme()}
+												size="lg"
+												onLabel={
+													<IconSun
+														color={theme.white}
+														size="1.25rem"
+														stroke={1.5}
+													/>
+												}
+												offLabel={
+													<IconMoonStars
+														color={theme.colors.gray[6]}
+														size="1.25rem"
+														stroke={1.5}
+													/>
+												}
+											/>
+										</Stack>
+									</Center>
+								</Grid.Col>
+							</Grid>
+						</Box>
 					</Grid.Col>
 				</Grid>
 			</div>
