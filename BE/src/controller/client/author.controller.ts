@@ -170,10 +170,10 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 				}
 
 
-				const token = jwt.sign({ data: users }, config.secret, {
+				const token = jwt.sign({ data: user[0]._id }, config.secret, {
 					expiresIn: '1m',
 				});
-				const refeshtoken = jwt.sign({ data: users }, config.secret, {
+				const refeshtoken = jwt.sign({ data: user[0]._id }, config.secret, {
 					expiresIn: '1y',
 				});
 				if (hash === true) {

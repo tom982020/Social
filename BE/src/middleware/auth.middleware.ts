@@ -1,6 +1,7 @@
 /** @format */
 
 import { NextFunction, Request, Response, ErrorRequestHandler } from 'express';
+import PeofileModel from '../model/Account/Profile';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 import { Decrypter } from '../library/Cipher';
@@ -15,12 +16,20 @@ export const checkToken = (req: any, res: Response, next: NextFunction) => {
 	if (token) {
 		jwt.verify(token, config.secret, async (err: any, decoded: any) => {
 			// console.log(decoded)
-			if (err)
+			if (err) {
 				return res
 					.status(401)
 					.json({ error: true, message: 'Unauthorized access.' });
-			decoded.data.phone = await Decrypter(decoded.data.phone);
-			req.user = decoded.data;
+			}
+			let user: any = await PeofileModel.findOne({
+				authors: decoded.data
+			}).populate('authors')
+			let phone = await Decrypter(user.authors.phone);
+			do {
+				phone = await Decrypter(user.authors.phone);
+			} while (phone == undefined)
+			user.authors.phone = phone
+			req.user = user;
 			req.token = token
 			next();
 		});

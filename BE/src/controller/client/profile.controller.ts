@@ -6,9 +6,12 @@ import AuthorModel from '../../model/Account/Author';
 import mongoose from 'mongoose';
 // import cloudinary from 'cloudinary';
 import uploadIMage from '../../service/uploadImage.service';
-import { handleSingleUploadFile, handleSingleUploadFileNoLimit } from '../../library/handleSingleUploadFile';
+import {
+	handleSingleUploadFile,
+	handleSingleUploadFileNoLimit,
+} from '../../library/handleSingleUploadFile';
 import { UploadedFile } from '../../interface/upload/image';
-import fs from 'fs'
+import fs from 'fs';
 import { Decrypter } from '../../library/Cipher';
 import { IRank } from '../../interface/Schema/IProfile';
 import moment from 'moment';
@@ -18,13 +21,13 @@ const createProfile = async (
 	response: Response,
 	next: NextFunction
 ) => {
-	const r: any = request
-	const user = r.user
-	const uploadResult = await handleSingleUploadFile(request, response).then().catch((err) => {
-		return response
-			.status(404)
-			.json({ status: false, message: err.message });
-	});
+	const r: any = request;
+	const user = r.user;
+	const uploadResult = await handleSingleUploadFile(request, response)
+		.then()
+		.catch((err) => {
+			return response.status(404).json({ status: false, message: err.message });
+		});
 	const uploadedFile: UploadedFile = uploadResult.file;
 	let session = await mongoose.startSession();
 	session.startTransaction();
@@ -47,13 +50,13 @@ const createProfile = async (
 					format: image?.format,
 					resource_type: image?.resource_type,
 					created_at: image?.created_at,
-				}
-				fs.unlinkSync(uploadedFile.path)
+				};
+				fs.unlinkSync(uploadedFile.path);
 				if (checkProfile?.avatar.id != undefined) {
-					await uploadIMage.deleteImage(checkProfile.avatar?.id)
+					await uploadIMage.deleteImage(checkProfile.avatar?.id);
 				}
 
-				checkProfile.avatar = avatar
+				checkProfile.avatar = avatar;
 
 				await checkProfile
 					.save({ session: session })
@@ -66,29 +69,34 @@ const createProfile = async (
 						response.status(500).json({ error });
 					});
 			} else {
-				const ExistName = await ProfileModel.find({ nickname: request.body.nickname }).lean()
+				const ExistName = await ProfileModel.find({
+					nickname: request.body.nickname,
+				}).lean();
 				if (ExistName.length > 0) {
 					await session.abortTransaction();
 					session.endSession();
 					return response
 						.status(404)
 						.json({ status: false, message: 'Nick name is exist' });
-
 				}
 				const randomNumber = Math.floor(Math.random() * 1000) + 1;
-				const getDOB = moment(new Date(request.body.DOB)).format("DD/MM/YYYY").toString()
+				const getDOB = moment(new Date(request.body.DOB))
+					.format('DD/MM/YYYY')
+					.toString();
 				let formData = {
 					nickname: request.body.nickname,
-					route: request.body.nickname + getDOB.split('/')[0] + randomNumber,
-					DOB: moment(new Date(request.body.DOB)).format("DD/MM/YYYY").toString(),
+					route: request.body.nickname.replace(' ','-') + getDOB.split('/')[0] + randomNumber,
+					DOB: moment(new Date(request.body.DOB))
+						.format('DD/MM/YYYY')
+						.toString(),
 					BIO: request.body.BIO,
 					destination: request.body.destination,
-					authors: checkUser._id
-				}
+					authors: checkUser._id,
+				};
 				// fs.unlinkSync(uploadedFile.path)
 				const profile = new ProfileModel(formData);
 				checkUser.exist_Profile = true;
-				checkUser.save()
+				checkUser.save();
 				return profile
 					.save({ session: session })
 					.then(async (pro) => {
@@ -130,19 +138,21 @@ const viewProfile = async (
 				},
 				{
 					deleted: false,
-				}
-			]
-		}).populate({
-			path: 'authors',
-			select: 'name username email phone avatar',
-		}).lean();
+				},
+			],
+		})
+			.populate({
+				path: 'authors',
+				select: 'name username email phone avatar',
+			})
+			.lean();
 		if (profile) {
 			const phone = await Decrypter(profile.authors.phone);
 			let star: any = 0;
 			let temp: any = {};
 			profile.authors.phone = phone;
 			await profile.rank.map((item: IRank) => {
-				star = star + item.star
+				star = star + item.star;
 				return star;
 			});
 			temp.id = profile._id;
@@ -186,17 +196,17 @@ const getProfileAccount = async (
 	try {
 		const account = await AuthorModel.findById(id);
 		const profile = await ProfileModel.findOne({
-			authors: id
+			authors: id,
 		}).populate({
-			path: 'authors'
-		})
+			path: 'authors',
+		});
 		if (account) {
-			let pho: any
-			pho = await Decrypter(account.phone)
+			let pho: any;
+			pho = await Decrypter(account.phone);
 			do {
-				pho = await Decrypter(account.phone)
-			} while (pho == undefined)
-			account.phone = pho
+				pho = await Decrypter(account.phone);
+			} while (pho == undefined);
+			account.phone = pho;
 			await session.commitTransaction();
 			session.endSession();
 			return res.status(200).json({ account, profile });
@@ -217,8 +227,8 @@ const updateProfile = async (
 	response: Response,
 	next: NextFunction
 ) => {
-	const r: any = request
-	const user = r.user
+	const r: any = request;
+	const user = r.user;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	const id = request.params.id;
@@ -227,12 +237,14 @@ const updateProfile = async (
 	try {
 		const profile = await ProfileModel.findById(id);
 		if (profile) {
-			profile.nickname = request.body.nickname ? request.body.nickname : profile.nickname;
+			profile.nickname = request.body.nickname
+				? request.body.nickname
+				: profile.nickname;
 			profile.DOB = request.body.DOB ? request.body.DOB : profile.DOB;
 			profile.BIO = request.body.BIO ? request.body.BIO : profile.DOB;
 			const imageAvatar = await uploadIMage.uploadAvatar(uploadedFile.path);
 			if (uploadedFile) {
-				if (profile.avatar) await uploadIMage.deleteImage(profile.avatar.id)
+				if (profile.avatar) await uploadIMage.deleteImage(profile.avatar.id);
 			}
 			let avatar = {
 				id: imageAvatar?.public_id,
@@ -241,8 +253,8 @@ const updateProfile = async (
 				format: imageAvatar?.format,
 				resource_type: imageAvatar?.resource_type,
 				created_at: imageAvatar?.created_at,
-			}
-			fs.unlinkSync(uploadedFile.path)
+			};
+			fs.unlinkSync(uploadedFile.path);
 			profile.avatar = avatar ? avatar : profile.avatar;
 			profile.destination = request.body.destination
 				? request.body.destination
@@ -277,6 +289,12 @@ const updateProfileBackground = async (
 	response: Response,
 	next: NextFunction
 ) => {
+	const uploadResult = await handleSingleUploadFile(request, response)
+		.then()
+		.catch((err) => {
+			return response.status(404).json({ status: false, message: err.message });
+		});
+	const uploadedFile: UploadedFile = uploadResult.file;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	const id = request.params.id;
@@ -284,46 +302,32 @@ const updateProfileBackground = async (
 	try {
 		const profile = await ProfileModel.findById(id);
 		if (profile) {
-			await handleSingleUploadFileNoLimit(request, response).then(async (result: any) => {
-				if (result) {
-					if (profile.background.id != undefined) {
-						await uploadIMage.deleteImage(profile.background.id)
-					}
-				}
-				const image = await uploadIMage.uploadBackground(result.file.path);
-				fs.unlinkSync(result.file.path)
+			if (profile.background.id != undefined) {
+				await uploadIMage.deleteImage(profile.background.id);
+			}
+			const image = await uploadIMage.uploadBackground(uploadedFile.path);
+			fs.unlinkSync(uploadedFile.path);
 
+			let background = {
+				id: image?.public_id,
+				url: image?.url,
+				secure_url: image?.secure_url,
+				format: image?.format,
+				resource_type: image?.resource_type,
+				created_at: image?.created_at,
+			};
+			profile.background = background ? background : profile.background;
 
-				let background = {
-					id: image?.public_id,
-					url: image?.url,
-					secure_url: image?.secure_url,
-					format: image?.format,
-					resource_type: image?.resource_type,
-					created_at: image?.created_at,
-				}
-				profile.background = background
-					? background
-					: profile.background;
-
-				await profile
-					.save({ session: session })
-					.then(async (pro) => {
-						await session.commitTransaction();
-						session.endSession();
-						response.status(200).json({ pro });
-					})
-					.catch((error) => {
-						response.status(500).json({ error });
-					});
-			}).catch(async (err) => {
-				await session.abortTransaction();
-				session.endSession();
-				return response
-					.status(400)
-					.json({ status: false, message: err.message });
-			})
-
+			await profile
+				.save({ session: session })
+				.then(async (pro) => {
+					await session.commitTransaction();
+					session.endSession();
+					response.status(200).json({ pro });
+				})
+				.catch((error) => {
+					response.status(500).json({ error });
+				});
 		} else {
 			await session.abortTransaction();
 			session.endSession();
@@ -343,14 +347,14 @@ const addFriendProfile = async (
 	response: Response,
 	next: NextFunction
 ) => {
-	const r: any = request
-	const user = r.user
-	const id = request.body.idProfile
+	const r: any = request;
+	const user = r.user;
+	const id = request.body.idProfile;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const profile = await ProfileModel.findById(id);
-		const profileMe = await ProfileModel.findOne({ authors: user.id })
+		const profileMe = await ProfileModel.findOne({ authors: user.id });
 		if (profile == null) {
 			await session.abortTransaction();
 			session.endSession();
@@ -373,10 +377,11 @@ const addFriendProfile = async (
 		if (check == false) {
 			profileMe.friend.push({
 				id: profile._id,
-				accept: false
-			})
+				accept: false,
+			});
 		}
-		profileMe.save()
+		profileMe
+			.save()
 			.then(async (pro) => {
 				await session.commitTransaction();
 				session.endSession();
@@ -386,28 +391,28 @@ const addFriendProfile = async (
 				await session.abortTransaction();
 				session.endSession();
 				return response.status(500).json({ error: err });
-			})
+			});
 	} catch (err) {
 		await session.abortTransaction();
 		session.endSession();
 		return response.status(500).json({ error: err });
 	}
-}
+};
 
 const acceptFriendProfile = async (
 	request: Request,
 	response: Response,
 	next: NextFunction
 ) => {
-	const r: any = request
-	const user = r.user
-	const id = request.body.idProfile
-	const accept = request.body.accept
+	const r: any = request;
+	const user = r.user;
+	const id = request.body.idProfile;
+	const accept = request.body.accept;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const profile = await ProfileModel.findById(id);
-		const profileMe = await ProfileModel.findOne({ authors: user.id })
+		const profileMe = await ProfileModel.findOne({ authors: user.id });
 		if (profile == null) {
 			await session.abortTransaction();
 			session.endSession();
@@ -422,7 +427,7 @@ const acceptFriendProfile = async (
 		if (accept == false) {
 			await profileMe.friend.map((element: any, index: number) => {
 				if (element.id.toString() == id) {
-					profileMe.friend.splice(index, 1)
+					profileMe.friend.splice(index, 1);
 				}
 			});
 		} else {
@@ -432,7 +437,8 @@ const acceptFriendProfile = async (
 				}
 			});
 		}
-		profileMe.save()
+		profileMe
+			.save()
 			.then(async (pro) => {
 				await session.commitTransaction();
 				session.endSession();
@@ -442,28 +448,28 @@ const acceptFriendProfile = async (
 				await session.abortTransaction();
 				session.endSession();
 				return response.status(500).json({ error: err });
-			})
+			});
 	} catch (err) {
 		await session.abortTransaction();
 		session.endSession();
 		return response.status(500).json({ error: err });
 	}
-}
+};
 
 const rankProfile = async (
 	request: Request,
 	response: Response,
 	next: NextFunction
 ) => {
-	const r: any = request
-	const user = r.user
-	const id = request.body.idProfile
-	const star = request.body.star
+	const r: any = request;
+	const user = r.user;
+	const id = request.body.idProfile;
+	const star = request.body.star;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const profile = await ProfileModel.findById(id);
-		const profileMe = await ProfileModel.findOne({ authors: user.id })
+		const profileMe = await ProfileModel.findOne({ authors: user.id });
 		if (profile == null) {
 			await session.abortTransaction();
 			session.endSession();
@@ -478,7 +484,7 @@ const rankProfile = async (
 		await profileMe.rank.find((element: any) => {
 			if (element.id.toString() === profile._id.toString()) {
 				check = true;
-				element.star = star
+				element.star = star;
 				return check;
 			}
 			check = false;
@@ -487,10 +493,11 @@ const rankProfile = async (
 		if (check == false) {
 			profileMe.rank.push({
 				id: profile._id,
-				star: star
+				star: star,
 			});
 		}
-		profileMe.save()
+		profileMe
+			.save()
 			.then(async (pro) => {
 				await session.commitTransaction();
 				session.endSession();
@@ -500,28 +507,28 @@ const rankProfile = async (
 				await session.abortTransaction();
 				session.endSession();
 				return response.status(500).json({ error: err });
-			})
+			});
 	} catch (err) {
 		await session.abortTransaction();
 		session.endSession();
 		return response.status(500).json({ error: err });
 	}
-}
+};
 
 const followProfile = async (
 	request: Request,
 	response: Response,
 	next: NextFunction
 ) => {
-	const r: any = request
-	const user = r.user
-	const id = request.body.idProfile
-	const typeFollow = request.body.star
+	const r: any = request;
+	const user = r.user;
+	const id = request.body.idProfile;
+	const typeFollow = request.body.star;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	try {
 		const profile = await ProfileModel.findById(id);
-		const profileMe = await ProfileModel.findOne({ authors: user.id })
+		const profileMe = await ProfileModel.findOne({ authors: user.id });
 		if (profile == null) {
 			await session.abortTransaction();
 			session.endSession();
@@ -544,17 +551,18 @@ const followProfile = async (
 		if (check == false) {
 			profileMe.follow.push({
 				id: profile._id,
-				typeFollow: typeFollow
+				typeFollow: typeFollow,
 			});
 		} else {
 			await profileMe.follow.map((element: any, index: number) => {
 				if (element.id.toString() === id) {
-					profileMe.follow.splice(index, 1)
+					profileMe.follow.splice(index, 1);
 					return;
 				}
-			})
+			});
 		}
-		profileMe.save()
+		profileMe
+			.save()
 			.then(async (pro) => {
 				await session.commitTransaction();
 				session.endSession();
@@ -564,33 +572,34 @@ const followProfile = async (
 				await session.abortTransaction();
 				session.endSession();
 				return response.status(500).json({ error: err });
-			})
+			});
 	} catch (err) {
 		await session.abortTransaction();
 		session.endSession();
 		return response.status(500).json({ error: err });
 	}
-}
+};
 
 const updateAvatarSave = async (
 	request: Request,
 	response: Response,
 	next: NextFunction
 ) => {
-	const r: any = request
-	const user = r.user
-	const id = request.params.idProfile
+	const r: any = request;
+	const user = r.user;
+	const id = request.params.idProfile;
 	let session = await mongoose.startSession();
 	session.startTransaction();
 	try {
-		const profile = await ProfileModel.findById(id)
+		const profile = await ProfileModel.findById(id);
 		if (profile == null) {
 			await session.abortTransaction();
 			session.endSession();
 			return response.status(400).json('Profile not found');
 		}
 		profile.avatar_saved = true;
-		profile.save()
+		profile
+			.save()
 			.then(async (pro) => {
 				await session.commitTransaction();
 				session.endSession();
@@ -600,15 +609,13 @@ const updateAvatarSave = async (
 				await session.abortTransaction();
 				session.endSession();
 				return response.status(500).json(error);
-			})
-
+			});
 	} catch (err) {
 		await session.abortTransaction();
 		session.endSession();
 		return response.status(500).json({ error: err });
 	}
-
-}
+};
 export default {
 	createProfile,
 	viewProfile,
@@ -619,5 +626,5 @@ export default {
 	acceptFriendProfile,
 	rankProfile,
 	followProfile,
-	updateAvatarSave
+	updateAvatarSave,
 };

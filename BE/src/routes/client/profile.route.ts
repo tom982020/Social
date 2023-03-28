@@ -14,7 +14,7 @@ profileRoute.post('/create', profileController.createProfile);
 profileRoute.get('/:idAccount', profileController.getProfileAccount);
 profileRoute.get('/view/:routeProfile', profileController.viewProfile);
 profileRoute.put('/:id', profileController.updateProfile);
-profileRoute.patch('/update-background/:id', profileController.updateProfileBackground);
+profileRoute.put('/update-background/:id', profileController.updateProfileBackground);
 profileRoute.patch('/add-friend', profileController.addFriendProfile);
 profileRoute.patch('/accept-friend', profileController.acceptFriendProfile);
 profileRoute.patch('/star-friend', profileController.rankProfile);

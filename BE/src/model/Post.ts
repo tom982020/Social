@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import mongooseDelete from 'mongoose-delete';
 import paginate from 'mongoose-paginate-v2';
+import { mongoosePagination, Pagination } from "mongoose-paginate-ts";
 import { postConstant } from '../constant/post.constant';
 import { IPost } from '../interface/Schema/IPost';
 
@@ -18,6 +19,18 @@ const PostSchema = new Schema(
             ref: 'Profile',
             require: true,
         },
+        heart: [
+            {
+                profile: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'Profile',
+                },
+                isHeart: {
+                    type: Schema.Types.Boolean,
+                    default: false,
+                }
+            }
+        ],
         description: {
             type: Schema.Types.String,
         },
@@ -58,28 +71,6 @@ const PostSchema = new Schema(
                 ref: 'Hashtags'
             }
         ],
-        comment: [
-            {
-                profile: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'Profile'
-                },
-                description: Schema.Types.String,
-                tagName: [{
-                    type: Schema.Types.ObjectId,
-                    ref: 'Profile',
-                }],
-                reactions: Schema.Types.String,
-                image: {
-                    id: Schema.Types.String,
-                    url: Schema.Types.String,
-                    secure_url: Schema.Types.String,
-                    format: Schema.Types.String,
-                    resource_type: Schema.Types.String,
-                    created_at: Schema.Types.String,
-                }
-            }
-        ],
         share: {
             type: Schema.Types.ObjectId,
             ref: 'Post'
@@ -99,6 +90,8 @@ PostSchema.plugin(mongooseDelete, {
 })
 
 // paginate
-PostSchema.plugin(paginate)
+PostSchema.plugin(mongoosePagination)
 
-export default mongoose.model<IPost>('Post', PostSchema)
+const Post: Pagination<IPostModel> = mongoose.model<IPost, Pagination<IPostModel>>('Post', PostSchema)
+
+export default Post
