@@ -15,6 +15,8 @@ import fs from 'fs';
 import { Decrypter } from '../../library/Cipher';
 import { IRank } from '../../interface/Schema/IProfile';
 import moment from 'moment';
+import paginateHandler from '../../library/paginate';
+import FriendModel from '../../model/Account/Friend';
 // const Cloudinary = cloudinary.v2;
 const createProfile = async (
 	request: Request,
@@ -85,7 +87,10 @@ const createProfile = async (
 					.toString();
 				let formData = {
 					nickname: request.body.nickname,
-					route: request.body.nickname.replace(' ','-') + getDOB.split('/')[0] + randomNumber,
+					route:
+						request.body.nickname.replace(' ', '-') +
+						getDOB.split('/')[0] +
+						randomNumber,
 					DOB: moment(new Date(request.body.DOB))
 						.format('DD/MM/YYYY')
 						.toString(),
@@ -160,13 +165,12 @@ const viewProfile = async (
 			temp.nickname = profile.nickname;
 			temp.DOB = profile.DOB;
 			temp.BIO = profile.BIO;
+			temp.avatar = profile.avatar;
 			temp.destination = profile.destination;
-			temp.friend = profile.friend;
 			temp.follow = profile.follow;
 			temp.route = profile.route;
 			temp.rank = star / profile.rank.length;
 			temp.evaluate = profile.rank.length;
-			temp.friendNumber = profile.friend.length;
 			temp.followNumber = profile.follow.length;
 			await session.commitTransaction();
 			session.endSession();
@@ -354,7 +358,7 @@ const addFriendProfile = async (
 	session.startTransaction();
 	try {
 		const profile = await ProfileModel.findById(id);
-		const profileMe = await ProfileModel.findOne({ authors: user.id });
+		const profileMe = await ProfileModel.findOne({ authors: user.authors._id });
 		if (profile == null) {
 			await session.abortTransaction();
 			session.endSession();
@@ -365,22 +369,29 @@ const addFriendProfile = async (
 			session.endSession();
 			return response.status(400).json('Create profile before add friend');
 		}
-		let check: boolean = false;
-		await profileMe.friend.find((element: any) => {
-			if (element.id.toString() === profile._id.toString()) {
-				check = true;
-				return check;
-			}
-			check = false;
-			return check;
+		const friend = await FriendModel.findOne({
+			$and: [
+				{
+					idProfile: profileMe._id,
+				},
+				{
+					idFriend: profile._id,
+				},
+			],
 		});
-		if (check == false) {
-			profileMe.friend.push({
-				id: profile._id,
-				accept: false,
-			});
+		if (friend != undefined) {
+			await session.abortTransaction();
+			session.endSession();
+			return response
+				.status(400)
+				.json('You should to wait he/she accept friend');
 		}
-		profileMe
+		let formData = {
+			idProfile: profileMe._id,
+			idFriend: profile._id,
+		};
+		const newFriend = new FriendModel(formData);
+		newFriend
 			.save()
 			.then(async (pro) => {
 				await session.commitTransaction();
@@ -412,7 +423,7 @@ const acceptFriendProfile = async (
 	session.startTransaction();
 	try {
 		const profile = await ProfileModel.findById(id);
-		const profileMe = await ProfileModel.findOne({ authors: user.id });
+		const profileMe = await ProfileModel.findOne({ authors: user.authors._id });
 		if (profile == null) {
 			await session.abortTransaction();
 			session.endSession();
@@ -423,32 +434,50 @@ const acceptFriendProfile = async (
 			session.endSession();
 			return response.status(400).json('Create profile before add friend');
 		}
-
-		if (accept == false) {
-			await profileMe.friend.map((element: any, index: number) => {
-				if (element.id.toString() == id) {
-					profileMe.friend.splice(index, 1);
-				}
-			});
-		} else {
-			await profileMe.friend.map((element: any) => {
-				if (element.id.toString() === profile._id.toString()) {
-					element.accept = true;
-				}
-			});
+		const friend = await FriendModel.findOne({
+			$and: [
+				{
+					idProfile: profileMe._id,
+				},
+				{
+					idFriend: profile._id,
+				},
+			],
+		});
+		if (friend == undefined) {
+			await session.abortTransaction();
+			session.endSession();
+			return response.status(400).json('Dont decline friend');
 		}
-		profileMe
-			.save()
-			.then(async (pro) => {
-				await session.commitTransaction();
-				session.endSession();
-				response.status(200).json({ pro });
-			})
-			.catch(async (err) => {
-				await session.abortTransaction();
-				session.endSession();
-				return response.status(500).json({ error: err });
-			});
+		if (accept == false) {
+			friend.deleted = true;
+			friend
+				.save()
+				.then(async (pro) => {
+					await session.commitTransaction();
+					session.endSession();
+					response.status(200).json({ pro });
+				})
+				.catch(async (err) => {
+					await session.abortTransaction();
+					session.endSession();
+					return response.status(500).json({ error: err });
+				});
+		} else {
+			friend.accept = true;
+			friend
+				.save()
+				.then(async (pro) => {
+					await session.commitTransaction();
+					session.endSession();
+					response.status(200).json({ pro });
+				})
+				.catch(async (err) => {
+					await session.abortTransaction();
+					session.endSession();
+					return response.status(500).json({ error: err });
+				});
+		}
 	} catch (err) {
 		await session.abortTransaction();
 		session.endSession();
@@ -616,6 +645,45 @@ const updateAvatarSave = async (
 		return response.status(500).json({ error: err });
 	}
 };
+
+const getFriendProfile = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	const r: any = request;
+	const user = r.user;
+	const id = request.params.idProfile;
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	try {
+		const populate = {
+			path: 'idFriend',
+		};
+		// request.query.idFriend = id;
+		request.query.idProfile = id;
+		request.query.accept = 'true';
+		request.query.deleted = 'false';
+		// request.query.friend = [
+		// 	{
+		// 		accept: { $ne: 'true' }
+		// 	}
+		// ]
+		const result = await paginateHandler(
+			request.query,
+			FriendModel,
+			null,
+			populate
+		);
+		await session.commitTransaction();
+		session.endSession();
+		response.status(200).json({ result });
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+};
 export default {
 	createProfile,
 	viewProfile,
@@ -627,4 +695,5 @@ export default {
 	rankProfile,
 	followProfile,
 	updateAvatarSave,
+	getFriendProfile,
 };

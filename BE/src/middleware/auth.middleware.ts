@@ -1,7 +1,7 @@
 /** @format */
 
 import { NextFunction, Request, Response, ErrorRequestHandler } from 'express';
-import PeofileModel from '../model/Account/Profile';
+import ProfileModel from '../model/Account/Profile';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 import { Decrypter } from '../library/Cipher';
@@ -21,7 +21,7 @@ export const checkToken = (req: any, res: Response, next: NextFunction) => {
 					.status(401)
 					.json({ error: true, message: 'Unauthorized access.' });
 			}
-			let user: any = await PeofileModel.findOne({
+			let user: any = await ProfileModel.findOne({
 				authors: decoded.data
 			}).populate('authors')
 			let phone = await Decrypter(user.authors.phone);

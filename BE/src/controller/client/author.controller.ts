@@ -11,6 +11,8 @@ import jwt from 'jsonwebtoken';
 import { constantshistoryAccount } from '../../constant/historyAccount.constant';
 import { IAuthorResponse } from '../../interface/Schema/IAuthor';
 import { IError } from '../../interface/err/IError';
+import ProfileModel from '../../model/Account/Profile';
+
 
 const createAuthor = async (
 	req: Request,
@@ -228,9 +230,16 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 					.status(401)
 					.json({ error: true, message: 'Unauthorized access.' });
 			} else {
-				decoded.data.phone = await Decrypter(decoded.data.phone);
+				let user: any = await ProfileModel.findOne({
+					authors: decoded.data
+				}).populate('authors')
+				let phone = await Decrypter(user.authors.phone);
+				do {
+					phone = await Decrypter(user.authors.phone);
+				} while (phone == undefined)
+				user.authors.phone = phone
 				return res.status(201).json({
-					decode: decoded.data,
+					decode: user,
 				});
 			}
 		});

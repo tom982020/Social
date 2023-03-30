@@ -13,6 +13,7 @@ profileRoute.use(checkToken);
 profileRoute.post('/create', profileController.createProfile);
 profileRoute.get('/:idAccount', profileController.getProfileAccount);
 profileRoute.get('/view/:routeProfile', profileController.viewProfile);
+profileRoute.get('/list-friend/:idProfile', profileController.getFriendProfile);
 profileRoute.put('/:id', profileController.updateProfile);
 profileRoute.put('/update-background/:id', profileController.updateProfileBackground);
 profileRoute.patch('/add-friend', profileController.addFriendProfile);

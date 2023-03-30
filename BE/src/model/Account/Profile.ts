@@ -2,7 +2,7 @@
 
 import mongoose, { Document, Schema } from 'mongoose';
 import mongooseDelete from 'mongoose-delete';
-import paginate from 'mongoose-paginate-v2';
+import { mongoosePagination, Pagination } from 'mongoose-paginate-ts';
 import { profileContants } from '../../constant/profile.contant';
 import { IProfile } from '../../interface/Schema/IProfile';
 
@@ -108,6 +108,7 @@ ProfileSchema.plugin(mongooseDelete, {
 });
 
 // paginate
-ProfileSchema.plugin(paginate);
+ProfileSchema.plugin(mongoosePagination);
+const Profile: Pagination<IProfileModel> = mongoose.model<IProfile, Pagination<IProfileModel>>('Profile', ProfileSchema)
 
-export default mongoose.model<IProfileModel>('Profile', ProfileSchema);
+export default Profile

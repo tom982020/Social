@@ -12,7 +12,6 @@ export interface IProfile {
     avatar: ICloud;
     background: ICloud;
     destination: string;
-    friend: Array<IFriend>;
     follow: Array<IFollow>
     rank: Array<IRank>;
     deleted: boolean;
@@ -27,6 +26,8 @@ export interface IRank {
 }
 
 export interface IFriend {
-    id: Schema.Types.ObjectId;
+    idProfile: Schema.Types.ObjectId;
+    idFriend: Schema.Types.ObjectId;
     accept: boolean;
+    deleted:boolean;
 }
