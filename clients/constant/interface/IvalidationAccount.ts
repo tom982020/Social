@@ -27,6 +27,22 @@ export interface IProfileResponse {
 	destination: string | null;
 	avatar: string | null;
 	avatar_saved: boolean;
+	route: string;
+	authors: any;
+}
+
+export interface IProfileRequest {
+	nickname: string;
+	DOB: string | null;
+	BIO: string | null;
+	destination: string | null;
+	avatar: string | null;
+	avatar_saved: boolean;
+	route: string;
+	rank: number;
+	evaluate: number;
+	authors: any;
+	follow: [];
 }
 
 export interface IAvatar {
@@ -36,6 +52,12 @@ export interface IAvatar {
 	resource_type: string;
 	secure_url: string;
 	url: string;
+}
+
+export interface IPagePostResult {
+	docs: IPostResponse[],
+	limit: number,
+	page: number,
 }
 
 export interface IPostResponse {
@@ -67,38 +89,6 @@ export interface IPostResponse {
 	hashTags: [],
 	deleted: false,
 	imageArray: [],
-	comment: [
-		{
-			profile: {
-				_id: string,
-				route: string,
-				nickname: string,
-				avatar: {
-					id: string,
-					url: string,
-					secure_url: string,
-					format: string,
-					resource_type: string,
-					created_at: string
-				}
-			},
-			description: string,
-			tagName: [
-				{
-					_id: string,
-					route: string,
-					nickname: string
-				},
-				{
-					_id: string,
-					route: string,
-					nickname: string
-				}
-			],
-			reactions: string,
-			_id: string
-		}
-	],
 	createdAt: string,
 	updatedAt: string,
 }

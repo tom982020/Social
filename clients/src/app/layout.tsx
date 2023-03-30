@@ -1,7 +1,14 @@
 /** @format */
 'use client';
 import './globals.scss';
-import { Box, Center, LoadingOverlay, MantineProvider, ColorSchemeProvider, ColorScheme } from '@mantine/core';
+import {
+	Box,
+	Center,
+	LoadingOverlay,
+	MantineProvider,
+	ColorSchemeProvider,
+	ColorScheme,
+} from '@mantine/core';
 import { Suspense, useEffect, useState } from 'react';
 import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { ToastContainer } from 'react-toastify';
@@ -20,51 +27,41 @@ export default function RootLayout({
 		key: 'mantine-color-scheme',
 		defaultValue: 'light',
 		getInitialValueInEffect: true,
-	  });
+	});
 	const toggleColorScheme = (value?: ColorScheme) =>
 		setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
-		useHotkeys([['mod+J', () => toggleColorScheme()]]);
+	useHotkeys([['mod+J', () => toggleColorScheme()]]);
 
 	return (
 		<html lang="en">
 			<head />
 			<body>
-				<ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-				<MantineProvider
-					withGlobalStyles
-					withNormalizeCSS
-					theme={{
-						loader: 'bars',
-						colorScheme: colorScheme,
-						colors: {
-							// override dark colors to change them for all components
-							dark: [
-							  '#d5d7e0',
-							  '#acaebf',
-							  '#8c8fa3',
-							  '#666980',
-							  '#4d4f66',
-							  '#34354a',
-							  '#2b2c3d',
-							  '#1d1e30',
-							  '#0c0d21',
-							  '#01010a',
-							],
-							ligth: [
-								'#000000'
-							]
-						  },
-					}}>
-					<Suspense
-						fallback={
-							<LoadingOverlay
-								loaderProps={{ size: 'xl', color: 'cyan', variant: 'bars' }}
-								overlayOpacity={0.4}
-								overlayColor="#c5c5c5"
-								overlayBlur={3}
-								visible
-							/>
-						}>
+				<ColorSchemeProvider
+					colorScheme={colorScheme}
+					toggleColorScheme={toggleColorScheme}>
+					<MantineProvider
+						withGlobalStyles
+						withNormalizeCSS
+						theme={{
+							loader: 'bars',
+							colorScheme: colorScheme,
+							colors: {
+								// override dark colors to change them for all components
+								dark: [
+									'#d5d7e0',
+									'#acaebf',
+									'#8c8fa3',
+									'#666980',
+									'#4d4f66',
+									'#34354a',
+									'#2b2c3d',
+									'#1d1e30',
+									'#0c0d21',
+									'#01010a',
+								],
+								ligth: ['#000000', '#d5d7e0'],
+							},
+						}}>
 						<ToastContainer
 							autoClose={5000}
 							hideProgressBar={false}
@@ -94,10 +91,8 @@ export default function RootLayout({
 								<Center style={{ height: '100%' }}>{children}</Center>
 							</Box>
 						</CookiesProvider>
-					</Suspense>
-				</MantineProvider>
-			</ColorSchemeProvider>
-				
+					</MantineProvider>
+				</ColorSchemeProvider>
 			</body>
 		</html>
 	);

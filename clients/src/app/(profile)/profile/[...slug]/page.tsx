@@ -1,62 +1,54 @@
 /** @format */
 'use client';
 
-import * as google from '@next/font/google';
-import useHomeStyles from './styleHome';
-import { useEffect, useState } from 'react';
+import useHomeStyles from '@/app/styleHome';
 import {
 	Affix,
-	useMantineColorScheme,
+	AppShell,
+	Button,
+	Footer,
 	rem,
 	Transition,
-	Button,
-	AppShell,
-	Footer,
-	Text,
 	useMantineTheme,
 } from '@mantine/core';
-import { IconArrowUp } from '@tabler/icons';
 import { useWindowScroll } from '@mantine/hooks';
-import NavbarComponent from 'components/home/navbarComponent';
+import { Inter } from '@next/font/google';
+import { IconArrowUp } from '@tabler/icons';
 import HeaderComponent from 'components/home/headerComponent';
+import NavbarComponent from 'components/home/navbarComponent';
+import ProfileCardComponent from 'components/profile/profileComponent';
 import SidebarComponent from 'components/home/sidebarComponent';
-import { AxiosClientAPI } from 'core/AxiosClient';
 import {
 	IPostResponse,
 	IProfileResponse,
 } from 'constant/interface/IvalidationAccount';
-import PostCardComponent from 'components/home/postCardComponent';
+import { AxiosClientAPI } from 'core/AxiosClient';
+import { useEffect, useState } from 'react';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export default function Home() {
+const profileComponent = (req: NextApiRequest, res: NextApiResponse) => {
 	const { classes } = useHomeStyles();
-	// const { colorScheme } = useMantineColorScheme();
 	const [scroll, scrollTo] = useWindowScroll();
 	const theme = useMantineTheme();
 	const [opened, setOpened] = useState(false);
-	// const [avatar, setAvatar] = useState<any>(null);
-	const [profile, setProfile] = useState<IProfileResponse | any>();
-	const [postCard, setPost] = useState<IPostResponse[] | any>();
+	const [profile, setProfile] = useState<IProfileResponse>();
+	const [id, setID] = useState('')
+
 	useEffect(() => {
 		AxiosClientAPI.post('login/verify', null, '', false).then((response) => {
-			if (response != undefined) {
-				if (response?.data.decode.avatar != undefined) {
-					setProfile(
-						{
-						nickname: response.data.decode.nickname || '',
-						avatar: response.data.decode.avatar.secure_url,
-						DOB: '',
-						destination: '',
-						BIO: '',
-						avatar_saved: response.data.decode.avatar_saved,
-						}
-					);
-					// setAvatar(response?.data.decode.profile.avatar.secure_url);
-				}
-			}
-		});
-		AxiosClientAPI.getAll('post/post-user', null, false).then((response) => {
-			if (response?.data.post != undefined) {
-				setPost(response?.data.post);
+			setID(response?.data.decode._id)
+			if (response?.data.decode.avatar != undefined) {
+				setProfile({
+					nickname: response?.data.decode.nickname || '',
+					avatar: response?.data.decode.avatar.secure_url,
+					DOB: '',
+					destination: '',
+					BIO: '',
+					avatar_saved: response?.data.decode.avatar_saved,
+					route: response?.data.decode.route,
+					authors:'',
+				});
+				// setAvatar(response?.data.decode.profile.avatar.secure_url);
 			}
 		});
 	}, []);
@@ -107,9 +99,13 @@ export default function Home() {
 					/>
 				}>
 				<div className={classes.cardPost}>
-					<PostCardComponent data={postCard} />
+					{profile?.route != undefined ? (
+						<ProfileCardComponent slug={profile?.route} id={id} />
+					) : null}
 				</div>
 			</AppShell>
 		</>
 	);
-}
+};
+
+export default profileComponent;

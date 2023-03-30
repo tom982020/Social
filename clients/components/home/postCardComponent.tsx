@@ -26,7 +26,7 @@ import {
 	IconUsers,
 	IconWorld,
 } from '@tabler/icons';
-import { IPostResponse } from 'constant/interface/IvalidationAccount';
+import { IPagePostResult, IPostResponse } from 'constant/interface/IvalidationAccount';
 import { useState } from 'react';
 
 const useStyles = createStyles((theme) => ({
@@ -77,7 +77,7 @@ const useStyles = createStyles((theme) => ({
 
 type ChildProps = {
 	// items: Item[];
-	data: IPostResponse[];
+	data: IPagePostResult | undefined;
 	// −−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−^^^^^^^^^^^^^^^
 };
 
@@ -89,7 +89,7 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 	return (
 		<>
 			{props.data != undefined
-				? props.data.map((prop, index) => {
+				? props.data.docs.map((prop, index) => {
 						return (
 							<div key={index}>
 								<Card

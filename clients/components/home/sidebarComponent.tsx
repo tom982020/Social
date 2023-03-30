@@ -6,15 +6,15 @@ import {
 	MediaQuery,
 	Modal,
 	NavLink,
-	Text,
 	Image,
 	useMantineTheme,
 	Box,
+	AspectRatio,
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
-import { IconLogout } from '@tabler/icons';
 import { dataUserNav } from 'constant/data/navbar';
 import { useState } from 'react';
+import background from '../../public/background.jpeg';
 
 const SidebarComponent = () => {
 	const theme = useMantineTheme();
@@ -25,9 +25,12 @@ const SidebarComponent = () => {
 
 	const handleSubmit = (name: string) => {
 		if (name == 'Profile') {
-			const profile = localStorage.getItem('PROFILE');
-			console.log(name);
-			handle.open();
+			if (!(typeof window === undefined)) {
+				const profile: any = localStorage.getItem('PROFILE');
+				const route = JSON.parse(profile).route;
+				window.history.pushState(null, '', `http://localhost:3000/profile/` + route);
+				window.location.reload();
+			}
 		}
 	};
 
@@ -90,10 +93,14 @@ const SidebarComponent = () => {
 				fullScreen={isMobile}
 				withCloseButton={false}
 				closeOnClickOutside={false}
-				size="75%"
+				size="60%"
 				transitionProps={{ transition: 'scale', duration: 400 }}>
 				<Box>
-					<Image />
+					<AspectRatio
+						ratio={16 / 9}
+						maw={1080}>
+						<Image src={background.src} />
+					</AspectRatio>
 				</Box>
 			</Modal>
 		</>
