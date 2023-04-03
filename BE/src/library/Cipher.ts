@@ -1,6 +1,6 @@
 /** @format */
 
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import dotenv from 'dotenv';
 
 dotenv.config();
