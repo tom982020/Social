@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const URL_LOCAL = 'http://localhost:8080/';
+const URL_LOCAL = 'http://18.140.13.114:8080/';
 
 
 const getAll = (url: string, mess: string | null, nonfication: boolean) => {

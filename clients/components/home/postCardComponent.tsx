@@ -28,6 +28,7 @@ import {
 } from '@tabler/icons';
 import { IPagePostResult, IPostResponse } from 'constant/interface/IvalidationAccount';
 import { useState } from 'react';
+import image from '../../public/background.jpeg'
 
 const useStyles = createStyles((theme) => ({
 	card: {
