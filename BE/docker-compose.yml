@@ -1,4 +1,5 @@
 version: "3.7"
+
 services:
   mongo:
     container_name: mongo
@@ -9,10 +10,6 @@ services:
     ports:
       - 27017:27017
   app:
-  NAME   := farvisun/javabina
-TAG    := $$(git log -1 --pretty=%h)
-IMG    := ${NAME}:${TAG}
-LATEST := ${NAME}:latest
     container_name: BE_DEV
     restart: always
     build:
