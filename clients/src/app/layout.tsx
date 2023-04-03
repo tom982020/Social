@@ -87,7 +87,7 @@ export default function RootLayout({
 									// textAlign: 'center',
 									padding: theme.spacing.xl,
 								})}
-								style={{ height: '1000px' }}>
+								style={{ height: '100%' }}>
 								<Center style={{ height: '100%' }}>{children}</Center>
 							</Box>
 						</CookiesProvider>

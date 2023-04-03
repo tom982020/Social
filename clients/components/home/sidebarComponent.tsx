@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { dataUserNav } from 'constant/data/navbar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import background from '../../public/background.jpeg';
 
 const SidebarComponent = () => {
@@ -22,52 +22,64 @@ const SidebarComponent = () => {
 	const [activeChild, setActiveChild] = useState(0);
 	const [opened, handle] = useDisclosure(false);
 	const isMobile = useMediaQuery('(max-width: 50em)');
+	const [item, setItem] = useState<any>();
 
 	const handleSubmit = (name: string) => {
 		if (name == 'Profile') {
 			if (!(typeof window === undefined)) {
 				const profile: any = localStorage.getItem('PROFILE');
 				const route = JSON.parse(profile).route;
-				window.history.pushState(null, '', `http://localhost:3000/profile/` + route);
+				window.history.pushState(
+					null,
+					'',
+					`http://localhost:3000/profile/` + route
+				);
 				window.location.reload();
 			}
 		}
 	};
 
-	const itemsUser = dataUserNav.map((item, index) => {
-		return (
-			<NavLink
-				key={item.label}
-				active={index === active}
-				label={item.label}
-				icon={
-					<item.icon
-						size="1rem"
-						stroke={1.5}
-					/>
-				}
-				childrenOffset="xl"
-				variant="filled"
-				style={{
-					fontSize: '20px',
-				}}
-				onClick={() => {
-					setActive(index);
-					handleSubmit(item.label);
-				}}>
-				{item.child?.map((child, idx) => (
+	useEffect(() => {
+		const itemsUser = dataUserNav.map((item, index) => {
+			const token = localStorage.getItem('token');
+			if (token != undefined) {
+				return (
 					<NavLink
-						key={child.label}
-						label={child.label}
-						active={idx === activeChild}
-						onClick={() => {
-							setActiveChild(idx);
+						key={item.label}
+						active={index === active}
+						label={item.label}
+						icon={
+							<item.icon
+								size="1rem"
+								stroke={1.5}
+							/>
+						}
+						childrenOffset="xl"
+						variant="filled"
+						style={{
+							fontSize: '20px',
 						}}
-					/>
-				))}
-			</NavLink>
-		);
-	});
+						onClick={() => {
+							setActive(index);
+							handleSubmit(item.label);
+						}}>
+						{item.child?.map((child, idx) => (
+							<NavLink
+								key={child.label}
+								label={child.label}
+								active={idx === activeChild}
+								onClick={() => {
+									setActiveChild(idx);
+								}}
+							/>
+						))}
+					</NavLink>
+				);
+			}
+		});
+		setItem(itemsUser);
+	}, []);
+
 	return (
 		<>
 			<MediaQuery
@@ -84,7 +96,7 @@ const SidebarComponent = () => {
 								? theme.colors.dark[8]
 								: theme.colors.gray[0],
 					}}>
-					{itemsUser}
+					{item}
 				</Aside>
 			</MediaQuery>
 			<Modal

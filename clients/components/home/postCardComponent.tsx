@@ -15,6 +15,8 @@ import {
 	AspectRatio,
 	Spoiler,
 	Modal,
+	Paper,
+	TypographyStylesProvider,
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import {
@@ -26,9 +28,13 @@ import {
 	IconUsers,
 	IconWorld,
 } from '@tabler/icons';
-import { IPagePostResult, IPostResponse } from 'constant/interface/IvalidationAccount';
-import { useState } from 'react';
-import image from '../../public/background.jpeg'
+import {
+	IPagePostResult,
+	IPostResponse,
+} from 'constant/interface/IvalidationAccount';
+import { useEffect, useState } from 'react';
+import image from '../../public/background.jpeg';
+import { AxiosClientAPI } from 'core/AxiosClient';
 
 const useStyles = createStyles((theme) => ({
 	card: {
@@ -74,6 +80,23 @@ const useStyles = createStyles((theme) => ({
 	footer: {
 		marginTop: theme.spacing.md,
 	},
+
+	comment: {
+		padding: `${theme.spacing.lg} ${theme.spacing.xl}`,
+		margin: `${theme.spacing.xl}`,
+	},
+
+	body: {
+		paddingLeft: rem(54),
+		paddingTop: theme.spacing.sm,
+		fontSize: theme.fontSizes.sm,
+	},
+
+	content: {
+		'& > p:last-child': {
+			marginBottom: 0,
+		},
+	},
 }));
 
 type ChildProps = {
@@ -86,7 +109,22 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 	const { classes, cx, theme } = useStyles();
 	const [heart, setHeart] = useState(false);
 	const [opened, { open, close }] = useDisclosure(false);
+	const [modalComment, setmodalComment] = useState(false);
+	const [comment, setComment] = useState<any>(null);
 	const isMobile = useMediaQuery('(max-width: 50em)');
+
+	const handleGetComment = (id: any) => {
+		setmodalComment(true);
+		AxiosClientAPI.getDetail('post/comment-user', id, '', false).then(
+			(response) => {
+				if (response != undefined) {
+					setComment(response?.data.result);
+				}
+			}
+		);
+		console.log(comment);
+	};
+
 	return (
 		<>
 			{props.data != undefined
@@ -96,13 +134,17 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 								<Card
 									withBorder
 									radius="md"
+									my={'5%'}
 									className={cx(classes.card)}>
 									<Card.Section>
 										<AspectRatio
 											ratio={16 / 9}
 											maw={720}>
 											<a onClick={open}>
-												<Image src={prop.image.secure_url} sx={{cursor: 'pointer'}} />
+												<Image
+													src={prop.image.secure_url}
+													sx={{ cursor: 'pointer' }}
+												/>
 											</a>
 										</AspectRatio>
 									</Card.Section>
@@ -124,9 +166,11 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 									<div
 										style={{
 											marginTop: '10px',
-											cursor: 'pointer'
+											cursor: 'pointer',
 										}}>
-										<Badge>#Badge</Badge>
+										{prop.hashTags.map((tag: any, idx: number) => {
+											return <Badge key={idx}>#{tag.description}</Badge>;
+										})}
 									</div>
 									<Text
 										className={classes.title}
@@ -150,7 +194,7 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 									<Group
 										position="apart"
 										className={classes.footer}>
-										<Center sx={{cursor: 'pointer'}}>
+										<Center sx={{ cursor: 'pointer' }}>
 											<Avatar
 												src={prop.profile.avatar.secure_url}
 												size={28}
@@ -176,7 +220,9 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 													color={theme.colors.red[6]}
 												/>
 											</ActionIcon>
-											<ActionIcon className={classes.action}>
+											<ActionIcon
+												className={classes.action}
+												onClick={() => handleGetComment(prop._id)}>
 												<IconMessage2
 													size="1rem"
 													color={theme.colors.blue[7]}
@@ -206,6 +252,53 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 										maw={1080}>
 										<Image src={prop.image.secure_url} />
 									</AspectRatio>
+								</Modal>
+								<Modal
+									opened={modalComment}
+									onClose={() => setmodalComment(false)}
+									size="60%"
+									fullScreen={isMobile}
+									transitionProps={{
+										transition: 'scale',
+										duration: 400,
+									}}
+									style={{
+										padding: '30px',
+									}}
+								>
+									<div style={{padding: '20px'}}>
+									{comment.docs.length > 0
+										? comment.docs.map((cmt: any, i: number) => {
+												return (
+													<Paper
+														key={i}
+														withBorder
+														radius="md"
+														className={classes.comment}>
+														<Group>
+															<Avatar
+																src={cmt.profile.avatar.secure_url}
+																alt={cmt.profile.nickname}
+																radius="xl"
+															/>
+															<div>
+																<Text fz="sm">{cmt.profile.nickname}</Text>
+																<Text
+																	fz="xs"
+																	c="dimmed">
+																	{cmt.description}
+																</Text>
+															</div>
+														</Group>
+														<TypographyStylesProvider className={classes.body}>
+															<div className={classes.content} />
+														</TypographyStylesProvider>
+													</Paper>
+												);
+										  })
+										: <Text>No Comment this post</Text>}
+									</div>
+									
 								</Modal>
 							</div>
 						);

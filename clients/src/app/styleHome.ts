@@ -19,7 +19,7 @@ const useHomeStyles = createStyles((theme) => ({
     },
     SizeIcon: {
         [theme.fn.largerThan('md')]: {
-            fontSize: '20px'
+            fontSize: '16px'
         },
         [theme.fn.smallerThan('md')]: {
             fontSize: '12px'
@@ -59,9 +59,9 @@ const useHomeStyles = createStyles((theme) => ({
     },
     cardPost: {
         [theme.fn.largerThan('md')]: {
-            paddingRight: '150px',
-            paddingLeft: '150px',
-            marginTop: '0px'
+            paddingRight: '220px',
+            paddingLeft: '220px',
+            marginTop: '0'
         },
         [theme.fn.smallerThan('md')]: {
         },

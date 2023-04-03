@@ -16,6 +16,7 @@ import {
 	Stack,
 	Flex,
 	Rating,
+	Group,
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import {
@@ -155,13 +156,13 @@ const ProfileCardComponent: React.FC<ChildProps> = (props) => {
 							mt={isMobile ? -30 : -55}
 							className={classes.avatar}
 						/>
-						<Center mx={isMobile ? 'auto' : undefined}>
+						 <Group position="center">
 							<Rating
-								defaultValue={profile?.evaluate}
+								defaultValue={profile?.evaluate != undefined ? profile.evaluate : 0}
 								fractions={2}
 								readOnly={true}
 							/>
-						</Center>
+						</Group>
 					</Grid.Col>
 					<Grid.Col span={isMobile ? 0 : 10}>
 						<Grid py={isMobile ? 10 : 0}>

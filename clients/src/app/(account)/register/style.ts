@@ -8,6 +8,8 @@ const useRegisterStyles = createStyles((theme) => ({
         },
         [theme.fn.largerThan('md')]: {
             width: '40%',
+            height: '1000px',
+            marginTop: '15%'
         },
     },
 

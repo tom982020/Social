@@ -37,26 +37,28 @@ export default function Home() {
 	const [profile, setProfile] = useState<IProfileResponse | any>();
 	const [postCard, setPost] = useState<IPostResponse[] | any>();
 	useEffect(() => {
-		AxiosClientAPI.post('login/verify', null, '', false).then((response) => {
-			if (response != undefined) {
-				if (response?.data.decode.avatar != undefined) {
-					setProfile(
-						{
-						nickname: response.data.decode.nickname || '',
-						avatar: response.data.decode.avatar.secure_url,
-						DOB: '',
-						destination: '',
-						BIO: '',
-						avatar_saved: response.data.decode.avatar_saved,
-						}
-					);
-					// setAvatar(response?.data.decode.profile.avatar.secure_url);
+		const token = localStorage.getItem('token');
+		if (token != undefined) {
+			AxiosClientAPI.post('login/verify', null, '', false).then((response) => {
+				if (response != undefined) {
+					if (response?.data.decode.avatar != undefined) {
+						setProfile({
+							nickname: response.data.decode.nickname || '',
+							avatar: response.data.decode.avatar.secure_url,
+							DOB: '',
+							destination: '',
+							BIO: '',
+							avatar_saved: response.data.decode.avatar_saved,
+						});
+						// setAvatar(response?.data.decode.profile.avatar.secure_url);
+					}
 				}
-			}
-		});
-		AxiosClientAPI.getAll('post/post-user', null, false).then((response) => {
-			if (response?.data.post != undefined) {
-				setPost(response?.data.post);
+			});
+		}
+
+		AxiosClientAPI.getAll('post/all', null, false).then((response) => {
+			if (response != undefined) {
+				setPost(response?.data.result);
 			}
 		});
 	}, []);
@@ -85,8 +87,8 @@ export default function Home() {
 								: theme.colors.gray[0],
 					},
 				}}
-				navbarOffsetBreakpoint="sm"
-				asideOffsetBreakpoint="sm"
+				navbarOffsetBreakpoint="md"
+				asideOffsetBreakpoint="md"
 				navbar={<NavbarComponent visible={opened} />}
 				aside={<SidebarComponent />}
 				footer={

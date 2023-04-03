@@ -9,6 +9,7 @@ import {
 	TextInput,
 	Tooltip,
 	Text,
+	useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import {
@@ -20,12 +21,11 @@ import {
 } from '@tabler/icons';
 import { IRegister } from 'constant/interface/IvalidationAccount';
 import { useState } from 'react';
-import axios from 'axios';
 import { useDisclosure } from '@mantine/hooks';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import router from 'next/router';
 import { AxiosClientAPI } from 'core/AxiosClient';
+import Link from 'next/link';
 
 type ChildProps = {
 	togglestate: (
@@ -38,6 +38,8 @@ type ChildProps = {
 
 const RegisterComponents: React.FC<ChildProps> = (props) => {
 	const [opened, handleOpen] = useDisclosure(false);
+	const theme = useMantineTheme();
+
 	const [visible, setVisible] = useState(false);
 	const nextStep = () => {
 		setVisible(false);
@@ -65,7 +67,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 					username: form.values.username,
 					password: form.values.password,
 				};
-				const login = AxiosClientAPI.post(urlLogin, data, '',false);
+				const login = AxiosClientAPI.post(urlLogin, data, '', false);
 				login
 					.then((respo) => {
 						if (respo?.status === 201) {
@@ -110,7 +112,7 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 
 	const prevStep = (e: React.MouseEvent) => {
 		props.togglestate(e, 0, '', true);
-		window.location.href = '/login';
+		// window.location.href = '/login';
 	};
 
 	const [validate, setValidate] = useState<IRegister>({
@@ -257,7 +259,19 @@ const RegisterComponents: React.FC<ChildProps> = (props) => {
 						<Button
 							variant="default"
 							onClick={(e) => prevStep(e)}>
-							Back
+							<Link
+								href={'../login'}
+								style={{
+									display: 'flex',
+									cursor: 'pointer',
+									textDecoration: 'none',
+									color:
+										theme.colorScheme === 'dark'
+											? 'white'
+											: theme.colors.dark[8],
+								}}>
+								Back
+							</Link>
 						</Button>
 						<Button
 							type="submit"

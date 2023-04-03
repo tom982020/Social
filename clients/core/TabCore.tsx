@@ -14,7 +14,8 @@ const TabCore: React.FC<ChildProps> = (props) => {
 	return (
 		<Tabs
 			color="green"
-			defaultValue="0">
+			defaultValue="0"
+			my={'2%'}>
 			<Tabs.List
 				grow
 				position="center">

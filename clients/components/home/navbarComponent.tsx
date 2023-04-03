@@ -27,6 +27,7 @@ import {
 	IconUser,
 } from '@tabler/icons';
 import { dataNavbar, dataUserNav } from 'constant/data/navbar';
+import Link from 'next/link';
 import { useState } from 'react';
 type ChildProps = {
 	visible: boolean;
@@ -53,7 +54,6 @@ const NavbarComponent: React.FC<ChildProps> = (props) => {
 	const handleSubmit = (name: string) => {
 		if (name == 'Profile') {
 			const profile = localStorage.getItem('PROFILE');
-			console.log(name);
 			handle.open();
 		}
 	};
@@ -107,7 +107,10 @@ const NavbarComponent: React.FC<ChildProps> = (props) => {
 				style={{
 					fontSize: '20px',
 				}}
-				onClick={() => { setActive(index);  handleSubmit(item.label)}}>
+				onClick={() => {
+					setActive(index);
+					handleSubmit(item.label);
+				}}>
 				{item.child?.map((child, idx) => (
 					<NavLink
 						key={child.label}
@@ -228,7 +231,23 @@ const NavbarComponent: React.FC<ChildProps> = (props) => {
 											? theme.colors.dark[8]
 											: theme.colors.gray[0],
 								})}>
-								<div style={{ display: 'flex' }}>
+								<Link
+									href={'/login'}
+									style={{
+										display: 'flex',
+										cursor: 'pointer',
+										textDecoration: 'none',
+										color:
+											theme.colorScheme === 'dark'
+												? 'white'
+												: theme.colors.dark[8],
+									}}
+									onClick={() => {
+										localStorage.removeItem('token');
+										localStorage.removeItem('PROFILE');
+										localStorage.removeItem('USER');
+										localStorage.removeItem('CHECKPROFILE');
+									}}>
 									<Center>
 										<Text>
 											<ThemeIcon
@@ -244,7 +263,7 @@ const NavbarComponent: React.FC<ChildProps> = (props) => {
 									<Center>
 										<Text>Sign Out</Text>
 									</Center>
-								</div>
+								</Link>
 							</Stack>
 						</Grid.Col>
 					</Grid>

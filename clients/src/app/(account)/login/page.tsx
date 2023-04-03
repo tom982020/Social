@@ -112,7 +112,7 @@ const LoginComponent = () => {
 	};
 
 	return (
-		<>
+		<div style={{height : '1000px',width: '100%'}}>
 			<LoadingOverlay
 				loaderProps={{ size: 'xl', color: 'cyan', variant: 'bars' }}
 				overlayOpacity={0.4}
@@ -122,7 +122,7 @@ const LoginComponent = () => {
 			/>
 			<motion.div
 				className={classes.root}
-				animate={{ x: '50%' }}
+				animate={{ x: '140%',y: '50%' }}
 				transition={{ type: 'spring', duration: 1.5 }}>
 				<Box className={classes.box}>
 					<Container
@@ -257,7 +257,7 @@ const LoginComponent = () => {
 					</Container>
 				</Box>
 			</motion.div>
-		</>
+		</div>
 	);
 };
 

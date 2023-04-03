@@ -17,9 +17,12 @@ import {
 	useMantineTheme,
 	Avatar,
 	Stack,
+	ThemeIcon,
 } from '@mantine/core';
-import { IconMoonStars, IconSun } from '@tabler/icons';
+import { IconLogin, IconMoonStars, IconPower, IconSun } from '@tabler/icons';
 import { IProfileResponse } from 'constant/interface/IvalidationAccount';
+import Link from 'next/link';
+import Router from 'next/router';
 import { useState } from 'react';
 type ChildProps = {
 	// items: Item[];
@@ -65,27 +68,57 @@ const HeaderComponent: React.FC<ChildProps> = (props) => {
 						<Box>
 							<Grid>
 								<Grid.Col span={6}>
-									<Center>
-										<Stack
-											align="center"
-											w={'40%'}>
-											<Avatar
-												src={
-													props.profile?.avatar_saved
-														? props.profile?.avatar
-														: ''
-												}
-												radius="xl"
-											/>
-										</Stack>
+									{props.profile != undefined ? (
+										<Center>
+											<Stack
+												align="center"
+												w={'40%'}>
+												<Avatar
+													src={
+														props.profile?.avatar_saved
+															? props.profile?.avatar
+															: ''
+													}
+													radius="xl"
+												/>
+											</Stack>
 
-										<Space h="xl" />
-										<Stack
-											align="flex-end"
-											w={'80%'}>
-											<Text>{props.profile?.nickname}</Text>
-										</Stack>
-									</Center>
+											<Space h="xl" />
+											<Stack
+												align="flex-end"
+												w={'80%'}>
+												<Text>{props.profile?.nickname}</Text>
+											</Stack>
+										</Center>
+									) : (
+										<Link
+											href={'/login'}
+											style={{
+												display: 'flex',
+												cursor: 'pointer',
+												textDecoration: 'none',
+												color:
+													theme.colorScheme === 'dark'
+														? 'white'
+														: theme.colors.dark[8],
+											}}>
+											<Center>
+												<Text>
+													<ThemeIcon
+														variant="light"
+														size="xl"
+														color="green">
+														<IconLogin className={classes.SizeIcon} />
+													</ThemeIcon>
+												</Text>
+											</Center>
+
+											<Space w="xs" />
+											<Center>
+												<Text>Log In</Text>
+											</Center>
+										</Link>
+									)}
 								</Grid.Col>
 								<Grid.Col span={6}>
 									<Center sx={{ marginTop: '7px' }}>

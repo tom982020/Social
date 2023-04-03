@@ -4,7 +4,7 @@ const useLoginStyles = createStyles((theme) => ({
     root: {
         [theme.fn.smallerThan('sm')]: {
             width: '100%',
-            height: '40%',
+            height: '100%',
         },
         [theme.fn.largerThan('md')]: {
             width: '35%',

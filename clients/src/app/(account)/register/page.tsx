@@ -56,8 +56,6 @@ const RegisterComponent: React.FC = () => {
 		}
 	});
 
-	const [opened, handleOpen] = useDisclosure(false);
-
 	return (
 		<Box className={classes.root}>
 			<LoadingOverlay
@@ -155,17 +153,6 @@ const RegisterComponent: React.FC = () => {
 						</Stepper.Completed>
 					</Stepper>
 				</Card>
-				{/* 
-				<Group
-					position="center"
-					mt="xl">
-					<Button
-						variant="default"
-						onClick={prevStep}>
-						Back
-					</Button>
-					<Button  onClick={nextStep}>{ active > 2 ? 'Completed' :' Next step'}</Button>
-				</Group> */}
 			</Container>
 		</Box>
 	);
