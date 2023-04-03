@@ -3,7 +3,7 @@ WORKDIR /Social/BE
 COPY package.json ./
 COPY tsconfig.json ./
 COPY . /src
-RUN yarn -f
+RUN yarn --force
 COPY . ./
 RUN yarn build
 EXPOSE 8080
