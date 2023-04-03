@@ -285,7 +285,7 @@ const getPostAll = async (
         const hashTag = await HashTagsModel.find().sort({ count: -1 }).select('_id').limit(10);
         const arrayHashTags = hashTag.map((item) => { return item._id.toString() })
         const populate = {
-            select: 'route nickname avatar',
+            select: 'route nickname avatarn description count',
             path: 'profile hashTags',
         };
         request.query = {
