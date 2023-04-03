@@ -147,9 +147,9 @@ const commentPost = async (
         // if(post.comment)
 
         let formData = {
-            profile: user.profile._id,
+            profile: user._id,
             description: body.description,
-            tagName: body.tagName,
+            tagName: body.tagName != undefined ? body.tagName : [],
             postID: body.postID,
             image: null,
             reactions: body.reactions,
@@ -336,12 +336,17 @@ const getComments = async (
     const user = r.user;
     let session = await mongoose.startSession();
     session.startTransaction();
+    const id = request.params.idPost;
     try {
+        if (id != undefined) {
+            request.query.postID = id;
+        }
         const result = await paginateHandler(
             request.query,
             CommentModel,
             'profile description tagName postID',
             {
+                select: 'route avatar nickname',
                 path: 'tagName profile',
             }
         );

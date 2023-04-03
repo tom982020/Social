@@ -9,7 +9,7 @@ postRoute.use(checkToken);
 postRoute.post('/create', postController.creatPost);
 postRoute.post('/comment', postController.commentPost);
 postRoute.get('/post-user', postController.getPostForUser);
-postRoute.get('/comment-user', postController.getComments);
+postRoute.get('/comment-user/:idPost', postController.getComments);
 postRoute.put('/update-heart/:postID', postController.heartPost)
 
 
