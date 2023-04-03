@@ -1,7 +1,6 @@
 FROM node:18.14.2-alpine
 WORKDIR /Social/BE
 COPY package.json ./
-COPY yarn.lock ./
 COPY tsconfig.json ./
 COPY . /src
 RUN yarn
