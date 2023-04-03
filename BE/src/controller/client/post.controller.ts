@@ -241,7 +241,7 @@ const getPostForUser = async (
     try {
         const date = new Date(Date.now()).getTime();
         const populate = {
-            select: 'route nickname avatar',
+            select: 'route nickname avatar description count',
             path: 'profile hashTags',
         };
         request.query.profile = user._id;

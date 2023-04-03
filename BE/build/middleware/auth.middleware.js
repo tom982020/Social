@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.extractToken = exports.checkToken = void 0;
+const Profile_1 = __importDefault(require("../model/Account/Profile"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../config/config");
 const Cipher_1 = require("../library/Cipher");
@@ -24,12 +25,20 @@ const checkToken = (req, res, next) => {
     if (token) {
         jsonwebtoken_1.default.verify(token, config_1.config.secret, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
             // console.log(decoded)
-            if (err)
+            if (err) {
                 return res
                     .status(401)
                     .json({ error: true, message: 'Unauthorized access.' });
-            decoded.data.phone = yield (0, Cipher_1.Decrypter)(decoded.data.phone);
-            req.user = decoded.data;
+            }
+            let user = yield Profile_1.default.findOne({
+                authors: decoded.data
+            }).populate('authors');
+            let phone = yield (0, Cipher_1.Decrypter)(user.authors.phone);
+            do {
+                phone = yield (0, Cipher_1.Decrypter)(user.authors.phone);
+            } while (phone == undefined);
+            user.authors.phone = phone;
+            req.user = user;
             req.token = token;
             next();
         }));

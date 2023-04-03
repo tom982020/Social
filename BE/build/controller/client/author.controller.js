@@ -21,6 +21,7 @@ const config_1 = require("../../config/config");
 const Cipher_1 = require("../../library/Cipher");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const historyAccount_constant_1 = require("../../constant/historyAccount.constant");
+const Profile_2 = __importDefault(require("../../model/Account/Profile"));
 const createAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, username, password, email, phone } = req.body;
     // console.log(req.body);
@@ -168,10 +169,10 @@ const loginAuthor = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     }
                 }));
             }
-            const token = jsonwebtoken_1.default.sign({ data: users }, config_1.config.secret, {
+            const token = jsonwebtoken_1.default.sign({ data: user[0]._id }, config_1.config.secret, {
                 expiresIn: '1m',
             });
-            const refeshtoken = jsonwebtoken_1.default.sign({ data: users }, config_1.config.secret, {
+            const refeshtoken = jsonwebtoken_1.default.sign({ data: user[0]._id }, config_1.config.secret, {
                 expiresIn: '1y',
             });
             if (hash === true) {
@@ -223,9 +224,16 @@ const verifyToken = (req, res, next) => {
                     .json({ error: true, message: 'Unauthorized access.' });
             }
             else {
-                decoded.data.phone = yield (0, Cipher_1.Decrypter)(decoded.data.phone);
+                let user = yield Profile_2.default.findOne({
+                    authors: decoded.data
+                }).populate('authors');
+                let phone = yield (0, Cipher_1.Decrypter)(user.authors.phone);
+                do {
+                    phone = yield (0, Cipher_1.Decrypter)(user.authors.phone);
+                } while (phone == undefined);
+                user.authors.phone = phone;
                 return res.status(201).json({
-                    decode: decoded.data,
+                    decode: user,
                 });
             }
         }));

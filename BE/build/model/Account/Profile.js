@@ -29,7 +29,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const mongoose_delete_1 = __importDefault(require("mongoose-delete"));
-const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
+const mongoose_paginate_ts_1 = require("mongoose-paginate-ts");
 const profile_contant_1 = require("../../constant/profile.contant");
 const ProfileSchema = new mongoose_1.Schema({
     authors: {
@@ -126,5 +126,6 @@ ProfileSchema.plugin(mongoose_delete_1.default, {
     // deleted: true
 });
 // paginate
-ProfileSchema.plugin(mongoose_paginate_v2_1.default);
-exports.default = mongoose_1.default.model('Profile', ProfileSchema);
+ProfileSchema.plugin(mongoose_paginate_ts_1.mongoosePagination);
+const Profile = mongoose_1.default.model('Profile', ProfileSchema);
+exports.default = Profile;

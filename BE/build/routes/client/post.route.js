@@ -8,4 +8,9 @@ const post_controller_1 = __importDefault(require("../../controller/client/post.
 const postRoute = express_1.default.Router();
 postRoute.use(auth_middleware_1.checkToken);
 postRoute.post('/create', post_controller_1.default.creatPost);
+postRoute.post('/comment', post_controller_1.default.commentPost);
+postRoute.get('/post-user', post_controller_1.default.getPostForUser);
+postRoute.get('/comment-user', post_controller_1.default.getComments);
+postRoute.get('/all', post_controller_1.default.getPostAll);
+postRoute.put('/update-heart/:postID', post_controller_1.default.heartPost);
 module.exports = postRoute;

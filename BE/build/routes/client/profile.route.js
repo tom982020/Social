@@ -13,6 +13,7 @@ profileRoute.use(auth_middleware_1.checkToken);
 profileRoute.post('/create', profile_controller_1.default.createProfile);
 profileRoute.get('/:idAccount', profile_controller_1.default.getProfileAccount);
 profileRoute.get('/view/:routeProfile', profile_controller_1.default.viewProfile);
+profileRoute.get('/list-friend/:idProfile', profile_controller_1.default.getFriendProfile);
 profileRoute.put('/:id', profile_controller_1.default.updateProfile);
 profileRoute.put('/update-background/:id', profile_controller_1.default.updateProfileBackground);
 profileRoute.patch('/add-friend', profile_controller_1.default.addFriendProfile);

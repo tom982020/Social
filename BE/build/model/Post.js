@@ -28,7 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const mongoose_delete_1 = __importDefault(require("mongoose-delete"));
-const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
+const mongoose_paginate_ts_1 = require("mongoose-paginate-ts");
 const post_constant_1 = require("../constant/post.constant");
 const PostSchema = new mongoose_1.Schema({
     title: {
@@ -40,6 +40,18 @@ const PostSchema = new mongoose_1.Schema({
         ref: 'Profile',
         require: true,
     },
+    heart: [
+        {
+            profile: {
+                type: mongoose_1.Schema.Types.ObjectId,
+                ref: 'Profile',
+            },
+            isHeart: {
+                type: mongoose_1.Schema.Types.Boolean,
+                default: false,
+            }
+        }
+    ],
     description: {
         type: mongoose_1.Schema.Types.String,
     },
@@ -80,28 +92,6 @@ const PostSchema = new mongoose_1.Schema({
             ref: 'Hashtags'
         }
     ],
-    comment: [
-        {
-            profile: {
-                type: mongoose_1.Schema.Types.ObjectId,
-                ref: 'Profile'
-            },
-            description: mongoose_1.Schema.Types.String,
-            tagName: [{
-                    type: mongoose_1.Schema.Types.ObjectId,
-                    ref: 'Profile',
-                }],
-            reactions: mongoose_1.Schema.Types.String,
-            image: {
-                id: mongoose_1.Schema.Types.String,
-                url: mongoose_1.Schema.Types.String,
-                secure_url: mongoose_1.Schema.Types.String,
-                format: mongoose_1.Schema.Types.String,
-                resource_type: mongoose_1.Schema.Types.String,
-                created_at: mongoose_1.Schema.Types.String,
-            }
-        }
-    ],
     share: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Post'
@@ -117,5 +107,6 @@ PostSchema.plugin(mongoose_delete_1.default, {
     deleted: true
 });
 // paginate
-PostSchema.plugin(mongoose_paginate_v2_1.default);
-exports.default = mongoose_1.default.model('Post', PostSchema);
+PostSchema.plugin(mongoose_paginate_ts_1.mongoosePagination);
+const Post = mongoose_1.default.model('Post', PostSchema);
+exports.default = Post;
