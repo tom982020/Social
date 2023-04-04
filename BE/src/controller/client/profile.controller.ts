@@ -684,6 +684,60 @@ const getFriendProfile = async (
 		return response.status(500).json({ error: err });
 	}
 };
+
+const searchFriend = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	const r: any = request;
+	const user = r.user;
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	const id = request.params.idProfile;
+	try {
+		const populate = {
+			path: 'idFriend',
+		};
+		// request.query.idFriend = id;
+		request.query.idProfile = id;
+		request.query.accept = 'true';
+		request.query.deleted = 'false';
+		if (request.query.search) {
+			const idProfile = await ProfileModel.find({
+				$or: [
+					{
+						nickname: new RegExp(request.query.search.toString(), 'i'),
+					},
+				],
+			}).select('_id');
+			const arrayProfile = idProfile.map((item) => {
+				return item._id.toString();
+			});
+			request.query = {
+				$or: [
+					{
+						idFriend: { $in: arrayProfile },
+					},
+				],
+			};
+			delete request.query.search;
+		}
+		const result = await paginateHandler(
+			request.query,
+			FriendModel,
+			null,
+			populate
+		);
+		await session.commitTransaction();
+		session.endSession();
+		response.status(200).json({ result });
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+};
 export default {
 	createProfile,
 	viewProfile,
@@ -696,4 +750,5 @@ export default {
 	followProfile,
 	updateAvatarSave,
 	getFriendProfile,
+	searchFriend,
 };
