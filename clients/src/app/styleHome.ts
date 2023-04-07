@@ -59,8 +59,13 @@ const useHomeStyles = createStyles((theme) => ({
     },
     cardPost: {
         [theme.fn.largerThan('md')]: {
-            paddingRight: '220px',
-            paddingLeft: '220px',
+            paddingRight: '250px',
+            paddingLeft: '250px',
+            marginTop: '0'
+        },
+        [theme.fn.largerThan('xl')]: {
+            paddingRight: '350px',
+            paddingLeft: '350px',
             marginTop: '0'
         },
         [theme.fn.smallerThan('md')]: {

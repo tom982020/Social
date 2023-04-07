@@ -10,17 +10,19 @@ import {
 	Group,
 	Center,
 	Avatar,
-	createStyles,
-	rem,
 	AspectRatio,
 	Spoiler,
 	Modal,
 	Paper,
-	TypographyStylesProvider,
+	Flex,
+	Footer,
+	Input,
+	ScrollArea,
+	Transition,
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import {
-	IconBookmark,
+	IconCornerRightUp,
 	IconFlag,
 	IconHeart,
 	IconMessage2,
@@ -29,89 +31,31 @@ import {
 	IconWorld,
 } from '@tabler/icons';
 import {
+	CommentResponse,
 	IPagePostResult,
-	IPostResponse,
 } from 'constant/interface/IvalidationAccount';
-import { useEffect, useState } from 'react';
-import image from '../../public/background.jpeg';
+import { useState } from 'react';
 import { AxiosClientAPI } from 'core/AxiosClient';
-
-const useStyles = createStyles((theme) => ({
-	card: {
-		position: 'relative',
-		backgroundColor:
-			theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-	},
-
-	rating: {
-		position: 'absolute',
-		top: theme.spacing.xs,
-		right: rem(12),
-		pointerEvents: 'none',
-	},
-
-	title: {
-		display: 'block',
-		marginTop: theme.spacing.md,
-		marginBottom: rem(5),
-	},
-
-	action: {
-		backgroundColor:
-			theme.colorScheme === 'dark'
-				? theme.colors.dark[6]
-				: theme.colors.gray[0],
-		...theme.fn.hover({
-			backgroundColor:
-				theme.colorScheme === 'dark'
-					? theme.colors.dark[5]
-					: theme.colors.gray[1],
-		}),
-	},
-	image: {
-		[theme.fn.largerThan('md')]: {
-			height: '250px',
-		},
-		[theme.fn.smallerThan('md')]: {
-			height: '180px',
-		},
-	},
-
-	footer: {
-		marginTop: theme.spacing.md,
-	},
-
-	comment: {
-		padding: `${theme.spacing.lg} ${theme.spacing.xl}`,
-		margin: `${theme.spacing.xl}`,
-	},
-
-	body: {
-		paddingLeft: rem(54),
-		paddingTop: theme.spacing.sm,
-		fontSize: theme.fontSizes.sm,
-	},
-
-	content: {
-		'& > p:last-child': {
-			marginBottom: 0,
-		},
-	},
-}));
+import useStylespostCard from './styleCard';
+import CommentComponent from './commentComponent';
 
 type ChildProps = {
 	// items: Item[];
+	idProfile: any;
 	data: IPagePostResult | undefined;
 	// −−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−^^^^^^^^^^^^^^^
 };
 
 const PostCardComponent: React.FC<ChildProps> = (props) => {
-	const { classes, cx, theme } = useStyles();
+	const { classes, cx, theme } = useStylespostCard();
 	const [heart, setHeart] = useState(false);
 	const [opened, { open, close }] = useDisclosure(false);
 	const [modalComment, setmodalComment] = useState(false);
 	const [comment, setComment] = useState<any>(null);
+	const [tagName, setTagName] = useState<any>(null);
+	const [idPost,setIDPost] = useState<any>(null);
 	const isMobile = useMediaQuery('(max-width: 50em)');
+	let arr: any = []
 
 	const handleGetComment = (id: any) => {
 		setmodalComment(true);
@@ -122,8 +66,29 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 				}
 			}
 		);
-		console.log(comment);
+		AxiosClientAPI.getDetailPage('profile/list-friend', props.idProfile, 4000, 1).then(
+			(response) => {
+				if (response != undefined) {
+					setTagName(response?.data.result.docs);
+				}
+			}
+		);
+		setIDPost(id)
 	};
+
+	const handleComment = (formData: any) => {
+		AxiosClientAPI.post('post/comment', formData, 'comment success', true).then((response) => {
+            if (response) {
+                AxiosClientAPI.getDetail('post/comment-user', idPost, '', false).then(
+					(response) => {
+						if (response != undefined) {
+							setComment(response?.data.result);
+						}
+					}
+				);
+            }
+        })
+	}
 
 	return (
 		<>
@@ -191,9 +156,7 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 										</Text>
 									</Spoiler>
 
-									<Group
-										position="apart"
-										className={classes.footer}>
+									<Group position="apart">
 										<Center sx={{ cursor: 'pointer' }}>
 											<Avatar
 												src={prop.profile.avatar.secure_url}
@@ -264,41 +227,71 @@ const PostCardComponent: React.FC<ChildProps> = (props) => {
 									}}
 									style={{
 										padding: '30px',
-									}}
-								>
-									<div style={{padding: '20px'}}>
-									{comment.docs.length > 0
-										? comment.docs.map((cmt: any, i: number) => {
+									}}>
+									<div style={{ padding: '20px' }}>
+										<AspectRatio
+											ratio={16 / 9}
+											maw={1080}>
+											<Image src={prop.image.secure_url} />
+										</AspectRatio>
+										{comment != undefined && comment.docs.length > 0 ? (
+											comment.docs.map((cmt: CommentResponse, i: number) => {
 												return (
-													<Paper
-														key={i}
-														withBorder
-														radius="md"
-														className={classes.comment}>
-														<Group>
-															<Avatar
-																src={cmt.profile.avatar.secure_url}
-																alt={cmt.profile.nickname}
-																radius="xl"
-															/>
-															<div>
-																<Text fz="sm">{cmt.profile.nickname}</Text>
-																<Text
-																	fz="xs"
-																	c="dimmed">
-																	{cmt.description}
-																</Text>
-															</div>
-														</Group>
-														<TypographyStylesProvider className={classes.body}>
-															<div className={classes.content} />
-														</TypographyStylesProvider>
-													</Paper>
+													<div
+														style={{ marginBottom: '20px' }}
+														key={i}>
+														<Paper
+															shadow="sm"
+															withBorder
+															radius="md"
+															className={classes.comment}>
+															<Group>
+																<Avatar
+																	src={cmt.profile.avatar.secure_url}
+																	alt={cmt.profile.nickname}
+																	radius="xl"
+																/>
+																<div>
+																	<Text fz="sm">{cmt.profile.nickname}</Text>
+																	<Text
+																		fz="xs"
+																		c="dimmed"
+																		sx={(theme) => ({
+																			color:
+																				theme.colorScheme === 'dark'
+																					? theme.colors.white
+																					: theme.colors.dark[9],
+																		})}>
+																		{cmt.description}
+																	</Text>
+																</div>
+															</Group>
+														</Paper>
+														<Flex
+															direction={{ base: 'column', sm: 'row' }}
+															gap={{ base: 'sm', sm: 'lg' }}
+															justify={{ sm: 'left' }}
+															sx={{ paddingLeft: '6.5%' }}>
+															<Text
+																sx={{ cursor: 'pointer' }}
+																fz="sm">
+																Like
+															</Text>
+															<Text
+																sx={{ cursor: 'pointer' }}
+																fz="sm">
+																Reply
+															</Text>
+														</Flex>
+													</div>
 												);
-										  })
-										: <Text>No Comment this post</Text>}
+											})
+										) : (
+											<Text>No Comment this post</Text>
+										)}
+										
+										<CommentComponent handleComment={(e,formData) => handleComment(formData)} idPost={idPost} idProfile={props.idProfile} tagName={tagName} />
 									</div>
-									
 								</Modal>
 							</div>
 						);

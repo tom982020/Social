@@ -92,3 +92,36 @@ export interface IPostResponse {
 	createdAt: string,
 	updatedAt: string,
 }
+export interface PageResult {
+	page: number,
+	limit: number,
+	totalDocs: number,
+	totalPages: number,
+}
+export interface CommentResponse extends PageResult {
+	description: string,
+	postID: string,
+	profile: {
+		id: string,
+		nickname: string,
+		route: string,
+		avatar: {
+			createdAt: string,
+			format: string,
+			id: string,
+			resource_type: string,
+			secure_url: string,
+			url: string,
+		}
+	}
+	tagName: tagNameResponse[],
+	id: string,
+}
+
+
+
+export interface tagNameResponse {
+	id: string,
+	nickname: string,
+	route: string,
+}

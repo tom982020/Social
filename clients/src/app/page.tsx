@@ -36,11 +36,13 @@ export default function Home() {
 	// const [avatar, setAvatar] = useState<any>(null);
 	const [profile, setProfile] = useState<IProfileResponse | any>();
 	const [postCard, setPost] = useState<IPostResponse[] | any>();
+	const [idProfile,setIDProfile] = useState<any>()
 	useEffect(() => {
 		const token = localStorage.getItem('token');
 		if (token != undefined) {
 			AxiosClientAPI.post('login/verify', null, '', false).then((response) => {
 				if (response != undefined) {
+					setIDProfile(response?.data.decode._id)
 					if (response?.data.decode.avatar != undefined) {
 						setProfile({
 							nickname: response.data.decode.nickname || '',
@@ -109,7 +111,7 @@ export default function Home() {
 					/>
 				}>
 				<div className={classes.cardPost}>
-					<PostCardComponent data={postCard} />
+					<PostCardComponent data={postCard} idProfile={idProfile} />
 				</div>
 			</AppShell>
 		</>
