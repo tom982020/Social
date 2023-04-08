@@ -738,6 +738,39 @@ const searchFriend = async (
 		return response.status(500).json({ error: err });
 	}
 };
+
+const getPeople = async (
+	request: Request,
+	response: Response,
+	next: NextFunction
+) => {
+	const r: any = request;
+	const user = r.user;
+	let session = await mongoose.startSession();
+	session.startTransaction();
+	const id = request.params.idProfile;
+	try {
+		request.query.deleted = 'false';
+		if (request.query.search) {
+			request.query.nickname = { $regex: '.*' + request.query.search + '.*' };
+
+			delete request.query.search;
+		}
+		const result = await paginateHandler(
+			request.query,
+			ProfileModel,
+			null,
+			null
+		);
+		await session.commitTransaction();
+		session.endSession();
+		response.status(200).json({ result });
+	} catch (err) {
+		await session.abortTransaction();
+		session.endSession();
+		return response.status(500).json({ error: err });
+	}
+};
 export default {
 	createProfile,
 	viewProfile,
@@ -751,4 +784,5 @@ export default {
 	updateAvatarSave,
 	getFriendProfile,
 	searchFriend,
+	getPeople,
 };

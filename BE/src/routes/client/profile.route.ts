@@ -10,6 +10,7 @@ import { checkToken } from '../../middleware/auth.middleware';
 const profileRoute = express.Router();
 
 profileRoute.use(checkToken);
+profileRoute.get('/search-people/' as string, profileController.getPeople);
 profileRoute.post('/create', profileController.createProfile);
 profileRoute.get('/:idAccount', profileController.getProfileAccount);
 profileRoute.get('/view/:routeProfile', profileController.viewProfile);
