@@ -11,11 +11,11 @@ const profileRoute = express.Router();
 
 profileRoute.use(checkToken);
 profileRoute.get('/search-people/' as string, profileController.getPeople);
+profileRoute.get('/search-friend/' as string, profileController.searchFriend);
 profileRoute.post('/create', profileController.createProfile);
 profileRoute.get('/:idAccount', profileController.getProfileAccount);
 profileRoute.get('/view/:routeProfile', profileController.viewProfile);
 profileRoute.get('/list-friend/:idProfile', profileController.getFriendProfile);
-profileRoute.get('/search-friend/:idProfile', profileController.searchFriend);
 profileRoute.put('/:id', profileController.updateProfile);
 profileRoute.put(
 	'/update-background/:id',
