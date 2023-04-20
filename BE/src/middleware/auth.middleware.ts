@@ -5,13 +5,16 @@ import ProfileModel from '../model/Account/Profile';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 import { Decrypter } from '../library/Cipher';
+import Author from '../model/Account/Author';
 
 export const checkToken = (req: any, res: Response, next: NextFunction) => {
-
-	extractToken(req)
+	extractToken(req);
 
 	const token =
-		req.body.token || req.query.token || req.headers['x-header-token'] || req.headers.authorization?.split(' ')[1];
+		req.body.token ||
+		req.query.token ||
+		req.headers['x-header-token'] ||
+		req.headers.authorization?.split(' ')[1];
 
 	if (token) {
 		jwt.verify(token, config.secret, async (err: any, decoded: any) => {
@@ -22,16 +25,30 @@ export const checkToken = (req: any, res: Response, next: NextFunction) => {
 					.json({ error: true, message: 'Unauthorized access.' });
 			}
 			let user: any = await ProfileModel.findOne({
-				authors: decoded.data
-			}).populate('authors')
-			let phone = await Decrypter(user.authors.phone);
-			do {
-				phone = await Decrypter(user.authors.phone);
-			} while (phone == undefined)
-			user.authors.phone = phone
-			req.user = user;
-			req.token = token
-			next();
+				authors: decoded.data,
+			}).populate('authors');
+			if (user != null) {
+				let phone = await Decrypter(user.authors.phone);
+				do {
+					phone = await Decrypter(user.authors.phone);
+				} while (phone == undefined);
+				user.authors.phone = phone;
+				req.user = user;
+				req.token = token;
+				next();
+			} else {
+				let author: any = await Author.findById({
+					_id: decoded.data,
+				});
+				let phone = await Decrypter(author.phone);
+				do {
+					phone = await Decrypter(author.phone);
+				} while (phone == undefined);
+				author.phone = phone;
+				req.user = { authors: author };
+				req.token = token;
+				next();
+			}
 		});
 	} else {
 		return res.status(403).send({
@@ -51,4 +68,4 @@ export const extractToken = (req: Request) => {
 		return req.query.token;
 	}
 	return null;
-}
+};

@@ -15,6 +15,7 @@ import methodOverride from 'method-override';
 import storiesRoute from './routes/client/stories.route';
 import SpotifyWebApi from 'spotify-web-api-node';
 import postRoute from './routes/client/post.route';
+import bodyParser from 'body-parser';
 // import swaggerDocument from './swagger.json'
 
 // const swaggerDocument = require('./Doc/swagger-client.json');
@@ -56,7 +57,7 @@ const StartServer = () => {
 	// router.use(bodyParser.urlencoded({ extended: true }));
 	// router.use(bodyParser.json());
 	// router.use(bodyParser.);
-	router.use(express.urlencoded({ extended: false, limit: '100mb' }));
+	router.use(express.urlencoded({ extended: true, limit: '100mb' }));
 	// router.use(express.({ extended: false, limit: '100mb' }));
 	router.use(express.json({ limit: '100mb' }));
 	router.use(methodOverride('X-HTTP-Method')); //          Microsoft

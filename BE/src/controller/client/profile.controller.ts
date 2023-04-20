@@ -36,7 +36,7 @@ const createProfile = async (
 
 	try {
 		const checkUser = await AuthorModel.findOne({
-			username: user.username,
+			username: user.authors.username,
 		});
 		if (checkUser) {
 			const checkProfile = await ProfileModel.findOne({
@@ -465,12 +465,27 @@ const acceptFriendProfile = async (
 				});
 		} else {
 			friend.accept = true;
+			let formData = {
+				idProfile: profile._id,
+				idFriend: profileMe._id,
+				accept: true,
+			};
+			const newFriend = new FriendModel(formData);
 			friend
 				.save()
 				.then(async (pro) => {
-					await session.commitTransaction();
-					session.endSession();
-					response.status(200).json({ pro });
+					newFriend
+						.save()
+						.then(async () => {
+							await session.commitTransaction();
+							session.endSession();
+							response.status(200).json({ pro });
+						})
+						.catch(async (err) => {
+							await session.abortTransaction();
+							session.endSession();
+							return response.status(500).json({ error: err });
+						});
 				})
 				.catch(async (err) => {
 					await session.abortTransaction();
@@ -700,7 +715,7 @@ const searchFriend = async (
 			path: 'idFriend',
 		};
 		// request.query.idFriend = id;
-		request.query.idProfile = id;
+		request.query.idProfile = user._id;
 		request.query.accept = 'true';
 		request.query.deleted = 'false';
 		if (request.query.search) {
@@ -715,9 +730,12 @@ const searchFriend = async (
 				return item._id.toString();
 			});
 			request.query = {
-				$or: [
+				$and: [
 					{
 						idFriend: { $in: arrayProfile },
+					},
+					{
+						idProfile: user._id,
 					},
 				],
 			};
@@ -751,9 +769,10 @@ const getPeople = async (
 	const id = request.params.idProfile;
 	try {
 		request.query.deleted = 'false';
-		if (request.query.search) {
+		if (request.query.search != '') {
 			request.query.nickname = { $regex: '.*' + request.query.search + '.*' };
-
+			delete request.query.search;
+		} else {
 			delete request.query.search;
 		}
 		const result = await paginateHandler(

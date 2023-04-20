@@ -13,14 +13,12 @@ import { IAuthorResponse } from '../../interface/Schema/IAuthor';
 import { IError } from '../../interface/err/IError';
 import ProfileModel from '../../model/Account/Profile';
 
-
 const createAuthor = async (
 	req: Request,
 	res: Response,
 	next: NextFunction
 ) => {
 	const { name, username, password, email, phone } = req.body;
-	// console.log(req.body);
 
 	// Tìm username hoặc email đã tồn tại
 	const checkUser = await Author.findOne({ username: username }).lean();
@@ -135,50 +133,50 @@ const loginAuthor = async (req: Request, res: Response, next: NextFunction) => {
 				});
 			} else {
 				const hash = bcrypt.compareSync(req.body.password, user[0].hasPassword);
-				const profileModel = await Profile.findOne({ authors: user[0]._id });
-				const users = {
-					username: user[0].username,
-					hasPassword: user[0].hasPassword,
-					email: user[0].email,
-					phone: user[0].phone,
-					created: user[0].created,
-					exist_Profile: user[0].exist_Profile,
-					type: user[0].type,
-					id: user[0]._id,
-					profile: profileModel
-				};
 
-				let history = user[0].historyLogin;
-				if (history.length == 0) {
-					await history.push({
-						username: user[0].username,
-						idProfile: profileModel?._id || null,
-						dateLogin: Date.now(),
-						IpAdress: req.socket.remoteAddress,
-					});
-				} else {
-					await user[0].historyLogin.map(async (item: any) => {
-						if (item.IpAdress != req.socket.remoteAddress) {
-							await history.push({
-								username: user[0].username,
-								idProfile: profileModel?._id || null,
-								dateLogin: Date.now(),
-								IpAdress: req.socket.remoteAddress,
-							});
-						} else {
-							item.dateLogin = Date.now();
-						}
-					})
-				}
-
-
-				const token = jwt.sign({ data: user[0]._id }, config.secret, {
-					expiresIn: '1m',
-				});
-				const refeshtoken = jwt.sign({ data: user[0]._id }, config.secret, {
-					expiresIn: '1y',
-				});
 				if (hash === true) {
+					const profileModel = await Profile.findOne({ authors: user[0]._id });
+					const users = {
+						username: user[0].username,
+						hasPassword: user[0].hasPassword,
+						email: user[0].email,
+						phone: user[0].phone,
+						created: user[0].created,
+						exist_Profile: user[0].exist_Profile,
+						type: user[0].type,
+						id: user[0]._id,
+						profile: profileModel,
+					};
+
+					let history = user[0].historyLogin;
+					if (history.length == 0) {
+						await history.push({
+							username: user[0].username,
+							idProfile: profileModel?._id || null,
+							dateLogin: Date.now(),
+							IpAdress: req.socket.remoteAddress,
+						});
+					} else {
+						await user[0].historyLogin.map(async (item: any) => {
+							if (item.IpAdress != req.socket.remoteAddress) {
+								await history.push({
+									username: user[0].username,
+									idProfile: profileModel?._id || null,
+									dateLogin: Date.now(),
+									IpAdress: req.socket.remoteAddress,
+								});
+							} else {
+								item.dateLogin = Date.now();
+							}
+						});
+					}
+
+					const token = jwt.sign({ data: user[0]._id }, config.secret, {
+						expiresIn: '1m',
+					});
+					const refeshtoken = jwt.sign({ data: user[0]._id }, config.secret, {
+						expiresIn: '1y',
+					});
 					await user[0].updateOne({
 						historyLogin: history,
 						access_token: token,
@@ -231,13 +229,13 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 					.json({ error: true, message: 'Unauthorized access.' });
 			} else {
 				let user: any = await ProfileModel.findOne({
-					authors: decoded.data
-				}).populate('authors')
+					authors: decoded.data,
+				}).populate('authors');
 				let phone = await Decrypter(user.authors.phone);
 				do {
 					phone = await Decrypter(user.authors.phone);
-				} while (phone == undefined)
-				user.authors.phone = phone
+				} while (phone == undefined);
+				user.authors.phone = phone;
 				return res.status(201).json({
 					decode: user,
 				});
