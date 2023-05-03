@@ -22,7 +22,6 @@ export const Home = () => {
 
 	useEffect(() => {
 		api.getAll('authors').then((response: any) => {
-			console.log(response);
 			setCount(response.data.author);
 		});
 	}, []);
