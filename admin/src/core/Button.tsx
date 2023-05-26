@@ -7,6 +7,8 @@ type ChildProps = {
 	text: string;
 	size: any;
 	color: any;
+	block: boolean | null;
+	shape: any | null;
 	Click: () => void;
 };
 
@@ -21,6 +23,8 @@ export const ButtonCore: React.FC<ChildProps> = (props) => {
 			style={buttonStyle[0]}
 			type="default"
 			ghost
+			shape={props.shape ? props.shape : 'round'}
+			block={props.block ? props.block : false}
 			onClick={props.Click}
 			size={props.size}
 			icon={props.icon}>

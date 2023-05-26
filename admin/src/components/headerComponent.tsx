@@ -29,6 +29,8 @@ export const HeaderComponent: React.FC<ChildProps> = (props) => {
 						text=""
 						size={'large'}
 						color={'info'}
+						block={false}
+						shape={''}
 						Click={() => {
 							setVisible(!visible);
 							props.toggleSidebar(visible);

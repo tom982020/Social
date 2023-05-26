@@ -4,7 +4,8 @@ import axios from 'axios';
 // import * as dotenv from 'dotenv'; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 // dotenv.config();
 const axiosClient = axios.create({
-	baseURL: 'http://localhost:8080/',
+	// baseURL: 'http://localhost:8080/',
+	baseURL: 'http://18.140.13.114:8080/',
 	headers: {
 		'Content-type': 'application/json',
 	},
@@ -41,14 +42,17 @@ export class AxiosService {
 	};
 
 	postData = async (link: string, formdata: any) => {
-		axiosClient
+		const post = await axiosClient
 			.post(`${link}`, formdata)
-			.then((response) => {
-				console.log(response);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+			// .then((response) => {
+			// 	return response;
+			// 	// console.log(response);
+			// })
+			// .catch((error) => {
+			// 	return error;
+			// 	// console.log(error);
+			// });
+		return post;
 	};
 
 	putData = async (link: string, id: any, formdata: any) => {

@@ -1,0 +1,14 @@
+.background-mobile {
+    background: url('../../asset/group-friends-chilling-with-smartphones-outside\ 1.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    .background-black{
+        background-color: #191D28;
+        opacity: .5;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: 1;
+    }
+}

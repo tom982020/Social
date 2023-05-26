@@ -8,10 +8,11 @@ import { LayoutComponent } from './page';
 import { Home } from './page/home';
 import { NoMatch } from './page/errors/page404';
 import { AboutComponent } from './page/about';
+import { SignInComponent } from './page/signIn';
 
 function App() {
 	return (
-		<div className="">			
+		<div className="w-full">
 			<Routes>
 				<Route
 					path="/"
@@ -21,18 +22,19 @@ function App() {
 						element={<Home />}
 					/>
 					<Route
-						path='/about'
-						element={<AboutComponent />}
-					>
-
-					</Route>
+						path="/about"
+						element={<AboutComponent />}></Route>
 					{/* <Route path="about" element={<About />} /> */}
-					 <Route
+					<Route
 						path="*"
 						element={<NoMatch />}
 					/>
 				</Route>
-			</Routes> 
+				<Route
+					path="/login"
+					element={<SignInComponent />}
+				/>
+			</Routes>
 		</div>
 	);
 }

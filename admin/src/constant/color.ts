@@ -25,6 +25,12 @@ const colorButton = [
 		textAlign: '-webkit-center',
 		color: '#d7d300',
 	},
+	{
+		text: 'core',
+		backgroundColor: '#FFCA64',
+		textAlign: '-webkit-center',
+		color: '#1A1A1A',
+	}
 ];
 
 export const ConstantsColor = {

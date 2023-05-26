@@ -14,7 +14,7 @@ export const LayoutComponent = () => {
 		token: { colorBgContainer },
 	} = theme.useToken();
 	return (
-		<Layout style={{ minHeight: '100vh' }}>
+		<Layout style={{ minHeight: '100vh', minWidth:'100%' }}>
 			<Sider
 				collapsible
 				collapsed={collapsed}
