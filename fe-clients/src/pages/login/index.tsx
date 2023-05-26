@@ -80,21 +80,21 @@ const LoginComponent = () => {
 		Router.push('/signUp');
 	};
 	return (
-		<div style={{ height: '100vh' }}>
+		<div style={{ height: '100vh',width:'100%' }}>
 			{visible ? (
 				<ContentLoader />
 			) : (
-				<Container style={{ height: '100%' }}>
+				<Container style={{ height: '100%',width:'100%' }}>
 					<AnimationCore
 						child={
 							<Grid.Container
 								gap={0}
-								justify="center"
-								style={{ height: '100%' }}
+								justify="flex-start"
+								style={{ height: '100%',width: '100%' }}
 								alignContent="center">
 								<Grid
-									md={4}
-									xl={4}
+									md={6}
+									xl={6}
 									style={{ width: 'fit-content' }}>
 									<Card style={{ width: 'fit-content' }}>
 										<Card.Header>

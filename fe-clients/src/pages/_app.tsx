@@ -3,6 +3,7 @@
 import '@/styles/globals.scss';
 import type { AppProps } from 'next/app';
 import {
+	Grid,
 	NextUIProvider,
 	Progress,
 	createTheme,
@@ -12,8 +13,11 @@ import { useEffect, useState } from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { Toaster } from 'react-hot-toast';
 import { Dna } from 'react-loader-spinner';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
 import ContentLoader, { Facebook } from 'react-content-loader';
+import { Layout } from '../../core/Layout';
+import { NavbarComponent } from '../../components/navbar.component';
+import SidebarComponent from '../../components/sidbar.component';
 export default function App({ Component, pageProps }: AppProps) {
 	const lightTheme = createTheme({
 		type: 'light',
@@ -34,11 +38,15 @@ export default function App({ Component, pageProps }: AppProps) {
 	});
 
 	const [visible, setVisible] = useState<boolean>(false);
+	const [route, setRoute] = useState<string>('');
+	const router = useRouter();
+	const currentUrl = router.asPath;
 
 	useEffect(() => {}, []);
 
-	Router.events.on('routeChangeStart', () => {
+	Router.events.on('routeChangeStart', (route) => {
 		setVisible(true);
+		setRoute(route);
 	});
 	Router.events.on('routeChangeComplete', () => setVisible(false));
 	Router.events.on('routeChangeError', () => setVisible(false));
@@ -65,7 +73,25 @@ export default function App({ Component, pageProps }: AppProps) {
 				) : null}
 
 				<Toaster />
-				<Component {...pageProps} />
+				<Layout>
+					<div className="relative h-full">
+						{currentUrl == '/login' || currentUrl == '/signUp' ? null : (
+							<NavbarComponent />
+						)}
+						<Grid.Container
+							justify='center'
+						>
+							<Grid xl={4}>
+								{currentUrl == '/login' || currentUrl == '/signUp' ? null : (
+									<SidebarComponent />
+								)}
+							</Grid>
+							<Grid xl={8}>
+								<Component {...pageProps} />
+							</Grid>
+						</Grid.Container>
+					</div>
+				</Layout>
 			</NextUIProvider>
 		</NextThemesProvider>
 	);

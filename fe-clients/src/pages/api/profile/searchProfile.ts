@@ -9,7 +9,7 @@ async function handlerSearchProfile(req: NextApiRequest, res: NextApiResponse) {
 		if (req.method === 'GET') {
 			const cookies = parseCookies({ req });
             if (cookies['my-token'] != undefined) {
-				const url = `http://localhost:8080/profile/search-people?search=${req.query.search}`;
+				const url = `http://18.140.13.114:8080/profile/search-people?search=${req.query.search}`;
 				const options = {
 					method: 'GET',
 					headers: {

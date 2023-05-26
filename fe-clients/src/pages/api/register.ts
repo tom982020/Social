@@ -5,7 +5,7 @@ import { setCookie } from "nookies";
 async function handlerRegister(req: NextApiRequest, res: NextApiResponse) {
     try {
         if (req.method === 'POST') {
-            const url = 'http://localhost:8080/authors/create';
+            const url = 'http://18.140.13.114:8080/authors/create';
             const options = {
                 method: 'POST',
                 headers: { 'content-type': 'application/x-www-form-urlencoded' },

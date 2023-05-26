@@ -19,18 +19,25 @@ import {
 } from '@nextui-org/react';
 import { animated, useSpring } from '@react-spring/web';
 import { useEffect, useState } from 'react';
+import { BiSearchAlt } from 'react-icons/bi';
 import { MdOutlineSearchOff } from 'react-icons/md';
 import { collapseItemsMobile } from '../dataContants/constant';
 import Router from 'next/router';
+import dynamic from 'next/dynamic';
 import {
 	IProfileResponse,
 	ISearchProfileResponse,
 } from '../dataContants/interface/IProfile';
 import AnimationCore from '../core/Animation';
+
+const DynamicScrollbar = dynamic(() => import('react-scrollbar'), {
+	ssr: false,
+});
 export const NavbarComponent = () => {
 	const { setTheme } = useNextTheme();
 	const { isDark, type } = useTheme();
 	const [state, toggle] = useState(false);
+	const [isClient, setIsClient] = useState(false);
 	const [profile, setProfile] = useState<IProfileResponse | null>(null);
 	const [inputValue, setInputValue] = useState<string>('');
 	const [searchProfile, setSearchProfile] =
@@ -75,6 +82,7 @@ export const NavbarComponent = () => {
 				Router.push('/login');
 			}
 		});
+		setIsClient(true);
 	}, []);
 
 	useEffect(() => {
@@ -93,9 +101,10 @@ export const NavbarComponent = () => {
 					if (data.status === 200) {
 						const json = await data.json();
 						setSearchProfile(json.result);
-						console.log(json);
 					}
 				});
+			} else {
+				setSearchProfile(null);
 			}
 		}, 500); // Wait 500 milliseconds after last input event
 
@@ -103,6 +112,10 @@ export const NavbarComponent = () => {
 			clearTimeout(timer);
 		};
 	}, [inputValue]);
+
+	if (!isClient) {
+		return null; // render nothing on the server
+	}
 
 	const handleLogout = async () => {
 		const res = await fetch('/api/verify/logout', {
@@ -143,7 +156,9 @@ export const NavbarComponent = () => {
 						ACME
 					</Text>
 				</Navbar.Brand>
-				<Navbar.Content hideIn="md">
+				<Navbar.Content hideIn="md"
+					activeColor="warning"
+				>
 					<Navbar.Link
 						isActive
 						href="#">
@@ -157,7 +172,7 @@ export const NavbarComponent = () => {
 								onClick={(e) => toggle(!state)}
 							/>
 						) : (
-							<MdOutlineSearchOff
+							<BiSearchAlt
 								size={20}
 								onClick={(e) => toggle(!state)}
 							/>
@@ -298,21 +313,27 @@ export const NavbarComponent = () => {
 							<Grid xl={2}>
 								<Card css={{ mw: '400px' }}>
 									<Card.Body>
-										{searchProfile != null && searchProfile.docs.length > 0
-											? searchProfile?.docs.map((item, index) => {
-													return (
-														<div key={index}>
-															<User
-																bordered
-																src={item.avatar ? item.avatar.secure_url : ''}
-																name={item.nickname}
-																color="primary"
-															/>
-															<Spacer y={1} />
-														</div>
-													);
-											  })
-											: null}
+										<DynamicScrollbar style={{ width: 400, height: 200 }} smoothScrolling>
+											<div>
+												{searchProfile != null && searchProfile.docs.length > 0
+													? searchProfile?.docs.map((item, index) => {
+															return (
+																<div key={index}>
+																	<User
+																		bordered
+																		src={
+																			item.avatar ? item.avatar.secure_url : ''
+																		}
+																		name={item.nickname}
+																		color="primary"
+																	/>
+																	<Spacer y={1} />
+																</div>
+															);
+													  })
+													: null}
+											</div>
+										</DynamicScrollbar>
 									</Card.Body>
 								</Card>
 							</Grid>

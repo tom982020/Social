@@ -7,7 +7,7 @@ async function handlerVerify(req: NextApiRequest, res: NextApiResponse) {
         if (req.method === 'POST') {
             const cookies = parseCookies({ req });
             if (cookies['my-token'] != undefined) { 
-                const url = 'http://localhost:8080/login/verify';
+                const url = 'http://18.140.13.114:8080/login/verify';
                 const options = {
                     method: 'POST',
                     headers: {
